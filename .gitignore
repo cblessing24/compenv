@@ -130,3 +130,6 @@ dmypy.json
 
 # Python Development Master
 .pdm.toml
+
+# Temporary files
+temp/
