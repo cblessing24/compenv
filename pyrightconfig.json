@@ -1,4 +1,7 @@
 {
+  "exclude": [
+    "__pypackages__"
+  ]
   "typeCheckingMode": "off",
   "pythonVersion": "3.9",
   "extraPaths": [
