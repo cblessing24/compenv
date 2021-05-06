@@ -8,16 +8,6 @@ authors = [
 dependencies = [
     "datajoint~=0.13",
 ]
-dev-dependencies = [
-    "pytest~=6.2",
-    "black~=21.5b0",
-    "pylint~=2.8",
-    "flake8~=3.9",
-    "isort~=5.8",
-    "mypy~=0.812",
-    "flake8-docstrings~=1.6",
-    "pytest-cov~=2.11",
-]
 requires-python = ">=3.9"
 dynamic = ["classifiers"]
 license = {text = "GPL-3.0-or-later"}
@@ -31,6 +21,18 @@ build-backend = "pdm.pep517.api"
 
 [tool]
 [tool.pdm]
+
+[tool.pdm.dev-dependencies]
+dev = [
+    "pytest~=6.2",
+    "black~=21.5b0",
+    "pylint~=2.8",
+    "flake8~=3.9",
+    "isort~=5.8",
+    "mypy~=0.812",
+    "flake8-docstrings~=1.6",
+    "pytest-cov~=2.11",
+]
 
 [tool.black]
 line-length = 120
