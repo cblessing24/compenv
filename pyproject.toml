@@ -10,6 +10,13 @@ dependencies = [
 ]
 dev-dependencies = [
     "pytest~=6.2",
+    "black~=21.5b0",
+    "pylint~=2.8",
+    "flake8~=3.9",
+    "isort~=5.8",
+    "mypy~=0.812",
+    "flake8-docstrings~=1.6",
+    "pytest-cov~=2.11",
 ]
 requires-python = ">=3.9"
 dynamic = ["classifiers"]
@@ -35,6 +42,7 @@ line_length = 120
 
 [tool.pylint.master]
 max-line-length = 120
+ignore-patterns = ["test_.*\\.py", "conftest\\.py"]
 
 [tool.pylint.messages_control]
 enable = ["useless-suppression"]
@@ -47,3 +55,7 @@ disallow_untyped_decorators = true
 no_implicit_optional = true
 warn_redundant_casts = true
 warn_unused_ignores = true
+
+[tool.coverage.run]
+branch = true
+source = ["repro"]
