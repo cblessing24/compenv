@@ -1,6 +1,6 @@
 import pytest
 
-from repro.hook import MakeMethodHookInstaller
+from repro.hook import add_hooks_to_make_method
 
 
 @pytest.fixture
@@ -33,12 +33,7 @@ def post_hook(hook_cls):
 
 
 @pytest.fixture
-def hook_installer(pre_hook, post_hook):
-    return MakeMethodHookInstaller(pre_hook, post_hook)
-
-
-@pytest.fixture
-def hooked_table(hook_installer):
+def hooked_table(pre_hook, post_hook):
     class Table:
         def __init__(self):
             self.make_was_called = False
@@ -49,7 +44,7 @@ def hooked_table(hook_installer):
                 raise RuntimeError
             self.make_was_called = True
 
-    hooked_table = hook_installer(Table)
+    hooked_table = add_hooks_to_make_method(pre_hook, post_hook)(Table)
     return hooked_table()
 
 
@@ -87,7 +82,3 @@ def test_if_make_method_gets_called_before_post_hook(hooked_table, post_hook):
     with pytest.raises(RuntimeError):
         hooked_table.make("key")
     assert not post_hook.call
-
-
-def test_repr(hook_installer):
-    assert repr(hook_installer) == "MakeMethodHookInstaller(pre_hook=pre_hook, post_hook=post_hook)"
