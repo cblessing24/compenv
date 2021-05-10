@@ -12,7 +12,7 @@ RUN apt-get update && apt-get install -y \
     python3.9-distutil \
     python3.9-dev \
     && rm -rf /var/lib/apt/lists/*
-RUN useradd -ms /usr/bin/zsh dev
+RUN useradd -m dev
 USER dev
 WORKDIR /home/dev
 RUN curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py \
