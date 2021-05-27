@@ -10,7 +10,7 @@ class Module:
     """An imported module."""
 
     name: str
-    file: Optional[str]
+    file: Optional[str] = None
 
 
 @dataclass(frozen=True)

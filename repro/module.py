@@ -2,6 +2,9 @@
 import os
 import sys
 from types import ModuleType
+from typing import Mapping
+
+from .model import Module
 
 
 def is_built_in_module(module: ModuleType) -> bool:
@@ -24,3 +27,27 @@ def is_bundled_module(module: ModuleType) -> bool:
 def is_stdlib_module(module: ModuleType) -> bool:
     """Return true if the module belongs to the standard library, false otherwise."""
     return is_built_in_module(module) or is_bundled_module(module)
+
+
+class LoadedModuleConverter:
+    """Converts loaded Python modules into module objects from the model."""
+
+    _loaded_modules: Mapping[str, ModuleType] = sys.modules
+
+    def __call__(self) -> dict[str, Module]:
+        """Return a dictionary containing all loaded modules."""
+        conv_modules: dict[str, Module] = {}
+        for name, orig_module in self._loaded_modules.items():
+            try:
+                conv_module = Module(name, orig_module.__file__)
+            except AttributeError:
+                conv_module = Module(name)
+            conv_modules[name] = conv_module
+        return conv_modules
+
+    def __repr__(self) -> str:
+        """Return a string representation of the converter."""
+        return f"{self.__class__.__name__}()"
+
+
+get_loaded_modules = LoadedModuleConverter()
