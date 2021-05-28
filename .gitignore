@@ -133,3 +133,6 @@ dmypy.json
 
 # Temporary files
 temp/
+
+# Coverage reports directory
+reports/
