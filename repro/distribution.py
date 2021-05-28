@@ -1,7 +1,6 @@
 """Contains code related to getting information about installed distributions."""
 from functools import cache
 from importlib import metadata
-from pathlib import PurePath
 
 from .model import Distribution, Module
 
