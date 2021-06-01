@@ -39,9 +39,9 @@ class LoadedModuleConverter:
         conv_modules: dict[str, Module] = {}
         for name, orig_module in self._loaded_modules.items():
             try:
-                conv_module = Module(name, orig_module.__file__)
+                conv_module = Module(name, file=orig_module.__file__)
             except AttributeError:
-                conv_module = Module(name)
+                conv_module = Module(name, file=None)
             conv_modules[name] = conv_module
         return conv_modules
 
