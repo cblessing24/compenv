@@ -31,7 +31,7 @@ class Package(ModularUnit):
 
     _units: frozenset[ModularUnit] = field(repr=False)
 
-    def __init__(self, name, file, units):
+    def __init__(self, name: str, file: str, units: frozenset[ModularUnit]) -> None:
         """Initialize distribution."""
         object.__setattr__(self, "name", name)
         object.__setattr__(self, "file", file)
@@ -50,7 +50,7 @@ class Distribution(Container[Package]):
     version: str
     _packages: frozenset[Package] = field(repr=False)
 
-    def __init__(self, name, version, packages) -> None:
+    def __init__(self, name: str, version: str, packages: frozenset[Package]) -> None:
         """Initialize distribution."""
         object.__setattr__(self, "name", name)
         object.__setattr__(self, "version", version)
