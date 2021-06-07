@@ -2,7 +2,7 @@ from pathlib import Path
 
 import pytest
 
-from repro.hierarchy import Hierarchy, create_hierarchy, create_packages
+from repro.hierarchy import Hierarchy, create_hierarchy, create_packages_from_hierarchy, create_packages_from_paths
 from repro.model import Module, Package
 
 
@@ -37,16 +37,6 @@ def hierarchy():
     )
 
 
-def test_correct_hierarchy_is_created(paths, hierarchy):
-    assert create_hierarchy(paths) == hierarchy
-
-
-def test_paths_are_not_modified_in_place(paths):
-    orig_paths = paths.copy()
-    create_hierarchy(paths)
-    assert paths == orig_paths
-
-
 @pytest.fixture
 def package():
     return {
@@ -78,5 +68,20 @@ def package():
     }
 
 
+def test_correct_packages_are_created_from_paths(paths, package):
+    assert create_packages_from_paths(paths) == package
+
+
+@pytest.mark.parametrize("func", [create_packages_from_paths, create_hierarchy])
+def test_paths_are_not_modified_in_place(paths, func):
+    orig_paths = paths.copy()
+    func(paths)
+    assert paths == orig_paths
+
+
+def test_correct_hierarchy_is_created(paths, hierarchy):
+    assert create_hierarchy(paths) == hierarchy
+
+
 def test_correct_packages_are_created_from_hierarchy(hierarchy, package):
-    assert create_packages(hierarchy) == package
+    assert create_packages_from_hierarchy(hierarchy) == package

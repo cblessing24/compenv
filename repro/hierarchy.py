@@ -9,16 +9,22 @@ InitPath = NewType("InitPath", Path)
 ModulePath = NewType("ModulePath", Path)
 
 
+def create_packages_from_paths(paths: Iterable[Path]) -> set[Package]:
+    """Create packages from Python file paths."""
+    hierarchy = create_hierarchy(paths)
+    return create_packages_from_hierarchy(hierarchy)
+
+
 @dataclass
 class Hierarchy:
-    """Represents a package/module hierarchy of Python file paths."""
+    """Represents a hierarchy of Python file paths."""
 
     module_paths: set[ModulePath] = field(default_factory=set)
     sub_hierarchies: dict[InitPath, "Hierarchy"] = field(default_factory=dict)
 
 
 def create_hierarchy(paths: Iterable[Path]) -> Hierarchy:
-    """Recursively create a package/module hierarchy from an iterable of Python file paths."""
+    """Recursively create a hierarchy from Python file paths."""
     hierarchy = Hierarchy()
     init_paths = {InitPath(p) for p in paths if p.name == "__init__.py"}
     if not init_paths:
@@ -39,12 +45,12 @@ def create_hierarchy(paths: Iterable[Path]) -> Hierarchy:
     return hierarchy
 
 
-def create_packages(hierarchy: Hierarchy) -> set[Package]:
-    """Recursively create packages from a hierarchy of Python files."""
+def create_packages_from_hierarchy(hierarchy: Hierarchy) -> set[Package]:
+    """Recursively create packages from a hierarchy of Python file paths."""
     hierarchy.module_paths.clear()
     packages: set[Package] = set()
     for init_path, sub_hierarchy in hierarchy.sub_hierarchies.items():
         units: set[ModularUnit] = {Module(mp.stem, str(mp)) for mp in sub_hierarchy.module_paths}
-        units.update(create_packages(sub_hierarchy))
+        units.update(create_packages_from_hierarchy(sub_hierarchy))
         packages.add(Package(init_path.parent.name, file=str(init_path), units=frozenset(units)))
     return packages
