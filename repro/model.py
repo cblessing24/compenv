@@ -18,6 +18,11 @@ class ModularUnit(ABC, Container["ModularUnit"]):
         """Return the file of the unit."""
         return self._file
 
+    @property
+    def name(self) -> str:
+        """Return the name of the unit."""
+        return self.file.stem
+
     def __contains__(self, other: object) -> bool:
         """Return true if the unit is part of this unit or any sub-units."""
         return isinstance(other, self.__class__) and other == self
@@ -35,7 +40,7 @@ class ModularUnit(ABC, Container["ModularUnit"]):
         return f"{self.__class__.__name__}(file={repr(self.file)})"
 
 
-class Module(ModularUnit):  # pylint: disable=too-few-public-methods
+class Module(ModularUnit):
     """Represents a Python module."""
 
 
@@ -46,6 +51,11 @@ class Package(ModularUnit):
         """Initialize distribution."""
         super().__init__(file)
         self._units = frozenset(units) if units else frozenset()
+
+    @property
+    def name(self) -> str:
+        """Return the name of the package."""
+        return self.file.parent.name
 
     def __contains__(self, other: object) -> bool:
         """Return true if the unit is part of this unit or any sub-units."""

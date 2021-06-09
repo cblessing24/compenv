@@ -12,6 +12,10 @@ class TestModularUnit:
             ModularUnit(Path("unit_file")).file = "other_unit_file"
 
     @staticmethod
+    def test_name_property():
+        assert ModularUnit(Path("/package/unit_file.py")).name == "unit_file"
+
+    @staticmethod
     @pytest.mark.parametrize("func", ["__eq__", "__contains__"])
     def test_equality_and_contains_checks_return_false_when_called_with_non_modular_unit_object(func):
         assert getattr(ModularUnit(Path("unit_file")), func)(object()) is False
@@ -47,6 +51,10 @@ class TestModularUnit:
 
 
 class TestPackage:
+    @staticmethod
+    def test_name_property():
+        assert Package(Path("/package/__init__.py")).name == "package"
+
     @staticmethod
     def test_modular_unit_in_package_if_in_package_itself():
         unit = ModularUnit(Path("unit_file"))
