@@ -5,28 +5,25 @@ from repro.model import Distribution, ModularUnit, Module, Package
 
 class TestModularUnit:
     @staticmethod
-    @pytest.mark.parametrize("attr", ["name", "file"])
-    def test_attributes_are_read_only(attr):
+    def test_file_attribute_is_read_only():
         with pytest.raises(AttributeError):
-            setattr(ModularUnit("module", file="file"), attr, "something")
+            ModularUnit("file").file = "other_file"
 
     @staticmethod
     @pytest.mark.parametrize("func", ["__eq__", "__contains__"])
     def test_equality_and_contains_checks_return_false_when_called_with_non_modular_unit_object(func):
-        assert getattr(ModularUnit("module", file="file"), func)(object()) is False
+        assert getattr(ModularUnit("file"), func)(object()) is False
 
     @staticmethod
     @pytest.fixture(
         params=[
-            ([("module", "file"), ("module", "file")], True),
-            ([("module", "file"), ("other_module", "file")], False),
-            ([("module", "file"), ("module", "other_file")], False),
-            ([("module", "file"), ("other_module", "other_file")], False),
+            (["file", "file"], True),
+            (["file", "other_file"], False),
         ]
     )
     def test_case(request):
-        units_data, expected = request.param
-        units = tuple(ModularUnit(n, file=f) for (n, f) in units_data)
+        units_files, expected = request.param
+        units = tuple(ModularUnit(f) for f in units_files)
         return units, expected
 
     @staticmethod
@@ -42,46 +39,46 @@ class TestModularUnit:
 
     @staticmethod
     def test_repr():
-        module = ModularUnit("module", file="file")
-        assert repr(module) == "ModularUnit(name='module', file='file')"
+        module = ModularUnit("file")
+        assert repr(module) == "ModularUnit(file='file')"
 
 
 class TestPackage:
     @staticmethod
     def test_modular_unit_in_package_if_in_package_itself():
-        unit = ModularUnit("module", file="file")
-        package = Package("package", file="file", units=[unit])
+        unit = ModularUnit("unit_file")
+        package = Package("package_file", units=[unit])
         assert unit in package
 
     @staticmethod
     def test_modular_unit_in_package_if_in_sub_package():
-        unit = ModularUnit("module", file="file")
-        sub_package = Package("sub-package", file="file", units=[unit])
-        package = Package("package", file="file", units=[sub_package])
+        unit = ModularUnit("unit_file")
+        sub_package = Package("sub_package_file", units=[unit])
+        package = Package("package_file", units=[sub_package])
         assert unit in package
 
     @staticmethod
     def test_module_not_in_package_if_not_in_package_or_sub_packages():
-        module = Module("module", file="file")
-        package = Package("package", file="file")
+        module = Module("module_file")
+        package = Package("package_file")
         assert module not in package
 
     @staticmethod
     def test_equality_check_returns_false_when_called_with_non_modular_unit_object():
-        assert (Package("package", file="file") == object()) is False
+        assert (Package("package_file") == object()) is False
 
     @staticmethod
     @pytest.fixture(
         params=[
-            ([("package", "file", {"module"}), ("package", "file", {"module"})], True),
-            ([("package", "file", {"module"}), ("other_package", "file", {"module"})], False),
-            ([("package", "file", {"module"}), ("package", "other_file", {"module"})], False),
-            ([("package", "file", {"module"}), ("package", "file", {"other_module"})], False),
+            ([("package_file", {"module"}), ("package_file", {"module"})], True),
+            ([("package_file", {"module"}), ("other_package_file", {"module"})], False),
+            ([("package_file", {"module"}), ("package_file", {"other_module"})], False),
+            ([("package_file", {"module"}), ("other_package_file", {"other_module"})], False),
         ]
     )
     def test_case(request):
-        package_data, expected = request.param
-        packages = tuple(Package(n, file=f, units=(Module(u) for u in us)) for (n, f, us) in package_data)
+        package_files, expected = request.param
+        packages = tuple(Package(pf, units=(Module(mf) for mf in mfs)) for (pf, mfs) in package_files)
         return packages, expected
 
     @staticmethod
@@ -99,7 +96,7 @@ class TestDistribution:
     @staticmethod
     @pytest.fixture
     def package():
-        return Package("package", file="file")
+        return Package("package_file")
 
     @staticmethod
     @pytest.fixture
@@ -122,7 +119,7 @@ class TestDistribution:
 
     @staticmethod
     def test_modular_unit_not_in_distribution_if_not_in_any_package(distribution):
-        assert Package("other-package", file="file") not in distribution
+        assert Package("other_package_file") not in distribution
 
     @staticmethod
     def test_equality_check_returns_false_when_called_with_non_modular_unit_object(distribution):
@@ -131,17 +128,15 @@ class TestDistribution:
     @staticmethod
     @pytest.fixture(
         params=[
-            ([("dist", "version", {"package"}), ("dist", "version", {"package"})], True),
-            ([("dist", "version", {"package"}), ("other_dist", "version", {"package"})], False),
-            ([("dist", "version", {"package"}), ("dist", "other_version", {"package"})], False),
-            ([("dist", "version", {"package"}), ("dist", "version", {"other_package"})], False),
+            ([("dist", "version", {"package_file"}), ("dist", "version", {"package_file"})], True),
+            ([("dist", "version", {"package_file"}), ("other_dist", "version", {"package_file"})], False),
+            ([("dist", "version", {"package_file"}), ("dist", "other_version", {"package_file"})], False),
+            ([("dist", "version", {"package_file"}), ("dist", "version", {"other_package_file"})], False),
         ]
     )
     def test_case(request):
         dist_data, expected = request.param
-        dists = tuple(
-            Distribution(n, version=v, packages=(Package(p, file="file") for p in ps)) for (n, v, ps) in dist_data
-        )
+        dists = tuple(Distribution(n, version=v, packages=(Package(pf) for pf in pfs)) for (n, v, pfs) in dist_data)
         return dists, expected
 
     @staticmethod

@@ -8,15 +8,9 @@ from typing import Container, Iterable, Optional
 class ModularUnit(ABC, Container["ModularUnit"]):
     """Represents a modular unit used to organize Python code."""
 
-    def __init__(self, name: str, file: str) -> None:
+    def __init__(self, file: str) -> None:
         """Initialize the modular unit."""
-        self._name = name
         self._file = file
-
-    @property
-    def name(self) -> str:
-        """Return the name of the unit."""
-        return self._name
 
     @property
     def file(self) -> Optional[str]:
@@ -28,28 +22,28 @@ class ModularUnit(ABC, Container["ModularUnit"]):
         return isinstance(other, self.__class__) and other == self
 
     def __eq__(self, other: object) -> bool:
-        """Return true if both units have the same name and file."""
-        return isinstance(other, self.__class__) and self.name == other.name and self.file == other.file
+        """Return true if both units have the same file."""
+        return isinstance(other, self.__class__) and self.file == other.file
 
     def __hash__(self) -> int:
         """Create a hash of the unit."""
-        return hash((self.name, self.file))
+        return hash(self.file)
 
     def __repr__(self) -> str:
         """Return a string representation of the unit."""
-        return f"{self.__class__.__name__}(name={repr(self.name)}, file={repr(self.file)})"
+        return f"{self.__class__.__name__}(file={repr(self.file)})"
 
 
-class Module(ModularUnit):
+class Module(ModularUnit):  # pylint: disable=too-few-public-methods
     """Represents a Python module."""
 
 
 class Package(ModularUnit):
     """Represents a Python package."""
 
-    def __init__(self, name: str, file: str, units: Optional[Iterable[ModularUnit]] = None) -> None:
+    def __init__(self, file: str, units: Optional[Iterable[ModularUnit]] = None) -> None:
         """Initialize distribution."""
-        super().__init__(name, file)
+        super().__init__(file)
         self._units = frozenset(units) if units else frozenset()
 
     def __contains__(self, other: object) -> bool:
@@ -57,7 +51,7 @@ class Package(ModularUnit):
         return super().__contains__(other) or any(other in u for u in self._units)
 
     def __eq__(self, other: object) -> bool:
-        """Return true if both packages have the same name, file and units."""
+        """Return true if both packages have the same file and units."""
         return super().__eq__(other) and self._units == other._units  # type: ignore
 
     def __hash__(self) -> int:
