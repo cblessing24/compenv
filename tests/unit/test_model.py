@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import pytest
 
 from repro.model import Distribution, ModularUnit, Module, Package
@@ -7,18 +9,18 @@ class TestModularUnit:
     @staticmethod
     def test_file_attribute_is_read_only():
         with pytest.raises(AttributeError):
-            ModularUnit("file").file = "other_file"
+            ModularUnit(Path("unit_file")).file = "other_unit_file"
 
     @staticmethod
     @pytest.mark.parametrize("func", ["__eq__", "__contains__"])
     def test_equality_and_contains_checks_return_false_when_called_with_non_modular_unit_object(func):
-        assert getattr(ModularUnit("file"), func)(object()) is False
+        assert getattr(ModularUnit(Path("unit_file")), func)(object()) is False
 
     @staticmethod
     @pytest.fixture(
         params=[
-            (["file", "file"], True),
-            (["file", "other_file"], False),
+            ([Path("unit_file"), Path("unit_file")], True),
+            ([Path("unit_file"), Path("other_unit_file")], False),
         ]
     )
     def test_case(request):
@@ -39,33 +41,34 @@ class TestModularUnit:
 
     @staticmethod
     def test_repr():
-        module = ModularUnit("file")
-        assert repr(module) == "ModularUnit(file='file')"
+        unit_file = Path("unit_file")
+        module = ModularUnit(unit_file)
+        assert repr(module) == f"ModularUnit(file={repr(unit_file)})"
 
 
 class TestPackage:
     @staticmethod
     def test_modular_unit_in_package_if_in_package_itself():
-        unit = ModularUnit("unit_file")
-        package = Package("package_file", units=[unit])
+        unit = ModularUnit(Path("unit_file"))
+        package = Package(Path("package_file"), units=[unit])
         assert unit in package
 
     @staticmethod
     def test_modular_unit_in_package_if_in_sub_package():
-        unit = ModularUnit("unit_file")
-        sub_package = Package("sub_package_file", units=[unit])
-        package = Package("package_file", units=[sub_package])
+        unit = ModularUnit(Path("unit_file"))
+        sub_package = Package(Path("sub_package_file"), units=[unit])
+        package = Package(Path("package_file"), units=[sub_package])
         assert unit in package
 
     @staticmethod
     def test_module_not_in_package_if_not_in_package_or_sub_packages():
-        module = Module("module_file")
-        package = Package("package_file")
+        module = Module(Path("module_file"))
+        package = Package(Path("package_file"))
         assert module not in package
 
     @staticmethod
     def test_equality_check_returns_false_when_called_with_non_modular_unit_object():
-        assert (Package("package_file") == object()) is False
+        assert (Package(Path("package_file")) == object()) is False
 
     @staticmethod
     @pytest.fixture(
@@ -78,7 +81,7 @@ class TestPackage:
     )
     def test_case(request):
         package_files, expected = request.param
-        packages = tuple(Package(pf, units=(Module(mf) for mf in mfs)) for (pf, mfs) in package_files)
+        packages = tuple(Package(Path(pf), units=(Module(Path(mf)) for mf in mfs)) for (pf, mfs) in package_files)
         return packages, expected
 
     @staticmethod
@@ -96,7 +99,7 @@ class TestDistribution:
     @staticmethod
     @pytest.fixture
     def package():
-        return Package("package_file")
+        return Package(Path("package_file"))
 
     @staticmethod
     @pytest.fixture
@@ -136,7 +139,9 @@ class TestDistribution:
     )
     def test_case(request):
         dist_data, expected = request.param
-        dists = tuple(Distribution(n, version=v, packages=(Package(pf) for pf in pfs)) for (n, v, pfs) in dist_data)
+        dists = tuple(
+            Distribution(n, version=v, packages=(Package(Path(pf)) for pf in pfs)) for (n, v, pfs) in dist_data
+        )
         return dists, expected
 
     @staticmethod

@@ -2,18 +2,19 @@
 from __future__ import annotations
 
 from abc import ABC
+from pathlib import Path
 from typing import Container, Iterable, Optional
 
 
 class ModularUnit(ABC, Container["ModularUnit"]):
     """Represents a modular unit used to organize Python code."""
 
-    def __init__(self, file: str) -> None:
+    def __init__(self, file: Path) -> None:
         """Initialize the modular unit."""
         self._file = file
 
     @property
-    def file(self) -> Optional[str]:
+    def file(self) -> Path:
         """Return the file of the unit."""
         return self._file
 
@@ -41,7 +42,7 @@ class Module(ModularUnit):  # pylint: disable=too-few-public-methods
 class Package(ModularUnit):
     """Represents a Python package."""
 
-    def __init__(self, file: str, units: Optional[Iterable[ModularUnit]] = None) -> None:
+    def __init__(self, file: Path, units: Optional[Iterable[ModularUnit]] = None) -> None:
         """Initialize distribution."""
         super().__init__(file)
         self._units = frozenset(units) if units else frozenset()
