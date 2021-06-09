@@ -8,7 +8,7 @@ from typing import Container, Iterable, Optional
 class ModularUnit(ABC, Container["ModularUnit"]):
     """Represents a modular unit used to organize Python code."""
 
-    def __init__(self, name: str, file: Optional[str] = None) -> None:
+    def __init__(self, name: str, file: str) -> None:
         """Initialize the modular unit."""
         self._name = name
         self._file = file
@@ -47,7 +47,7 @@ class Module(ModularUnit):
 class Package(ModularUnit):
     """Represents a Python package."""
 
-    def __init__(self, name: str, file: Optional[str] = None, units: Optional[Iterable[ModularUnit]] = None) -> None:
+    def __init__(self, name: str, file: str, units: Optional[Iterable[ModularUnit]] = None) -> None:
         """Initialize distribution."""
         super().__init__(name, file)
         self._units = frozenset(units) if units else frozenset()
