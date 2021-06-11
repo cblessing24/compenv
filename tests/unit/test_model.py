@@ -95,3 +95,12 @@ class TestDistribution:
     def test_distribution_is_instance_of_set_class():
         dist = Distribution("dist", "0.1.0")
         assert isinstance(dist, Set)
+
+    @staticmethod
+    @pytest.mark.parametrize("method", ["__and__", "__or__", "__sub__", "__xor__"])
+    def test_set_methods_produce_expected_result(method):
+        modules1 = frozenset(Module("module" + str(i) + ".py") for i in [1, 2, 3])
+        modules2 = frozenset(Module("module" + str(i) + ".py") for i in [4, 5, 6])
+        dist1 = Distribution("dist1", "0.1.0", modules=modules1)
+        dist2 = Distribution("dist2", "0.1.0", modules=modules2)
+        assert getattr(dist1, method)(dist2) == getattr(modules1, method)(modules2)
