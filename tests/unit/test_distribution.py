@@ -4,30 +4,29 @@ from repro.distribution import InstalledDistributionConverter
 from repro.model import Distribution, Module
 
 
-class FakePath:
-    def __init__(self, path, exists=True):
+class FakePackagePath:
+    def __init__(self, path):
         self.path = path
         self.suffix = "." + self.path.split(".")[-1]
-        self._exists = exists
 
     def locate(self):
-        return FakeAbsolutePath(self.path, exists=self._exists)
-
-    def __str__(self):
-        raise RuntimeError("Path should be made absolute before converting to string")
-
-
-class FakeAbsolutePath(FakePath):
-    def __str__(self):
         return self.path
 
-    def exists(self):
-        return self._exists
 
-    @property
-    def stem(self):
-        name = self.path.split("/")[-1]
-        return name.split(".")[0]
+class FakePathlibPath(FakePackagePath):
+    _not_existing_paths = {"/dist1/tests/module1.py", "/dist2/tests/module1.py"}
+
+    def __init__(self, path):
+        self.path = path
+
+    def exists(self):
+        return self.path not in self._not_existing_paths
+
+    def __eq__(self, other):
+        return self.path == other.path
+
+    def __hash__(self):
+        return hash(self.path)
 
 
 class FakeImportlibMetadataDistribution:
@@ -39,27 +38,28 @@ class FakeImportlibMetadataDistribution:
 @pytest.fixture
 def fake_distribution_metadata():
     return {
-        "foo": {"Name": "foo", "Version": "0.1.0"},
-        "bar": {"Name": "bar", "Version": "0.1.2"},
-        "baz": {"Name": "baz", "Version": "1.2.3"},
+        "dist1": {"Name": "dist1", "Version": "0.1.0"},
+        "dist2": {"Name": "dist2", "Version": "0.1.2"},
+        "dist3": {"Name": "dist3", "Version": "1.2.3"},
     }
 
 
 @pytest.fixture
 def fake_distribution_files():
     return {
-        "foo": [
-            FakePath("/foo/module1.py"),
-            FakePath("/foo/README.md"),
-            FakePath("/foo/module2.py"),
-            FakePath("/foo/tests/module3.py", exists=False),
+        "dist1": [
+            FakePackagePath("/dist1/package1/module1.py"),
+            FakePackagePath("/dist1/README.md"),
+            FakePackagePath("/dist1/package1/__init__.py"),
+            FakePackagePath("/dist1/tests/module1.py"),
         ],
-        "bar": [
-            FakePath("/bar/tests/module5.py", exists=False),
-            FakePath("/bar/requirements.txt"),
-            FakePath("/bar/module.py"),
+        "dist2": [
+            FakePackagePath("/dist2/tests/module1.py"),
+            FakePackagePath("/dist2/requirements.txt"),
+            FakePackagePath("/dist2/package1/__init__.py"),
+            FakePackagePath("/dist2/package1/module1.py"),
         ],
-        "baz": None,
+        "dist3": None,
     }
 
 
@@ -83,16 +83,33 @@ def converter(fake_get_installed_distributions_func):
     InstalledDistributionConverter._get_installed_distributions_func = staticmethod(
         fake_get_installed_distributions_func
     )
+    InstalledDistributionConverter._path_cls = FakePathlibPath
     return InstalledDistributionConverter()
 
 
 def test_correct_distributions_returned(converter):
     expected_distributions = {
-        "foo": Distribution(
-            "foo", "0.1.0", {Module("module1", "/foo/module1.py"), Module("module2", "/foo/module2.py")}
+        "dist1": Distribution(
+            "dist1",
+            "0.1.0",
+            frozenset(
+                [
+                    Module(FakePathlibPath("/dist1/package1/__init__.py")),
+                    Module(FakePathlibPath("/dist1/package1/module1.py")),
+                ]
+            ),
         ),
-        "bar": Distribution("bar", "0.1.2", {Module("module", "/bar/module.py")}),
-        "baz": Distribution("baz", "1.2.3", set()),
+        "dist2": Distribution(
+            "dist2",
+            "0.1.2",
+            frozenset(
+                [
+                    Module(FakePathlibPath("/dist2/package1/__init__.py")),
+                    Module(FakePathlibPath("/dist2/package1/module1.py")),
+                ]
+            ),
+        ),
+        "dist3": Distribution("dist3", "1.2.3", frozenset()),
     }
     actual_distributions = converter()
     assert actual_distributions == expected_distributions

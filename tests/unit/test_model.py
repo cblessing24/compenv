@@ -1,167 +1,97 @@
+from collections.abc import Set
 from pathlib import Path
 
 import pytest
 
-from repro.model import Distribution, ModularUnit, Module, Package
+from repro.model import Distribution, Module
 
 
-class TestModularUnit:
+class TestModule:
     @staticmethod
-    def test_file_attribute_is_read_only():
+    def test_file_attribute_is_immutable():
+        module = Module(Path("module.py"))
         with pytest.raises(AttributeError):
-            ModularUnit(Path("unit_file")).file = "other_unit_file"
+            module.file = Path("other_file.py")
 
     @staticmethod
-    def test_name_property():
-        assert ModularUnit(Path("/package/unit_file.py")).name == "unit_file"
+    def test_module_is_not_equal_to_non_module_object():
+        module = Module(Path("module.py"))
+        other = object()
+        assert (module == other) is False
 
     @staticmethod
-    @pytest.mark.parametrize("func", ["__eq__", "__contains__"])
-    def test_equality_and_contains_checks_return_false_when_called_with_non_modular_unit_object(func):
-        assert getattr(ModularUnit(Path("unit_file")), func)(object()) is False
+    def test_modules_are_equal_if_their_files_are_equal():
+        module1, module2 = (Module(Path("module.py")) for _ in range(2))
+        assert (module1 == module2) is True
 
     @staticmethod
-    @pytest.fixture(
-        params=[
-            ([Path("unit_file"), Path("unit_file")], True),
-            ([Path("unit_file"), Path("other_unit_file")], False),
-        ]
-    )
-    def test_case(request):
-        units_files, expected = request.param
-        units = tuple(ModularUnit(f) for f in units_files)
-        return units, expected
+    def test_modules_are_not_equal_if_their_files_are_not_equal():
+        module1 = Module(Path("module.py"))
+        module2 = Module(Path("other_module.py"))
+        assert (module1 == module2) is False
 
     @staticmethod
-    @pytest.mark.parametrize("func", ["__eq__", "__contains__"])
-    def test_equality_and_contains_checks_produces_expected_result(test_case, func):
-        (unit1, unit2), expected = test_case
-        assert getattr(unit1, func)(unit2) is expected
+    def test_modules_have_same_hash_if_their_files_are_equal():
+        module1, module2 = (Module(Path("module.py")) for _ in range(2))
+        assert (hash(module1) == hash(module2)) is True
 
     @staticmethod
-    def test_hash_produces_expected_result(test_case):
-        (unit1, unit2), expected = test_case
-        assert (hash(unit1) == hash(unit2)) is expected
+    def test_modules_have_different_hashes_if_their_files_are_not_equal():
+        module1 = Module(Path("module.py"))
+        module2 = Module(Path("other_module.py"))
+        assert (hash(module1) == hash(module2)) is False
 
     @staticmethod
     def test_repr():
-        unit_file = Path("unit_file")
-        module = ModularUnit(unit_file)
-        assert repr(module) == f"ModularUnit(file={repr(unit_file)})"
-
-
-class TestPackage:
-    @staticmethod
-    def test_name_property():
-        assert Package(Path("/package/__init__.py")).name == "package"
-
-    @staticmethod
-    def test_modular_unit_in_package_if_in_package_itself():
-        unit = ModularUnit(Path("unit_file"))
-        package = Package(Path("package_file"), units=[unit])
-        assert unit in package
-
-    @staticmethod
-    def test_modular_unit_in_package_if_in_sub_package():
-        unit = ModularUnit(Path("unit_file"))
-        sub_package = Package(Path("sub_package_file"), units=[unit])
-        package = Package(Path("package_file"), units=[sub_package])
-        assert unit in package
-
-    @staticmethod
-    def test_module_not_in_package_if_not_in_package_or_sub_packages():
-        module = Module(Path("module_file"))
-        package = Package(Path("package_file"))
-        assert module not in package
-
-    @staticmethod
-    def test_equality_check_returns_false_when_called_with_non_modular_unit_object():
-        assert (Package(Path("package_file")) == object()) is False
-
-    @staticmethod
-    @pytest.fixture(
-        params=[
-            ([("package_file", {"module"}), ("package_file", {"module"})], True),
-            ([("package_file", {"module"}), ("other_package_file", {"module"})], False),
-            ([("package_file", {"module"}), ("package_file", {"other_module"})], False),
-            ([("package_file", {"module"}), ("other_package_file", {"other_module"})], False),
-        ]
-    )
-    def test_case(request):
-        package_files, expected = request.param
-        packages = tuple(Package(Path(pf), units=(Module(Path(mf)) for mf in mfs)) for (pf, mfs) in package_files)
-        return packages, expected
-
-    @staticmethod
-    def test_equality_check_produces_expected_result(test_case):
-        (package1, package2), expected = test_case
-        assert (package1 == package2) is expected
-
-    @staticmethod
-    def test_hash_produces_expected_result(test_case):
-        (package1, package2), expected = test_case
-        assert (hash(package1) == hash(package2)) is expected
+        file = Path("module.py")
+        module = Module(file)
+        assert repr(module) == f"Module(file={repr(file)})"
 
 
 class TestDistribution:
     @staticmethod
-    @pytest.fixture
-    def package():
-        return Package(Path("package_file"))
-
-    @staticmethod
-    @pytest.fixture
-    def distribution(package):
-        return Distribution("dist", "0.1.2", packages=[package])
-
-    @staticmethod
-    @pytest.mark.parametrize("attr", ["name", "version"])
-    def test_attributes_are_read_only(distribution, attr):
+    def test_name_attribute_is_immutable():
+        dist = Distribution("dist", "0.1.0")
         with pytest.raises(AttributeError):
-            setattr(distribution, attr, "something")
+            dist.name = "other_dist"
 
     @staticmethod
-    def test_contains_returns_false_when_called_with_non_modular_unit_object(distribution):
-        assert (object() in distribution) is False
+    def test_version_attribute_is_immutable():
+        dist = Distribution("dist", "0.1.0")
+        with pytest.raises(AttributeError):
+            dist.version = "0.1.2"
 
     @staticmethod
-    def test_modular_unit_in_distribution_if_in_any_package(distribution, package):
-        assert package in distribution
+    def test_modules_attribute_is_immutable():
+        dist = Distribution("dist", "0.1.0")
+        with pytest.raises(AttributeError):
+            dist.modules = {}
 
     @staticmethod
-    def test_modular_unit_not_in_distribution_if_not_in_any_package(distribution):
-        assert Package("other_package_file") not in distribution
+    def test_module_in_distribution_if_module_in_modules():
+        module = Module("module.py")
+        dist = Distribution("dist", "0.1.0", modules=frozenset((module,)))
+        assert (module in dist) is True
 
     @staticmethod
-    def test_equality_check_returns_false_when_called_with_non_modular_unit_object(distribution):
-        assert (distribution == object()) is False
+    def test_module_not_in_distribution_if_module_not_in_modules():
+        module = Module("module.py")
+        dist = Distribution("dist", "0.1.0")
+        assert (module in dist) is False
 
     @staticmethod
-    @pytest.fixture(
-        params=[
-            ([("dist", "version", {"package_file"}), ("dist", "version", {"package_file"})], True),
-            ([("dist", "version", {"package_file"}), ("other_dist", "version", {"package_file"})], False),
-            ([("dist", "version", {"package_file"}), ("dist", "other_version", {"package_file"})], False),
-            ([("dist", "version", {"package_file"}), ("dist", "version", {"other_package_file"})], False),
-        ]
-    )
-    def test_case(request):
-        dist_data, expected = request.param
-        dists = tuple(
-            Distribution(n, version=v, packages=(Package(Path(pf)) for pf in pfs)) for (n, v, pfs) in dist_data
-        )
-        return dists, expected
+    def test_iterating_distribution_iterates_modules():
+        modules = frozenset(Module("module" + str(i) + ".py") for i in range(5))
+        dist = Distribution("dist", "0.1.0", modules=modules)
+        assert frozenset(dist) == modules
 
     @staticmethod
-    def test_equality_check_produces_expected_result(test_case):
-        (dist1, dist2), expected = test_case
-        assert (dist1 == dist2) is expected
+    def test_length_of_distribution_is_equal_to_length_of_modules():
+        modules = frozenset(Module("module" + str(i) + ".py") for i in range(5))
+        dist = Distribution("dist", "0.1.0", modules=modules)
+        assert len(dist) == len(modules)
 
     @staticmethod
-    def test_hash_produces_expected_result(test_case):
-        (dist1, dist2), expected = test_case
-        assert (hash(dist1) == hash(dist2)) is expected
-
-    @staticmethod
-    def test_repr(distribution):
-        assert repr(distribution) == "Distribution(name='dist', version='0.1.2')"
+    def test_distribution_is_instance_of_set_class():
+        dist = Distribution("dist", "0.1.0")
+        assert isinstance(dist, Set)

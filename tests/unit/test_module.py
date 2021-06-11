@@ -1,95 +1,45 @@
-import os
-import sys
+from pathlib import Path
 
 import pytest
 
 from repro.model import Module
-from repro.module import LoadedModuleConverter, is_built_in_module, is_bundled_module, is_stdlib_module
-
-
-class FakeModule:
-    def __init__(self, spec=None):
-        self.__spec__ = spec
-
-
-class Spec:
-    def __init__(self, origin):
-        self.origin = origin
-
-
-@pytest.fixture
-def built_in_module():
-    spec = Spec("built-in")
-    module = FakeModule(spec)
-    return module
-
-
-@pytest.fixture
-def bundled_module():
-    module = FakeModule()
-    module.__file__ = os.path.join(
-        sys.prefix, sys.platlibdir, f"python{sys.version_info.major}.{sys.version_info.minor}", "module"
-    )
-    return module
-
-
-class TestIsBuiltInModule:
-    def test_if_false_is_returned_if_module_spec_is_none(self):
-        assert is_built_in_module(FakeModule()) is False
-
-    def test_if_true_is_returned_if_origin_of_module_spec_is_built_in(self, built_in_module):
-        assert is_built_in_module(built_in_module) is True
-
-    def test_if_false_is_returned_if_origin_of_module_spec_is_not_built_in(self):
-        spec = Spec("not-built-in")
-        module = FakeModule(spec)
-        assert is_built_in_module(module) is False
-
-
-class TestIsBundledModule:
-    def test_if_false_is_returned_if_module_has_no_file(self):
-        assert is_bundled_module(FakeModule()) is False
-
-    def test_if_true_is_returned_if_module_in_stdlib_dir(self, bundled_module):
-        assert is_bundled_module(bundled_module) is True
-
-    def test_if_false_is_returned_if_module_not_in_stdlib_dir(self):
-        module = FakeModule()
-        module.__file__ = "/not/stdlib/module.py"
-        assert is_bundled_module(module) is False
-
-
-class TestIsStdlibModule:
-    def test_if_true_is_returned_if_module_is_built_in(self, built_in_module):
-        assert is_stdlib_module(built_in_module) is True
-
-    def test_if_true_is_returned_if_module_is_bundled(self, bundled_module):
-        assert is_stdlib_module(bundled_module) is True
-
-    def test_if_false_is_returned_if_module_is_not_built_in_nor_bundled(self):
-        assert is_stdlib_module(FakeModule()) is False
+from repro.module import LoadedModuleConverter
 
 
 class TestLoadedModuleConverter:
+    @staticmethod
     @pytest.fixture
-    def fake_loaded_modules(self):
+    def fake_loaded_modules():
         class FakeModule:
-            def __init__(self, name, file=None):
-                self.name = name
-                if file:
+            def __init__(self, name, file):
+                self.__name__ = name
+                if file == "<namespace>":
+                    self.__file__ = None
+                elif not file == "<builtin>":
                     self.__file__ = file
 
-        return {"foo": FakeModule("foo", None), "bar": FakeModule("bar", "/bar/module.py")}
+        return {
+            "module": FakeModule("module", "/package/module.py"),
+            "builtin": FakeModule("builtin", "<builtin>"),
+            "package": FakeModule("package", "/package/__init__.py"),
+            "namespace": FakeModule("namespace", "<namespace>"),
+        }
 
+    @staticmethod
     @pytest.fixture
-    def converter(self, fake_loaded_modules):
+    def converter(fake_loaded_modules):
         LoadedModuleConverter._loaded_modules = fake_loaded_modules
         return LoadedModuleConverter()
 
-    def test_correct_modules_returned(self, converter):
-        expected_modules = {"foo": Module("foo", None), "bar": Module("bar", "/bar/module.py")}
+    @staticmethod
+    def test_correct_modules_returned(converter):
+        expected_modules = {
+            "module": Module(Path("/package/module.py")),
+            "package": Module(Path("/package/__init__.py")),
+        }
         actual_modules = converter()
         assert actual_modules == expected_modules
 
-    def test_repr(self, converter):
+    @staticmethod
+    def test_repr(converter):
         assert repr(converter) == "LoadedModuleConverter()"
