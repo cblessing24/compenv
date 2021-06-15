@@ -1,11 +1,12 @@
 """Contains the domain model."""
+import textwrap
 from collections.abc import Set
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Iterable, Iterator, TypeVar
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, order=True)
 class Module:
     """Represents a Python module."""
 
@@ -35,6 +36,20 @@ class Distribution(Set[Module]):
     def __len__(self) -> int:
         """Return the number of modules belonging to this distribution."""
         return len(self.modules)
+
+    def __str__(self) -> str:
+        """Return a human-readable representation of the object."""
+        string = textwrap.dedent(
+            f"""
+            Distribution:
+                name: {self.name}
+                version: {self.version}
+                modules:
+            """
+        )
+        indent = 8 * " "
+        module_strings = ("\n" + indent).join(str(m.file) for m in sorted(self.modules))
+        return (string + indent + module_strings).strip()
 
     @classmethod
     def _from_iterable(cls, it: Iterable[_T]) -> frozenset[_T]:

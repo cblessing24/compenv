@@ -1,3 +1,4 @@
+import textwrap
 from collections.abc import Set
 from pathlib import Path
 
@@ -69,25 +70,25 @@ class TestDistribution:
 
     @staticmethod
     def test_module_in_distribution_if_module_in_modules():
-        module = Module("module.py")
+        module = Module(Path("module.py"))
         dist = Distribution("dist", "0.1.0", modules=frozenset((module,)))
         assert (module in dist) is True
 
     @staticmethod
     def test_module_not_in_distribution_if_module_not_in_modules():
-        module = Module("module.py")
+        module = Module(Path("module.py"))
         dist = Distribution("dist", "0.1.0")
         assert (module in dist) is False
 
     @staticmethod
     def test_iterating_distribution_iterates_modules():
-        modules = frozenset(Module("module" + str(i) + ".py") for i in range(5))
+        modules = frozenset(Module(Path("module" + str(i) + ".py")) for i in range(5))
         dist = Distribution("dist", "0.1.0", modules=modules)
         assert frozenset(dist) == modules
 
     @staticmethod
     def test_length_of_distribution_is_equal_to_length_of_modules():
-        modules = frozenset(Module("module" + str(i) + ".py") for i in range(5))
+        modules = frozenset(Module(Path("module" + str(i) + ".py")) for i in range(5))
         dist = Distribution("dist", "0.1.0", modules=modules)
         assert len(dist) == len(modules)
 
@@ -97,10 +98,29 @@ class TestDistribution:
         assert isinstance(dist, Set)
 
     @staticmethod
+    def test_str():
+        modules = frozenset(Module(Path("module" + str(i) + ".py")) for i in range(5))
+        dist = Distribution("dist", "0.1.0", modules=modules)
+        expected = textwrap.dedent(
+            """
+            Distribution:
+                name: dist
+                version: 0.1.0
+                modules:
+                    module0.py
+                    module1.py
+                    module2.py
+                    module3.py
+                    module4.py
+            """
+        ).strip()
+        assert str(dist) == expected
+
+    @staticmethod
     @pytest.mark.parametrize("method", ["__and__", "__or__", "__sub__", "__xor__"])
     def test_set_methods_produce_expected_result(method):
-        modules1 = frozenset(Module("module" + str(i) + ".py") for i in [1, 2, 3])
-        modules2 = frozenset(Module("module" + str(i) + ".py") for i in [4, 5, 6])
+        modules1 = frozenset(Module(Path("module" + str(i) + ".py")) for i in [1, 2, 3])
+        modules2 = frozenset(Module(Path("module" + str(i) + ".py")) for i in [4, 5, 6])
         dist1 = Distribution("dist1", "0.1.0", modules=modules1)
         dist2 = Distribution("dist2", "0.1.0", modules=modules2)
         assert getattr(dist1, method)(dist2) == getattr(modules1, method)(modules2)
