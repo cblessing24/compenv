@@ -124,3 +124,22 @@ class TestDistribution:
         dist1 = Distribution("dist1", "0.1.0", modules=modules1)
         dist2 = Distribution("dist2", "0.1.0", modules=modules2)
         assert getattr(dist1, method)(dist2) == getattr(modules1, method)(modules2)
+
+
+@pytest.mark.parametrize("n_loaded,expected", [(0, False), (1, True), (2, True)])
+def test_get_active_distributions_returns_active_distributions(n_loaded, expected):
+    dist_modules = [Module("module" + str(i) + ".py") for i in range(5)]
+    installed_dists = frozenset([Distribution("dist", "0.0.1", modules=frozenset(dist_modules))])
+    loaded_modules = dist_modules[:n_loaded]
+
+    def fake_get_loaded_modules():
+        return iter(loaded_modules)
+
+    def fake_get_installed_distributions():
+        return iter(installed_dists)
+
+    from repro import model
+
+    model.get_loaded_modules = fake_get_loaded_modules
+    model.get_installed_distributions = fake_get_installed_distributions
+    assert (installed_dists == model.get_active_distributions()) is expected

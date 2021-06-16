@@ -1,9 +1,14 @@
 """Contains the domain model."""
+from __future__ import annotations
+
 import textwrap
 from collections.abc import Set
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Iterable, Iterator, TypeVar
+from typing import Callable, Iterable, Iterator, TypeVar
+
+get_loaded_modules: Callable[[], Iterable[Module]]
+get_installed_distributions: Callable[[], Iterable[Distribution]]
 
 
 @dataclass(frozen=True, order=True)
@@ -58,3 +63,10 @@ class Distribution(Set[Module]):
         This method is necessary to make the set methods "__and__", "__or__", "__sub__" and "__xor__" work.
         """
         return frozenset(it)
+
+
+def get_active_distributions() -> frozenset[Distribution]:
+    """Get all currently active distributions, i.e. all distributions that have at least one of their modules loaded."""
+    loaded_modules = frozenset(get_loaded_modules())
+    installed_dists = get_installed_distributions()
+    return frozenset(id for id in installed_dists if id & loaded_modules)
