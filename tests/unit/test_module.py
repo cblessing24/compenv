@@ -33,10 +33,12 @@ class TestLoadedModuleConverter:
 
     @staticmethod
     def test_correct_modules_returned(converter):
-        expected_modules = {
-            "module": Module(Path("/package/module.py")),
-            "package": Module(Path("/package/__init__.py")),
-        }
+        expected_modules = frozenset(
+            {
+                Module(Path("/package/module.py")),
+                Module(Path("/package/__init__.py")),
+            }
+        )
         actual_modules = converter()
         assert actual_modules == expected_modules
 

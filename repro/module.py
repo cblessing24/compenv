@@ -12,9 +12,9 @@ class LoadedModuleConverter:
 
     _loaded_modules: Mapping[str, ModuleType] = sys.modules
 
-    def __call__(self) -> dict[str, Module]:
+    def __call__(self) -> frozenset[Module]:
         """Return a dictionary containing all loaded modules that are neither built-in nor namespaces."""
-        return {nbm.__name__: Module(Path(nbm.__file__)) for nbm in self._non_namespace_modules}
+        return frozenset(Module(Path(nbm.__file__)) for nbm in self._non_namespace_modules)
 
     @property
     def _non_builtin_modules(self) -> Iterator[ModuleType]:
