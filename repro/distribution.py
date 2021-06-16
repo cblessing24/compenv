@@ -13,13 +13,12 @@ class InstalledDistributionConverter:
     _path_cls = Path
 
     @cache
-    def __call__(self) -> dict[str, Distribution]:
+    def __call__(self) -> frozenset[Distribution]:
         """Return a dictionary containing all installed distributions."""
-        conv_dists: dict[str, Distribution] = {}
+        conv_dists: set[Distribution] = set()
         for orig_dist in self._get_installed_distributions_func():
-            conv_dist = self._convert_distribution(orig_dist)
-            conv_dists[conv_dist.name] = conv_dist
-        return conv_dists
+            conv_dists.add(self._convert_distribution(orig_dist))
+        return frozenset(conv_dists)
 
     def _convert_distribution(self, orig_dist: metadata.Distribution) -> Distribution:
         if orig_dist.files:

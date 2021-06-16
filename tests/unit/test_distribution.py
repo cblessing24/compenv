@@ -88,29 +88,31 @@ def converter(fake_get_installed_distributions_func):
 
 
 def test_correct_distributions_returned(converter):
-    expected_distributions = {
-        "dist1": Distribution(
-            "dist1",
-            "0.1.0",
-            frozenset(
-                [
-                    Module(FakePathlibPath("/dist1/package1/__init__.py")),
-                    Module(FakePathlibPath("/dist1/package1/module1.py")),
-                ]
+    expected_distributions = frozenset(
+        {
+            Distribution(
+                "dist1",
+                "0.1.0",
+                frozenset(
+                    [
+                        Module(FakePathlibPath("/dist1/package1/__init__.py")),
+                        Module(FakePathlibPath("/dist1/package1/module1.py")),
+                    ]
+                ),
             ),
-        ),
-        "dist2": Distribution(
-            "dist2",
-            "0.1.2",
-            frozenset(
-                [
-                    Module(FakePathlibPath("/dist2/package1/__init__.py")),
-                    Module(FakePathlibPath("/dist2/package1/module1.py")),
-                ]
+            Distribution(
+                "dist2",
+                "0.1.2",
+                frozenset(
+                    [
+                        Module(FakePathlibPath("/dist2/package1/__init__.py")),
+                        Module(FakePathlibPath("/dist2/package1/module1.py")),
+                    ]
+                ),
             ),
-        ),
-        "dist3": Distribution("dist3", "1.2.3", frozenset()),
-    }
+            Distribution("dist3", "1.2.3", frozenset()),
+        }
+    )
     actual_distributions = converter()
     assert actual_distributions == expected_distributions
 
