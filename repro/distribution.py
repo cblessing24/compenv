@@ -36,6 +36,3 @@ class InstalledDistributionConverter:
     def __repr__(self) -> str:
         """Return a string representation of the translator."""
         return f"{self.__class__.__name__}()"
-
-
-get_installed_distributions = InstalledDistributionConverter()
