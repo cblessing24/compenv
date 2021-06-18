@@ -7,7 +7,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Callable, Iterable, Iterator, TypeVar
 
-get_loaded_modules: Callable[[], Iterable[Module]]
+get_active_modules: Callable[[], Iterable[Module]]
 get_installed_distributions: Callable[[], Iterable[Distribution]]
 
 
@@ -66,7 +66,7 @@ class Distribution(Set[Module]):
 
 
 def get_active_distributions() -> frozenset[Distribution]:
-    """Get all currently active distributions, i.e. all distributions that have at least one of their modules loaded."""
-    loaded_modules = frozenset(get_loaded_modules())
+    """Get all currently active distributions, i.e. all distributions that have at least one of their modules active."""
+    active_modules = frozenset(get_active_modules())
     installed_dists = get_installed_distributions()
-    return frozenset(id for id in installed_dists if id & loaded_modules)
+    return frozenset(id for id in installed_dists if id & active_modules)

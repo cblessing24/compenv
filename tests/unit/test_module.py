@@ -3,13 +3,13 @@ from pathlib import Path
 import pytest
 
 from repro.model import Module
-from repro.module import LoadedModuleConverter
+from repro.module import ActiveModuleConverter
 
 
-class TestLoadedModuleConverter:
+class TestActiveModuleConverter:
     @staticmethod
     @pytest.fixture
-    def fake_loaded_modules():
+    def fake_active_modules():
         class FakeModule:
             def __init__(self, name, file):
                 self.__name__ = name
@@ -27,9 +27,9 @@ class TestLoadedModuleConverter:
 
     @staticmethod
     @pytest.fixture
-    def converter(fake_loaded_modules):
-        LoadedModuleConverter._loaded_modules = fake_loaded_modules
-        return LoadedModuleConverter()
+    def converter(fake_active_modules):
+        ActiveModuleConverter._active_modules = fake_active_modules
+        return ActiveModuleConverter()
 
     @staticmethod
     def test_correct_modules_returned(converter):
@@ -44,4 +44,4 @@ class TestLoadedModuleConverter:
 
     @staticmethod
     def test_repr(converter):
-        assert repr(converter) == "LoadedModuleConverter()"
+        assert repr(converter) == "ActiveModuleConverter()"
