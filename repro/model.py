@@ -3,7 +3,8 @@ from __future__ import annotations
 
 import textwrap
 from collections.abc import Set
-from dataclasses import dataclass, field
+from dataclasses import asdict, dataclass, field
+from functools import partial
 from pathlib import Path
 from typing import Callable, Iterable, Iterator, TypeVar
 
@@ -21,7 +22,7 @@ class Module:
 _T = TypeVar("_T")
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, order=True)
 class Distribution(Set[Module]):
     """Represents a Python distribution."""
 
@@ -63,6 +64,38 @@ class Distribution(Set[Module]):
         This method is necessary to make the set methods "__and__", "__or__", "__sub__" and "__xor__" work.
         """
         return frozenset(it)
+
+
+@dataclass(frozen=True)
+class Record:
+    """Represents a record of the environment."""
+
+    installed_distributions: frozenset[Distribution]
+    active_distributions: frozenset[Distribution]
+    active_modules: frozenset[Module]
+
+    def __str__(self) -> str:
+        """Return a human-readable representation of the record."""
+        indent = 4 * " "
+        attr_names = asdict(self).keys()
+        methods = {n.replace("_", " "): getattr(self, f"_convert_{n}_to_strings") for n in attr_names}
+        section_parts = {n: m() for n, m in methods.items()}
+        sections = [("\n" + 2 * indent).join([n + ":"] + sp) for n, sp in section_parts.items()]
+        joined_sections = ("\n" + indent).join(sections)
+        return "Record:\n" + indent + joined_sections
+
+    def _convert_installed_distributions_to_strings(self) -> list[str]:
+        return self._convert_distributions_to_strings(self.installed_distributions)
+
+    def _convert_active_distributions_to_strings(self) -> list[str]:
+        return self._convert_distributions_to_strings(self.active_distributions)
+
+    @staticmethod
+    def _convert_distributions_to_strings(dists: Iterable[Distribution]) -> list[str]:
+        return [f"{d.name} ({d.version})" for d in sorted(dists)]
+
+    def _convert_active_modules_to_strings(self) -> list[str]:
+        return [str(m.file) for m in sorted(self.active_modules)]
 
 
 def get_active_distributions() -> frozenset[Distribution]:

@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pytest
 
-from repro.model import Distribution, Module
+from repro.model import Distribution, Module, Record
 
 
 class TestModule:
@@ -124,6 +124,44 @@ class TestDistribution:
         dist1 = Distribution("dist1", "0.1.0", modules=modules1)
         dist2 = Distribution("dist2", "0.1.0", modules=modules2)
         assert getattr(dist1, method)(dist2) == getattr(modules1, method)(modules2)
+
+
+class TestRecord:
+    @staticmethod
+    @pytest.fixture
+    def record():
+        return Record(
+            installed_distributions=frozenset(
+                {
+                    Distribution("dist1", "0.1.0", modules=frozenset({Module("module1.py")})),
+                    Distribution("dist2", "0.1.1", modules=frozenset({Module("module2.py")})),
+                }
+            ),
+            active_distributions=frozenset({Distribution("dist2", "0.1.1", modules=frozenset({Module("module2.py")}))}),
+            active_modules=frozenset({Module("module2.py")}),
+        )
+
+    @staticmethod
+    @pytest.mark.parametrize("attr", ["installed_distributions", "active_distributions", "active_modules"])
+    def test_attributes_are_read_only(record, attr):
+        with pytest.raises(AttributeError):
+            setattr(record, attr, "something")
+
+    @staticmethod
+    def test_str(record):
+        expected = textwrap.dedent(
+            """
+            Record:
+                installed distributions:
+                    dist1 (0.1.0)
+                    dist2 (0.1.1)
+                active distributions:
+                    dist2 (0.1.1)
+                active modules:
+                    module2.py
+            """
+        ).strip()
+        assert str(record) == expected
 
 
 @pytest.mark.parametrize("n_active,expected", [(0, False), (1, True), (2, True)])
