@@ -1,6 +1,6 @@
 import pytest
 
-from repro.distribution import InstalledDistributionConverter
+from repro.adapters.distribution import InstalledDistributionConverter
 from repro.model import Distribution, Module
 
 
