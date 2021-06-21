@@ -126,18 +126,44 @@ class TestDistribution:
         assert getattr(dist1, method)(dist2) == getattr(modules1, method)(modules2)
 
 
+@pytest.fixture
+def installed_distributions():
+    return frozenset(
+        {
+            Distribution("dist1", "0.1.0", modules=frozenset({Module("module1.py")})),
+            Distribution("dist2", "0.1.1", modules=frozenset({Module("module2.py")})),
+        }
+    )
+
+
+@pytest.fixture
+def active_modules():
+    return frozenset({Module("module2.py")})
+
+
+@pytest.fixture
+def active_distributions():
+    return frozenset({Distribution("dist2", "0.1.1", modules=frozenset({Module("module2.py")}))})
+
+
+@pytest.fixture
+def record(installed_distributions, active_modules, active_distributions):
+    return Record(
+        installed_distributions=installed_distributions,
+        active_distributions=active_distributions,
+        active_modules=active_modules,
+    )
+
+
 class TestEnvironment:
     @staticmethod
     @pytest.fixture
-    def environment():
-        installed_dists = frozenset({Distribution("dist", "0.0.1", modules=frozenset({Module("module1.py")}))})
-        active_modules = {Module("module1.py")}
-
+    def environment(installed_distributions, active_modules):
         def fake_get_active_modules():
             return iter(active_modules)
 
         def fake_get_installed_distributions():
-            return iter(installed_dists)
+            return iter(installed_distributions)
 
         from repro import model
 
@@ -146,14 +172,8 @@ class TestEnvironment:
         return Environment()
 
     @staticmethod
-    def test_correct_record_is_recorded(environment):
-        assert environment.record() == Record(
-            installed_distributions=frozenset(
-                {Distribution("dist", "0.0.1", modules=frozenset({Module("module1.py")}))}
-            ),
-            active_distributions=frozenset({Distribution("dist", "0.0.1", modules=frozenset({Module("module1.py")}))}),
-            active_modules=frozenset({Module("module1.py")}),
-        )
+    def test_correct_record_is_recorded(environment, record):
+        assert environment.record() == record
 
     @staticmethod
     def test_repr(environment):
@@ -161,20 +181,6 @@ class TestEnvironment:
 
 
 class TestRecord:
-    @staticmethod
-    @pytest.fixture
-    def record():
-        return Record(
-            installed_distributions=frozenset(
-                {
-                    Distribution("dist1", "0.1.0", modules=frozenset({Module("module1.py")})),
-                    Distribution("dist2", "0.1.1", modules=frozenset({Module("module2.py")})),
-                }
-            ),
-            active_distributions=frozenset({Distribution("dist2", "0.1.1", modules=frozenset({Module("module2.py")}))}),
-            active_modules=frozenset({Module("module2.py")}),
-        )
-
     @staticmethod
     @pytest.mark.parametrize("attr", ["installed_distributions", "active_distributions", "active_modules"])
     def test_attributes_are_read_only(record, attr):
