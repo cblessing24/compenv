@@ -66,6 +66,24 @@ class Distribution(Set[Module]):
         return frozenset(it)
 
 
+class Environment:
+    """Represents the current execution environment."""
+
+    @staticmethod
+    def record() -> Record:
+        """Record information about the current execution environment."""
+        installed_dists = frozenset(get_installed_distributions())
+        active_modules = frozenset(get_active_modules())
+        active_dists = frozenset(id for id in installed_dists if id & active_modules)
+        return Record(
+            installed_distributions=installed_dists, active_distributions=active_dists, active_modules=active_modules
+        )
+
+    def __repr__(self) -> str:
+        """Return a string representation of the object."""
+        return f"{self.__class__.__name__}()"
+
+
 @dataclass(frozen=True)
 class Record:
     """Represents a record of the environment."""
@@ -96,10 +114,3 @@ class Record:
 
     def _convert_active_modules_to_strings(self) -> list[str]:
         return [str(m.file) for m in sorted(self.active_modules)]
-
-
-def get_active_distributions() -> frozenset[Distribution]:
-    """Get all currently active distributions, i.e. all distributions that have at least one of their modules active."""
-    active_modules = frozenset(get_active_modules())
-    installed_dists = get_installed_distributions()
-    return frozenset(id for id in installed_dists if id & active_modules)

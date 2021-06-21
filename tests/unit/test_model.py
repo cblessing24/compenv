@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pytest
 
-from repro.model import Distribution, Module, Record
+from repro.model import Distribution, Environment, Module, Record
 
 
 class TestModule:
@@ -126,6 +126,40 @@ class TestDistribution:
         assert getattr(dist1, method)(dist2) == getattr(modules1, method)(modules2)
 
 
+class TestEnvironment:
+    @staticmethod
+    @pytest.fixture
+    def environment():
+        installed_dists = frozenset({Distribution("dist", "0.0.1", modules=frozenset({Module("module1.py")}))})
+        active_modules = {Module("module1.py")}
+
+        def fake_get_active_modules():
+            return iter(active_modules)
+
+        def fake_get_installed_distributions():
+            return iter(installed_dists)
+
+        from repro import model
+
+        model.get_active_modules = fake_get_active_modules
+        model.get_installed_distributions = fake_get_installed_distributions
+        return Environment()
+
+    @staticmethod
+    def test_correct_record_is_recorded(environment):
+        assert environment.record() == Record(
+            installed_distributions=frozenset(
+                {Distribution("dist", "0.0.1", modules=frozenset({Module("module1.py")}))}
+            ),
+            active_distributions=frozenset({Distribution("dist", "0.0.1", modules=frozenset({Module("module1.py")}))}),
+            active_modules=frozenset({Module("module1.py")}),
+        )
+
+    @staticmethod
+    def test_repr(environment):
+        assert repr(environment) == "Environment()"
+
+
 class TestRecord:
     @staticmethod
     @pytest.fixture
@@ -162,22 +196,3 @@ class TestRecord:
             """
         ).strip()
         assert str(record) == expected
-
-
-@pytest.mark.parametrize("n_active,expected", [(0, False), (1, True), (2, True)])
-def test_get_active_distributions_returns_active_distributions(n_active, expected):
-    dist_modules = [Module("module" + str(i) + ".py") for i in range(5)]
-    installed_dists = frozenset([Distribution("dist", "0.0.1", modules=frozenset(dist_modules))])
-    active_modules = dist_modules[:n_active]
-
-    def fake_get_active_modules():
-        return iter(active_modules)
-
-    def fake_get_installed_distributions():
-        return iter(installed_dists)
-
-    from repro import model
-
-    model.get_active_modules = fake_get_active_modules
-    model.get_installed_distributions = fake_get_installed_distributions
-    assert (installed_dists == model.get_active_distributions()) is expected
