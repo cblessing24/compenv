@@ -4,7 +4,6 @@ from __future__ import annotations
 import textwrap
 from collections.abc import Set
 from dataclasses import asdict, dataclass, field
-from functools import partial
 from pathlib import Path
 from typing import Callable, Iterable, Iterator, TypeVar
 
@@ -64,6 +63,39 @@ class Distribution(Set[Module]):
         This method is necessary to make the set methods "__and__", "__or__", "__sub__" and "__xor__" work.
         """
         return frozenset(it)
+
+
+class Computation:
+    """Represents a computation."""
+
+    def __init__(
+        self,
+        identifier: str,
+        environment: Environment,
+        trigger: Callable[[], None],
+    ) -> None:
+        """Initialize the computation."""
+        self.identifier = identifier
+        self._environment = environment
+        self._trigger = trigger
+        self._is_executed = False
+
+    def execute(self) -> ComputationRecord:
+        """Execute the computation."""
+        if self._is_executed:
+            raise RuntimeError("Computation already executed!")
+        self._trigger()
+        self._is_executed = True
+        return ComputationRecord(self.identifier, self._environment.record())
+
+    def __repr__(self) -> str:
+        """Return a string representation of the computation."""
+        return (
+            f"{self.__class__.__name__}("
+            f"identifier={repr(self.identifier)}, "
+            f"environment={repr(self._environment)}, "
+            f"trigger={repr(self._trigger)})"
+        )
 
 
 @dataclass(frozen=True)

@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pytest
 
-from repro.model import ComputationRecord, Distribution, Environment, Module, Record
+from repro.model import Computation, ComputationRecord, Distribution, Environment, Module, Record
 
 
 class TestModule:
@@ -168,22 +168,65 @@ class TestComputationRecord:
             setattr(computation_record, attr, "another_value")
 
 
-class TestEnvironment:
+@pytest.fixture
+def environment(installed_distributions, active_modules):
+    def fake_get_active_modules():
+        return iter(active_modules)
+
+    def fake_get_installed_distributions():
+        return iter(installed_distributions)
+
+    from repro import model
+
+    model.get_active_modules = fake_get_active_modules
+    model.get_installed_distributions = fake_get_installed_distributions
+    return Environment()
+
+
+class TestComputation:
     @staticmethod
     @pytest.fixture
-    def environment(installed_distributions, active_modules):
-        def fake_get_active_modules():
-            return iter(active_modules)
+    def fake_trigger():
+        class FakeTrigger:
+            triggered = False
 
-        def fake_get_installed_distributions():
-            return iter(installed_distributions)
+            def __call__(self):
+                self.triggered = True
 
-        from repro import model
+            def __repr__(self):
+                return f"{self.__class__.__name__}()"
 
-        model.get_active_modules = fake_get_active_modules
-        model.get_installed_distributions = fake_get_installed_distributions
-        return Environment()
+        return FakeTrigger()
 
+    @staticmethod
+    @pytest.fixture
+    def computation(environment, fake_trigger):
+        return Computation("identifier", environment, trigger=fake_trigger)
+
+    @staticmethod
+    def test_computation_record_gets_returned_when_computation_gets_executed(computation, record):
+        assert computation.execute() == ComputationRecord("identifier", record)
+
+    @staticmethod
+    def test_trigger_gets_triggered_when_computation_gets_executed(computation, fake_trigger):
+        computation.execute()
+        assert fake_trigger.triggered
+
+    @staticmethod
+    def test_computation_can_not_be_executed_more_than_once(computation):
+        computation.execute()
+        with pytest.raises(RuntimeError, match="Computation already executed!"):
+            computation.execute()
+
+    @staticmethod
+    def test_repr(computation):
+        assert (
+            repr(computation)
+            == f"Computation(identifier='identifier', environment=Environment(), trigger=FakeTrigger())"
+        )
+
+
+class TestEnvironment:
     @staticmethod
     def test_correct_record_is_recorded(environment, record):
         assert environment.record() == record
