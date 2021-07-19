@@ -66,6 +66,14 @@ class Distribution(Set[Module]):
         return frozenset(it)
 
 
+@dataclass(frozen=True)
+class ComputationRecord:
+    """Represents the association between an executed computation and its environmental record."""
+
+    identifier: str
+    record: Record
+
+
 class Environment:
     """Represents the current execution environment."""
 

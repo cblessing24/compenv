@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pytest
 
-from repro.model import Distribution, Environment, Module, Record
+from repro.model import ComputationRecord, Distribution, Environment, Module, Record
 
 
 class TestModule:
@@ -153,6 +153,19 @@ def record(installed_distributions, active_modules, active_distributions):
         active_distributions=active_distributions,
         active_modules=active_modules,
     )
+
+
+class TestComputationRecord:
+    @staticmethod
+    @pytest.fixture
+    def computation_record(record):
+        return ComputationRecord("identifier", record)
+
+    @staticmethod
+    @pytest.mark.parametrize("attr", ["identifier", "record"])
+    def test_attributes_are_immutable(computation_record, attr):
+        with pytest.raises(AttributeError):
+            setattr(computation_record, attr, "another_value")
 
 
 class TestEnvironment:
