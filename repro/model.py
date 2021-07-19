@@ -22,7 +22,7 @@ _T = TypeVar("_T")
 
 
 @dataclass(frozen=True, order=True)
-class Distribution(Set[Module]):
+class Distribution(Set[Module]):  # type: ignore[override]
     """Represents a Python distribution."""
 
     name: str
