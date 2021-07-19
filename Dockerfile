@@ -20,7 +20,7 @@ RUN curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py \
     && python3.9 get-pip.py \
     && rm get-pip.py \
     && python3.9 -m pip install --upgrade pip
-RUN python3.9 -m pip install pdm==1.5.2
+RUN python3.9 -m pip install toml pdm==1.6.4 # https://github.com/pdm-project/pdm/issues/546
 COPY --chown=dev . reproducibility
 WORKDIR reproducibility
 RUN pdm sync -v
