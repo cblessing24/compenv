@@ -189,9 +189,20 @@ class TestComputation:
     def fake_trigger():
         class FakeTrigger:
             triggered = False
+            change_environment = False
 
             def __call__(self):
+                if self.change_environment:
+                    self._change_environment()
                 self.triggered = True
+
+            def _change_environment(self):
+                def fake_get_active_modules():
+                    return iter(frozenset())
+
+                from repro import model
+
+                model.get_active_modules = fake_get_active_modules
 
             def __repr__(self):
                 return f"{self.__class__.__name__}()"
@@ -217,6 +228,18 @@ class TestComputation:
         computation.execute()
         with pytest.raises(RuntimeError, match="Computation already executed!"):
             computation.execute()
+
+    @staticmethod
+    def test_computation_raises_warning_if_environment_changes_during_computation(computation, fake_trigger):
+        fake_trigger.change_environment = True
+        with pytest.warns(UserWarning, match="Environment changed during execution!"):
+            computation.execute()
+
+    @staticmethod
+    def test_computation_raises_no_warning_if_environment_does_not_change_during_computation(computation):
+        with pytest.warns(None) as record:
+            computation.execute()
+            assert not record
 
     @staticmethod
     def test_repr(computation):

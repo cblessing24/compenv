@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import textwrap
+import warnings
 from collections.abc import Set
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
@@ -84,7 +85,11 @@ class Computation:
         """Execute the computation."""
         if self._is_executed:
             raise RuntimeError("Computation already executed!")
+        record_before = self._environment.record()
         self._trigger()
+        record_after = self._environment.record()
+        if not record_before == record_after:
+            warnings.warn("Environment changed during execution!")
         self._is_executed = True
         return ComputationRecord(self.identifier, self._environment.record())
 
