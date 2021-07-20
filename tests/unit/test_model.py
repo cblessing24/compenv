@@ -4,6 +4,7 @@ from pathlib import Path
 
 import pytest
 
+from repro import model
 from repro.model import Computation, ComputationRecord, Distribution, Environment, Module, Record
 
 
@@ -176,8 +177,6 @@ def environment(installed_distributions, active_modules):
     def fake_get_installed_distributions():
         return iter(installed_distributions)
 
-    from repro import model
-
     model.get_active_modules = fake_get_active_modules
     model.get_installed_distributions = fake_get_installed_distributions
     return Environment()
@@ -199,8 +198,6 @@ class TestComputation:
             def _change_environment(self):
                 def fake_get_active_modules():
                     return iter(frozenset())
-
-                from repro import model
 
                 model.get_active_modules = fake_get_active_modules
 
