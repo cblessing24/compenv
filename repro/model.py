@@ -91,7 +91,7 @@ class Computation:
         if not record_before == record_after:
             warnings.warn("Environment changed during execution!")
         self._is_executed = True
-        return ComputationRecord(self.identifier, self._environment.record())
+        return ComputationRecord(self.identifier, record_after)
 
     def __repr__(self) -> str:
         """Return a string representation of the computation."""

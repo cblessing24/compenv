@@ -185,6 +185,24 @@ def environment(installed_distributions, active_modules):
 class TestComputation:
     @staticmethod
     @pytest.fixture
+    def recorded_records():
+        return []
+
+    @staticmethod
+    @pytest.fixture
+    def environment(environment, recorded_records):
+        original_record = Environment.record
+
+        def tracking_record(*args, **kwargs):
+            record = original_record(*args, **kwargs)
+            recorded_records.append(record)
+            return record
+
+        Environment.record = staticmethod(tracking_record)
+        return Environment()
+
+    @staticmethod
+    @pytest.fixture
     def fake_trigger():
         class FakeTrigger:
             triggered = False
@@ -214,6 +232,10 @@ class TestComputation:
     @staticmethod
     def test_computation_record_gets_returned_when_computation_gets_executed(computation, record):
         assert computation.execute() == ComputationRecord("identifier", record)
+
+    @staticmethod
+    def test_computation_record_is_based_on_record_recorded_after_execution(computation, recorded_records):
+        assert computation.execute().record is recorded_records[1]
 
     @staticmethod
     def test_trigger_gets_triggered_when_computation_gets_executed(computation, fake_trigger):
