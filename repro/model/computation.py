@@ -1,4 +1,4 @@
-"""Contains the domain model."""
+"""Contains code related to computations."""
 from __future__ import annotations
 
 import warnings

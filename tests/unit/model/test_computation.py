@@ -1,7 +1,8 @@
 import pytest
 
 from repro.model import record
-from repro.model.model import Computation, ComputationRecord, Environment
+from repro.model.computation import Computation, ComputationRecord
+from repro.model.environment import Environment
 
 
 class TestComputationRecord:
