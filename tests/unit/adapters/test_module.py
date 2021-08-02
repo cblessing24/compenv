@@ -3,7 +3,7 @@ from pathlib import Path
 import pytest
 
 from repro.adapters.module import ActiveModuleConverter
-from repro.model import Module
+from repro.model.record import Module
 
 
 class TestActiveModuleConverter:

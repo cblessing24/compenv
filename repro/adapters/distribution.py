@@ -3,7 +3,7 @@ from functools import cache
 from importlib import metadata
 from pathlib import Path
 
-from ..model import Distribution, Module
+from ..model.record import Distribution, Module
 
 
 class InstalledDistributionConverter:

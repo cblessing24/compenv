@@ -1,0 +1,32 @@
+import pytest
+
+from repro.model.record import Distribution, Module, Record
+
+
+@pytest.fixture
+def installed_distributions():
+    return frozenset(
+        {
+            Distribution("dist1", "0.1.0", modules=frozenset({Module("module1.py")})),
+            Distribution("dist2", "0.1.1", modules=frozenset({Module("module2.py")})),
+        }
+    )
+
+
+@pytest.fixture
+def active_modules():
+    return frozenset({Module("module2.py")})
+
+
+@pytest.fixture
+def active_distributions():
+    return frozenset({Distribution("dist2", "0.1.1", modules=frozenset({Module("module2.py")}))})
+
+
+@pytest.fixture
+def record(installed_distributions, active_modules, active_distributions):
+    return Record(
+        installed_distributions=installed_distributions,
+        active_distributions=active_distributions,
+        active_modules=active_modules,
+    )

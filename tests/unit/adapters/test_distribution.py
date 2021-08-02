@@ -1,7 +1,7 @@
 import pytest
 
 from repro.adapters.distribution import InstalledDistributionConverter
-from repro.model import Distribution, Module
+from repro.model.record import Distribution, Module
 
 
 class FakePackagePath:

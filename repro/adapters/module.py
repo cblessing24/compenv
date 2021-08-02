@@ -4,7 +4,7 @@ from pathlib import Path
 from types import ModuleType
 from typing import Iterator, Mapping
 
-from ..model import Module
+from ..model.record import Module
 
 
 class ActiveModuleConverter:

@@ -1,7 +1,7 @@
 """Contains reproducibility tools."""
-from . import model
 from .adapters.distribution import InstalledDistributionConverter
 from .adapters.module import ActiveModuleConverter
+from .model import record
 
-model.get_installed_distributions = InstalledDistributionConverter()
-model.get_active_modules = ActiveModuleConverter()
+record.get_installed_distributions = InstalledDistributionConverter()
+record.get_active_modules = ActiveModuleConverter()
