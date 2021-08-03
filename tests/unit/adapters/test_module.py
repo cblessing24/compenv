@@ -35,8 +35,8 @@ class TestActiveModuleConverter:
     def test_correct_modules_returned(converter):
         expected_modules = frozenset(
             {
-                Module(Path("/package/module.py")),
-                Module(Path("/package/__init__.py")),
+                Module(Path("/package/module.py"), is_active=True),
+                Module(Path("/package/__init__.py"), is_active=True),
             }
         )
         actual_modules = converter()

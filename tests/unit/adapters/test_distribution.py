@@ -79,11 +79,25 @@ def fake_get_installed_distributions_func(fake_distributions):
 
 
 @pytest.fixture
-def converter(fake_get_installed_distributions_func):
+def active_modules():
+    return {Module(FakePathlibPath("/dist1/package1/__init__.py"), is_active=True)}
+
+
+@pytest.fixture
+def fake_get_active_modules_func(active_modules):
+    def _fake_get_active_modules_func():
+        return active_modules
+
+    return _fake_get_active_modules_func
+
+
+@pytest.fixture
+def converter(fake_get_installed_distributions_func, fake_get_active_modules_func):
     InstalledDistributionConverter._get_installed_distributions_func = staticmethod(
         fake_get_installed_distributions_func
     )
     InstalledDistributionConverter._path_cls = FakePathlibPath
+    InstalledDistributionConverter._get_active_modules_func = staticmethod(fake_get_active_modules_func)
     return InstalledDistributionConverter()
 
 
@@ -95,8 +109,8 @@ def test_correct_distributions_returned(converter):
                 "0.1.0",
                 frozenset(
                     [
-                        Module(FakePathlibPath("/dist1/package1/__init__.py")),
-                        Module(FakePathlibPath("/dist1/package1/module1.py")),
+                        Module(FakePathlibPath("/dist1/package1/__init__.py"), is_active=True),
+                        Module(FakePathlibPath("/dist1/package1/module1.py"), is_active=False),
                     ]
                 ),
             ),
@@ -105,8 +119,8 @@ def test_correct_distributions_returned(converter):
                 "0.1.2",
                 frozenset(
                     [
-                        Module(FakePathlibPath("/dist2/package1/__init__.py")),
-                        Module(FakePathlibPath("/dist2/package1/module1.py")),
+                        Module(FakePathlibPath("/dist2/package1/__init__.py"), is_active=False),
+                        Module(FakePathlibPath("/dist2/package1/module1.py"), is_active=False),
                     ]
                 ),
             ),

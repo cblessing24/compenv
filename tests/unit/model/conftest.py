@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import pytest
 
 from repro.model import record as record_module
@@ -9,20 +11,20 @@ from repro.model.record import Distribution, Module, Record
 def installed_distributions():
     return frozenset(
         {
-            Distribution("dist1", "0.1.0", modules=frozenset({Module("module1.py")})),
-            Distribution("dist2", "0.1.1", modules=frozenset({Module("module2.py")})),
+            Distribution("dist1", "0.1.0", modules=frozenset({Module(Path("module1.py"), is_active=False)})),
+            Distribution("dist2", "0.1.1", modules=frozenset({Module(Path("module2.py"), is_active=False)})),
         }
     )
 
 
 @pytest.fixture
 def active_modules():
-    return frozenset({Module("module2.py")})
+    return frozenset({Module(Path("module2.py"), is_active=False)})
 
 
 @pytest.fixture
 def active_distributions():
-    return frozenset({Distribution("dist2", "0.1.1", modules=frozenset({Module("module2.py")}))})
+    return frozenset({Distribution("dist2", "0.1.1", modules=frozenset({Module(Path("module2.py"), is_active=False)}))})
 
 
 @pytest.fixture

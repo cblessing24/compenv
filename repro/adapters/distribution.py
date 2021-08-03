@@ -4,6 +4,7 @@ from importlib import metadata
 from pathlib import Path
 
 from ..model.record import Distribution, Module
+from .module import ActiveModuleConverter
 
 
 class InstalledDistributionConverter:
@@ -11,6 +12,7 @@ class InstalledDistributionConverter:
 
     _get_installed_distributions_func = staticmethod(metadata.distributions)
     _path_cls = Path
+    _get_active_modules_func = ActiveModuleConverter()
 
     @cache
     def __call__(self) -> frozenset[Distribution]:
@@ -31,7 +33,8 @@ class InstalledDistributionConverter:
         valid_files = {f for f in files if f.suffix == ".py"}
         abs_files = {self._path_cls(f.locate()) for f in valid_files}
         existing_files = {f for f in abs_files if f.exists()}
-        return {Module(f) for f in existing_files}
+        active_files = {m.file for m in self._get_active_modules_func()}
+        return {Module(f, is_active=f in active_files) for f in existing_files}
 
     def __repr__(self) -> str:
         """Return a string representation of the translator."""

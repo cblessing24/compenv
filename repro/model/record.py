@@ -54,6 +54,11 @@ class Distribution(Set["Module"]):  # type: ignore[override]
     version: str
     modules: frozenset[Module] = field(default_factory=frozenset)
 
+    @property
+    def is_active(self) -> bool:
+        """Return True if one of the distribution's modules is active, False otherwise."""
+        return any(m.is_active for m in self.modules)
+
     def __contains__(self, other: object) -> bool:
         """Check if module is part of this distribution."""
         return other in self.modules
@@ -95,3 +100,4 @@ class Module:
     """Represents a Python module."""
 
     file: Path
+    is_active: bool
