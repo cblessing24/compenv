@@ -16,13 +16,17 @@ class Record:
     """Represents a record of the environment."""
 
     installed_distributions: frozenset[Distribution]
-    active_distributions: frozenset[Distribution]
     active_modules: frozenset[Module]
+
+    @property
+    def active_distributions(self) -> frozenset[Distribution]:
+        """Return all active distributions that are part of the record."""
+        return frozenset(d for d in self.installed_distributions if d.is_active)
 
     def __str__(self) -> str:
         """Return a human-readable representation of the record."""
         indent = 4 * " "
-        attr_names = asdict(self).keys()
+        attr_names = ["installed_distributions", "active_distributions", "active_modules"]
         methods = {n.replace("_", " "): getattr(self, f"_convert_{n}_to_strings") for n in attr_names}
         section_parts = {n: m() for n, m in methods.items()}
         sections = [("\n" + 2 * indent).join([n + ":"] + sp) for n, sp in section_parts.items()]

@@ -12,26 +12,20 @@ def installed_distributions():
     return frozenset(
         {
             Distribution("dist1", "0.1.0", modules=frozenset({Module(Path("module1.py"), is_active=False)})),
-            Distribution("dist2", "0.1.1", modules=frozenset({Module(Path("module2.py"), is_active=False)})),
+            Distribution("dist2", "0.1.1", modules=frozenset({Module(Path("module2.py"), is_active=True)})),
         }
     )
 
 
 @pytest.fixture
 def active_modules():
-    return frozenset({Module(Path("module2.py"), is_active=False)})
+    return frozenset({Module(Path("module2.py"), is_active=True)})
 
 
 @pytest.fixture
-def active_distributions():
-    return frozenset({Distribution("dist2", "0.1.1", modules=frozenset({Module(Path("module2.py"), is_active=False)}))})
-
-
-@pytest.fixture
-def record(installed_distributions, active_modules, active_distributions):
+def record(installed_distributions, active_modules):
     return Record(
         installed_distributions=installed_distributions,
-        active_distributions=active_distributions,
         active_modules=active_modules,
     )
 

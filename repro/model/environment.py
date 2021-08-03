@@ -16,10 +16,7 @@ class Environment:
         """Record information about the current execution environment."""
         installed_dists = frozenset(record.get_installed_distributions())
         active_modules = frozenset(record.get_active_modules())
-        active_dists = frozenset(id for id in installed_dists if id & active_modules)
-        return Record(
-            installed_distributions=installed_dists, active_distributions=active_dists, active_modules=active_modules
-        )
+        return Record(installed_distributions=installed_dists, active_modules=active_modules)
 
     def consistency_check(self) -> _ConsistencyCheck:
         """Return a context manager used to check the environment's consistency during code execution."""
