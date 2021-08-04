@@ -141,6 +141,18 @@ class TestDistribution:
         assert getattr(dist1, method)(dist2) == getattr(modules1, method)(modules2)
 
 
+class TestActiveModules:
+    @staticmethod
+    def test_str(active_modules):
+        expected = textwrap.dedent(
+            """
+            Active Modules:
+                module2.py
+            """
+        ).strip()
+        assert str(active_modules) == expected
+
+
 class TestModule:
     @staticmethod
     def test_file_attribute_is_immutable():

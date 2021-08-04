@@ -16,7 +16,7 @@ class Record:
     """Represents a record of the environment."""
 
     installed_distributions: InstalledDistributions
-    active_modules: frozenset[Module]
+    active_modules: ActiveModules
 
     def __str__(self) -> str:
         """Return a human-readable representation of the record."""
@@ -94,6 +94,17 @@ class Distribution(Set["Module"]):  # type: ignore[override]
         This method is necessary to make the set methods "__and__", "__or__", "__sub__" and "__xor__" work.
         """
         return frozenset(it)
+
+
+class ActiveModules(frozenset["Module"]):
+    """Represents the set of all active moduls."""
+
+    def __str__(self) -> str:
+        """Return a human-readable representation of the set."""
+        header = "Active Modules:"
+        indent = 4 * " "
+        lines = [indent + str(m.file) for m in self]
+        return "\n".join([header] + sorted(lines))
 
 
 @dataclass(frozen=True, order=True)

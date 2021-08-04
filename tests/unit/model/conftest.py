@@ -4,7 +4,7 @@ import pytest
 
 from repro.model import record as record_module
 from repro.model.environment import Environment
-from repro.model.record import Distribution, InstalledDistributions, Module, Record
+from repro.model.record import ActiveModules, Distribution, InstalledDistributions, Module, Record
 
 
 @pytest.fixture
@@ -23,7 +23,7 @@ def installed_distributions(active_distributions):
 
 @pytest.fixture
 def active_modules():
-    return frozenset({Module(Path("module2.py"), is_active=True)})
+    return ActiveModules({Module(Path("module2.py"), is_active=True)})
 
 
 @pytest.fixture
