@@ -8,43 +8,40 @@ from pathlib import Path
 from typing import TypeVar
 
 get_active_modules: Callable[[], Iterable[Module]]
-get_installed_distributions: Callable[[], Iterable[Distribution]]
+get_installed_distributions: Callable[[], InstalledDistributions]
 
 
 @dataclass(frozen=True)
 class Record:
     """Represents a record of the environment."""
 
-    installed_distributions: frozenset[Distribution]
+    installed_distributions: InstalledDistributions
     active_modules: frozenset[Module]
-
-    @property
-    def active_distributions(self) -> frozenset[Distribution]:
-        """Return all active distributions that are part of the record."""
-        return frozenset(d for d in self.installed_distributions if d.is_active)
 
     def __str__(self) -> str:
         """Return a human-readable representation of the record."""
         indent = 4 * " "
-        attr_names = ["installed_distributions", "active_distributions", "active_modules"]
-        methods = {n.replace("_", " "): getattr(self, f"_convert_{n}_to_strings") for n in attr_names}
-        section_parts = {n: m() for n, m in methods.items()}
-        sections = [("\n" + 2 * indent).join([n + ":"] + sp) for n, sp in section_parts.items()]
-        joined_sections = ("\n" + indent).join(sections)
-        return "Record:\n" + indent + joined_sections
+        attr_names = asdict(self).keys()
+        sections = [str(getattr(self, n)) for n in attr_names]
+        sections = [textwrap.indent(s, indent) for s in sections]
+        return "Record:\n" + "\n".join(sections)
 
-    def _convert_installed_distributions_to_strings(self) -> list[str]:
-        return self._convert_distributions_to_strings(self.installed_distributions)
 
-    def _convert_active_distributions_to_strings(self) -> list[str]:
-        return self._convert_distributions_to_strings(self.active_distributions)
+class InstalledDistributions(frozenset["Distribution"]):
+    """Represents the set of all installed distributions."""
 
-    @staticmethod
-    def _convert_distributions_to_strings(dists: Iterable[Distribution]) -> list[str]:
-        return [f"{d.name} ({d.version})" for d in sorted(dists)]
+    @property
+    def active(self) -> frozenset[Distribution]:
+        """Return all installed distributions that are active."""
+        return frozenset({d for d in self if d.is_active})
 
-    def _convert_active_modules_to_strings(self) -> list[str]:
-        return [str(m.file) for m in sorted(self.active_modules)]
+    def __str__(self) -> str:
+        """Return a human-readable representation of the set."""
+        header = "Installed Distributions:"
+        max_name_length = max(len(d.name) for d in self)
+        indent = 4 * " "
+        lines = [indent + f"{'+' if d.is_active else '-'} {d.name:<{max_name_length}} ({d.version})" for d in self]
+        return "\n".join([header] + sorted(lines))
 
 
 _T = TypeVar("_T")

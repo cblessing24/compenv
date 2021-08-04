@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pytest
 
-from repro.model.record import Distribution, Module
+from repro.model.record import Distribution, InstalledDistributions, Module, Record
 
 
 class TestRecord:
@@ -15,20 +15,44 @@ class TestRecord:
             setattr(record, attr, "something")
 
     @staticmethod
-    def test_str(record):
+    def test_str():
+        class FakeInstalledDistributions:
+            def __str__(self):
+                return "installed distributions"
+
+        class FakeActiveModules:
+            def __str__(self):
+                return "active modules"
+
+        record = Record(FakeInstalledDistributions(), FakeActiveModules())
+
         expected = textwrap.dedent(
             """
             Record:
-                installed distributions:
-                    dist1 (0.1.0)
-                    dist2 (0.1.1)
-                active distributions:
-                    dist2 (0.1.1)
-                active modules:
-                    module2.py
+                installed distributions
+                active modules
             """
         ).strip()
         assert str(record) == expected
+
+
+class TestInstalledDistributionSet:
+    @staticmethod
+    def test_active_attribute_returns_active_distributions(installed_distributions, active_distributions):
+        installed_distributions = InstalledDistributions(installed_distributions)
+        assert installed_distributions.active == active_distributions
+
+    @staticmethod
+    def test_str(installed_distributions):
+        installed_distributions = InstalledDistributions(installed_distributions)
+        expected = textwrap.dedent(
+            """
+            Installed Distributions:
+                + dist2 (0.1.1)
+                - dist1 (0.1.0)
+            """
+        ).strip()
+        assert str(installed_distributions) == expected
 
 
 class TestDistribution:

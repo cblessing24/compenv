@@ -4,17 +4,21 @@ import pytest
 
 from repro.model import record as record_module
 from repro.model.environment import Environment
-from repro.model.record import Distribution, Module, Record
+from repro.model.record import Distribution, InstalledDistributions, Module, Record
 
 
 @pytest.fixture
-def installed_distributions():
-    return frozenset(
+def active_distributions():
+    return frozenset({Distribution("dist2", "0.1.1", modules=frozenset({Module(Path("module2.py"), is_active=True)}))})
+
+
+@pytest.fixture
+def installed_distributions(active_distributions):
+    return InstalledDistributions(
         {
             Distribution("dist1", "0.1.0", modules=frozenset({Module(Path("module1.py"), is_active=False)})),
-            Distribution("dist2", "0.1.1", modules=frozenset({Module(Path("module2.py"), is_active=True)})),
         }
-    )
+    ).union(active_distributions)
 
 
 @pytest.fixture

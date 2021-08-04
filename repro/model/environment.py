@@ -5,7 +5,7 @@ from types import TracebackType
 from typing import ContextManager, Optional, Type
 
 from . import record
-from .record import Record
+from .record import InstalledDistributions, Record
 
 
 class Environment:
@@ -14,7 +14,7 @@ class Environment:
     @staticmethod
     def record() -> Record:
         """Record information about the current execution environment."""
-        installed_dists = frozenset(record.get_installed_distributions())
+        installed_dists = InstalledDistributions(record.get_installed_distributions())
         active_modules = frozenset(record.get_active_modules())
         return Record(installed_distributions=installed_dists, active_modules=active_modules)
 
