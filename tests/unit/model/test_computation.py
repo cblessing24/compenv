@@ -1,21 +1,10 @@
+import textwrap
+
 import pytest
 
-from repro.model import record
+from repro.model import record as record_module
 from repro.model.computation import Computation, ComputationRecord
 from repro.model.environment import Environment
-
-
-class TestComputationRecord:
-    @staticmethod
-    @pytest.fixture
-    def computation_record(record):
-        return ComputationRecord("identifier", record)
-
-    @staticmethod
-    @pytest.mark.parametrize("attr", ["identifier", "record"])
-    def test_attributes_are_immutable(computation_record, attr):
-        with pytest.raises(AttributeError):
-            setattr(computation_record, attr, "another_value")
 
 
 class TestComputation:
@@ -53,7 +42,7 @@ class TestComputation:
                 def fake_get_active_modules():
                     return iter(frozenset())
 
-                record.get_active_modules = fake_get_active_modules
+                record_module.get_active_modules = fake_get_active_modules
 
             def __repr__(self):
                 return f"{self.__class__.__name__}()"
@@ -102,3 +91,32 @@ class TestComputation:
             repr(computation)
             == f"Computation(identifier='identifier', environment=Environment(), trigger=FakeTrigger())"
         )
+
+
+class TestComputationRecord:
+    @staticmethod
+    @pytest.fixture
+    def computation_record(record):
+        return ComputationRecord("identifier", record)
+
+    @staticmethod
+    @pytest.mark.parametrize("attr", ["identifier", "record"])
+    def test_attributes_are_immutable(computation_record, attr):
+        with pytest.raises(AttributeError):
+            setattr(computation_record, attr, "another_value")
+
+    @staticmethod
+    def test_str(computation_record):
+        expected = textwrap.dedent(
+            """
+            Computation Record:
+                Identifier: identifier
+                Record:
+                    Installed Distributions:
+                        + dist2 (0.1.1)
+                        - dist1 (0.1.0)
+                    Active Modules:
+                        module2.py
+            """
+        ).strip()
+        assert str(computation_record) == expected

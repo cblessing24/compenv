@@ -17,8 +17,8 @@ def installed_distributions(active_distributions):
     return InstalledDistributions(
         {
             Distribution("dist1", "0.1.0", modules=frozenset({Module(Path("module1.py"), is_active=False)})),
-        }
-    ).union(active_distributions)
+        }.union(active_distributions)
+    )
 
 
 @pytest.fixture

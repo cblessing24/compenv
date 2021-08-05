@@ -1,6 +1,7 @@
 """Contains code related to computations."""
 from __future__ import annotations
 
+import textwrap
 import warnings
 from dataclasses import dataclass
 from typing import Callable
@@ -51,3 +52,10 @@ class ComputationRecord:
 
     identifier: str
     record: Record
+
+    def __str__(self) -> str:
+        """Return a human-readable representation of the computation record."""
+        indent = 4 * " "
+        string = "Computation Record:\n"
+        string += textwrap.indent("Identifier: " + self.identifier + "\n" + str(self.record), indent)
+        return string
