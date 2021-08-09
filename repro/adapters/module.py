@@ -5,7 +5,7 @@ from pathlib import Path
 from types import ModuleType
 from typing import Iterator, Mapping
 
-from ..model.record import Module
+from ..model.record import ActiveModules, Module
 
 
 class ActiveModuleConverter:
@@ -14,9 +14,9 @@ class ActiveModuleConverter:
     _active_modules: Mapping[str, ModuleType] = sys.modules
 
     @cache
-    def __call__(self) -> frozenset[Module]:
+    def __call__(self) -> ActiveModules:
         """Return a dictionary containing all active modules that are neither built-in nor namespaces."""
-        return frozenset(Module(Path(nbm.__file__), is_active=True) for nbm in self._non_namespace_modules)
+        return ActiveModules(Module(Path(nbm.__file__), is_active=True) for nbm in self._non_namespace_modules)
 
     @property
     def _non_builtin_modules(self) -> Iterator[ModuleType]:

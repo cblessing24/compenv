@@ -7,7 +7,7 @@ from dataclasses import asdict, dataclass, field
 from pathlib import Path
 from typing import TypeVar
 
-get_active_modules: Callable[[], Iterable[Module]]
+get_active_modules: Callable[[], ActiveModules]
 get_installed_distributions: Callable[[], InstalledDistributions]
 
 
@@ -27,21 +27,43 @@ class Record:
         return "Record:\n" + "\n".join(sections)
 
 
-class InstalledDistributions(frozenset["Distribution"]):
+class Distributions(frozenset["Distribution"]):
+    """Represents a set of distributions."""
+
+    def __str__(self) -> str:
+        """Return a human-readable representation of the set of distributions."""
+        max_name_length = max(len(d.name) for d in self)
+        lines = [f"{'+' if d.is_active else '-'} {d.name:<{max_name_length}} ({d.version})" for d in self]
+        return "\n".join(sorted(lines))
+
+
+class ActiveDistributions(Distributions):
+    """Represents the set of all active distributions."""
+
+    def __str__(self) -> str:
+        """Return a human-readable representation of the set of active distributions."""
+        return "Active Distributions:\n" + textwrap.indent(super().__str__(), " " * 4)
+
+
+class InstalledDistributions(Distributions):
     """Represents the set of all installed distributions."""
 
     @property
-    def active(self) -> frozenset[Distribution]:
+    def active(self) -> ActiveDistributions:
         """Return all installed distributions that are active."""
-        return frozenset({d for d in self if d.is_active})
+        return ActiveDistributions({d for d in self if d.is_active})
+
+    def __str__(self) -> str:
+        """Return a human-readable representation of the set of installed distributions."""
+        return "Installed Distributions:\n" + textwrap.indent(super().__str__(), " " * 4)
+
+
+class Modules(frozenset["Module"]):
+    """Represents a set of modules."""
 
     def __str__(self) -> str:
         """Return a human-readable representation of the set."""
-        header = "Installed Distributions:"
-        max_name_length = max(len(d.name) for d in self)
-        indent = 4 * " "
-        lines = [indent + f"{'+' if d.is_active else '-'} {d.name:<{max_name_length}} ({d.version})" for d in self]
-        return "\n".join([header] + sorted(lines))
+        return "\n".join(sorted(str(m.file) for m in self))
 
 
 _T = TypeVar("_T")
@@ -53,7 +75,7 @@ class Distribution(Set["Module"]):  # type: ignore[override]
 
     name: str
     version: str
-    modules: frozenset[Module] = field(default_factory=frozenset)
+    modules: Modules = field(default_factory=Modules)
 
     @property
     def is_active(self) -> bool:
@@ -82,10 +104,8 @@ class Distribution(Set["Module"]):  # type: ignore[override]
                 version: {self.version}
                 modules:
             """
-        )
-        indent = 8 * " "
-        module_strings = ("\n" + indent).join(str(m.file) for m in sorted(self.modules))
-        return (string + indent + module_strings).strip()
+        ).strip()
+        return string + "\n" + textwrap.indent(str(self.modules), " " * 8)
 
     @classmethod
     def _from_iterable(cls, it: Iterable[_T]) -> frozenset[_T]:
@@ -96,15 +116,12 @@ class Distribution(Set["Module"]):  # type: ignore[override]
         return frozenset(it)
 
 
-class ActiveModules(frozenset["Module"]):
+class ActiveModules(Modules):
     """Represents the set of all active moduls."""
 
     def __str__(self) -> str:
-        """Return a human-readable representation of the set."""
-        header = "Active Modules:"
-        indent = 4 * " "
-        lines = [indent + str(m.file) for m in self]
-        return "\n".join([header] + sorted(lines))
+        """Return a human-readable representation of the set of active modules."""
+        return "Active Modules:\n" + textwrap.indent(super().__str__(), " " * 4)
 
 
 @dataclass(frozen=True, order=True)

@@ -1,7 +1,7 @@
 import pytest
 
 from repro.adapters.distribution import InstalledDistributionConverter
-from repro.model.record import Distribution, Module
+from repro.model.record import Distribution, Module, Modules
 
 
 class FakePackagePath:
@@ -107,7 +107,7 @@ def test_correct_distributions_returned(converter):
             Distribution(
                 "dist1",
                 "0.1.0",
-                frozenset(
+                Modules(
                     [
                         Module(FakePathlibPath("/dist1/package1/__init__.py"), is_active=True),
                         Module(FakePathlibPath("/dist1/package1/module1.py"), is_active=False),
@@ -117,14 +117,14 @@ def test_correct_distributions_returned(converter):
             Distribution(
                 "dist2",
                 "0.1.2",
-                frozenset(
+                Modules(
                     [
                         Module(FakePathlibPath("/dist2/package1/__init__.py"), is_active=False),
                         Module(FakePathlibPath("/dist2/package1/module1.py"), is_active=False),
                     ]
                 ),
             ),
-            Distribution("dist3", "1.2.3", frozenset()),
+            Distribution("dist3", "1.2.3", Modules()),
         }
     )
     actual_distributions = converter()

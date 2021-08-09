@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pytest
 
-from repro.model.record import Distribution, InstalledDistributions, Module, Record
+from repro.model.record import Distribution, InstalledDistributions, Module, Modules
 
 
 class TestRecord:
@@ -15,28 +15,21 @@ class TestRecord:
             setattr(record, attr, "something")
 
     @staticmethod
-    def test_str():
-        class FakeInstalledDistributions:
-            def __str__(self):
-                return "installed distributions"
-
-        class FakeActiveModules:
-            def __str__(self):
-                return "active modules"
-
-        record = Record(FakeInstalledDistributions(), FakeActiveModules())
-
+    def test_str(record):
         expected = textwrap.dedent(
             """
             Record:
-                installed distributions
-                active modules
+                Installed Distributions:
+                    + dist2 (0.1.1)
+                    - dist1 (0.1.0)
+                Active Modules:
+                    module2.py
             """
         ).strip()
         assert str(record) == expected
 
 
-class TestInstalledDistributionSet:
+class TestInstalledDistributions:
     @staticmethod
     def test_active_attribute_returns_active_distributions(installed_distributions, active_distributions):
         installed_distributions = InstalledDistributions(installed_distributions)
@@ -44,7 +37,6 @@ class TestInstalledDistributionSet:
 
     @staticmethod
     def test_str(installed_distributions):
-        installed_distributions = InstalledDistributions(installed_distributions)
         expected = textwrap.dedent(
             """
             Installed Distributions:
@@ -55,12 +47,39 @@ class TestInstalledDistributionSet:
         assert str(installed_distributions) == expected
 
 
-class TestDistribution:
+class TestActiveDistributions:
     @staticmethod
-    @pytest.fixture
-    def modules():
-        return frozenset(Module(Path("module" + str(i) + ".py"), is_active=False) for i in range(5))
+    def test_str(active_distributions):
+        expected = textwrap.dedent(
+            """
+            Active Distributions:
+                + dist2 (0.1.1)
+            """
+        ).strip()
+        assert str(active_distributions) == expected
 
+
+@pytest.fixture
+def modules():
+    return Modules(Module(Path("module" + str(i) + ".py"), is_active=False) for i in range(5))
+
+
+class TestModules:
+    @staticmethod
+    def test_str(modules):
+        expected = textwrap.dedent(
+            """
+            module0.py
+            module1.py
+            module2.py
+            module3.py
+            module4.py
+            """
+        ).strip()
+        assert str(modules) == expected
+
+
+class TestDistribution:
     @staticmethod
     def test_name_attribute_is_immutable():
         dist = Distribution("dist", "0.1.0")
