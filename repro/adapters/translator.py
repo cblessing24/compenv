@@ -4,7 +4,8 @@ import json
 from collections.abc import Mapping
 from typing import Callable, NewType, Union
 
-Identifier = NewType("Identifier", str)
+from ..model.computation import Identifier
+
 PrimaryKey = NewType("PrimaryKey", Mapping[str, Union[int, str, float]])
 
 

@@ -4,10 +4,12 @@ from __future__ import annotations
 import textwrap
 import warnings
 from dataclasses import dataclass
-from typing import Callable
+from typing import Callable, NewType
 
 from .environment import Environment
 from .record import Record
+
+Identifier = NewType("Identifier", str)
 
 
 class Computation:
@@ -15,7 +17,7 @@ class Computation:
 
     def __init__(
         self,
-        identifier: str,
+        identifier: Identifier,
         environment: Environment,
         trigger: Callable[[], None],
     ) -> None:
@@ -50,7 +52,7 @@ class Computation:
 class ComputationRecord:
     """Represents the association between an executed computation and its environmental record."""
 
-    identifier: str
+    identifier: Identifier
     record: Record
 
     def __str__(self) -> str:
