@@ -1,12 +1,11 @@
 """Contains code used for translation between external and internal data."""
 import hashlib
 import json
-from collections.abc import Mapping
 from typing import Callable, NewType, Union
 
 from ..model.computation import Identifier
 
-PrimaryKey = NewType("PrimaryKey", Mapping[str, Union[int, str, float]])
+PrimaryKey = NewType("PrimaryKey", dict[str, Union[int, str, float]])
 
 
 class DataJointTranslator:
