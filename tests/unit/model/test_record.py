@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pytest
 
-from repro.model.record import Distribution, InstalledDistributions, Module, Modules
+from repro.model.record import Distribution, Distributions, InstalledDistributions, Module, Modules
 
 
 class TestRecord:
@@ -13,6 +13,12 @@ class TestRecord:
     def test_attributes_are_read_only(record, attr):
         with pytest.raises(AttributeError):
             setattr(record, attr, "something")
+
+    @staticmethod
+    def test_modules(record):
+        assert record.modules == Modules(
+            {Module(Path("module1.py"), is_active=False), Module(Path("module2.py"), is_active=True)}
+        )
 
     @staticmethod
     def test_str(record):
@@ -27,6 +33,30 @@ class TestRecord:
             """
         ).strip()
         assert str(record) == expected
+
+
+class TestDistributions:
+    @staticmethod
+    def test_modules():
+        dists = Distributions(
+            {
+                Distribution(
+                    "dist1",
+                    "0.1.2",
+                    modules=Modules(
+                        {Module(Path("module1.py"), is_active=False), Module(Path("module2.py"), is_active=True)}
+                    ),
+                ),
+                Distribution("dist2", "1.2.3", modules=Modules({Module(Path("module3.py"), is_active=False)})),
+            }
+        )
+        assert dists.modules == Modules(
+            {
+                Module(Path("module1.py"), is_active=False),
+                Module(Path("module2.py"), is_active=True),
+                Module(Path("module3.py"), is_active=False),
+            }
+        )
 
 
 class TestInstalledDistributions:

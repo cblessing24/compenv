@@ -1,6 +1,7 @@
 """Contains the record class and its constituents."""
 from __future__ import annotations
 
+import itertools
 import textwrap
 from collections.abc import Callable, Iterable, Iterator, Set
 from dataclasses import asdict, dataclass, field
@@ -18,6 +19,11 @@ class Record:
     installed_distributions: InstalledDistributions
     active_modules: ActiveModules
 
+    @property
+    def modules(self) -> Modules:
+        """Return all modules in the record, i.e. active ones and those belonging to a distribution."""
+        return Modules(self.installed_distributions.modules.union(self.active_modules))
+
     def __str__(self) -> str:
         """Return a human-readable representation of the record."""
         indent = 4 * " "
@@ -29,6 +35,11 @@ class Record:
 
 class Distributions(frozenset["Distribution"]):
     """Represents a set of distributions."""
+
+    @property
+    def modules(self) -> Modules:
+        """Return all modules belonging to a distribution."""
+        return Modules(itertools.chain(*self))
 
     def __str__(self) -> str:
         """Return a human-readable representation of the set of distributions."""
