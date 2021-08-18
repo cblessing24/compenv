@@ -1,11 +1,25 @@
 """Contains code related to facades for DataJoint tables."""
+from __future__ import annotations
+
 import dataclasses
+from typing import Any, Callable
 
 from datajoint.errors import DuplicateError
 from datajoint.table import Table
 
 from ..adapters.repository import AbstractTableFacade, DJComputationRecord
 from ..adapters.translator import PrimaryKey
+
+
+def _check_primary(
+    func: Callable[[RecordTableFacade, PrimaryKey], Any]
+) -> Callable[[RecordTableFacade, PrimaryKey], Any]:
+    def wrapper(self: RecordTableFacade, primary: PrimaryKey) -> Any:
+        if primary not in self.table:
+            raise KeyError(f"Computation record with primary key '{primary}' does not exist!")
+        return func(self, primary)
+
+    return wrapper
 
 
 class RecordTableFacade(AbstractTableFacade[DJComputationRecord]):
@@ -28,26 +42,24 @@ class RecordTableFacade(AbstractTableFacade[DJComputationRecord]):
         for part, (attr, _) in DJComputationRecord.parts.items():
             getattr(self.table, part)().insert([entity.primary | dataclasses.asdict(e) for e in getattr(entity, attr)])
 
+    @_check_primary
     def delete(self, primary: PrimaryKey) -> None:
         """Delete the record matching the given primary key from the record table and its parts.
 
         Raises:
             KeyError: No record matching the given primary key exists.
         """
-        if primary not in self.table:
-            raise KeyError(f"Computation record with primary key '{primary}' does not exist!")
         for part in DJComputationRecord.parts:
             (getattr(self.table, part)() & primary).delete_quick()
         (self.table & primary).delete_quick()
 
+    @_check_primary
     def fetch(self, primary: PrimaryKey) -> DJComputationRecord:
         """Fetch the record matching the given primary key from the record table and its parts.
 
         Raises:
             KeyError: No record matching the given primary key exists.
         """
-        if primary not in self.table:
-            raise KeyError(f"Computation record with primary key '{primary}' does not exist!")
         entities = {}
         for part, (attr, entity_cls) in DJComputationRecord.parts.items():
             part_entities = (getattr(self.table, part)() & primary).fetch(as_dict=True)
