@@ -2,18 +2,12 @@
 import dataclasses
 from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import ClassVar, Generator, Generic, Iterable, Literal, Type, TypeVar
+from typing import Generator, Iterable, Literal
 
 from ..model.computation import ComputationRecord, Identifier
 from ..model.record import ActiveModules, Distribution, InstalledDistributions, Module, Modules, Record
+from .abstract import AbstractTableFacade, DJEntity
 from .translator import DataJointTranslator, PrimaryKey
-
-
-@dataclasses.dataclass(frozen=True)
-class DJEntity:
-    """Base class for all classes representing DataJoint entities."""
-
-    parts: ClassVar[dict[str, tuple[str, Type["DJEntity"]]]] = {}
 
 
 @dataclasses.dataclass(frozen=True)
@@ -54,37 +48,6 @@ class DJComputationRecord(DJEntity):
     modules: frozenset[DJModule]
     distributions: frozenset[DJDistribution]
     module_affiliations: frozenset[DJModuleAffiliation]
-
-
-_T = TypeVar("_T", bound=DJEntity)
-
-
-class AbstractTableFacade(ABC, Generic[_T]):
-    """Defines the interface for all table facades."""
-
-    @abstractmethod
-    def insert(self, entity: _T) -> None:
-        """Insert the entity into the table if it does not already exist.
-
-        Raises:
-            ValueError: The entity already exists.
-        """
-
-    @abstractmethod
-    def delete(self, primary: PrimaryKey) -> None:
-        """Delete the entity matching the given primary key from the table if it exists.
-
-        Raises:
-            KeyError: No entity matching the given key exists.
-        """
-
-    @abstractmethod
-    def fetch(self, primary: PrimaryKey) -> _T:
-        """Fetch the entity matching the given primary key from the table if it exists.
-
-        Raises:
-            KeyError: No entity matching the given key exists.
-        """
 
 
 class CompRecRepo(ABC):
