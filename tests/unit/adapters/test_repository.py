@@ -1,24 +1,12 @@
 import pytest
 
-from repro.adapters.repository import (
-    AbstractDJRecTable,
-    DJCompRecRepo,
-    DJComputationRecord,
-    DJDistribution,
-    DJModule,
-    DJModuleAffiliation,
-)
+from repro.adapters.repository import AbstractTableFacade, DJCompRecRepo, DJComputationRecord, DJModule
 from repro.model.computation import ComputationRecord
 
 
 @pytest.fixture
 def identifier():
     return "identifier"
-
-
-@pytest.fixture
-def primary():
-    return {"a": 0, "b": 1}
 
 
 @pytest.fixture
@@ -43,15 +31,15 @@ def fake_translator(identifier, primary):
 
 
 @pytest.fixture
-def fake_record_table():
-    class FakeRecTable(AbstractDJRecTable):
+def fake_facade():
+    class FakeRecordTableFacade(AbstractTableFacade[DJComputationRecord]):
         def __init__(self):
             self.dj_comp_recs = []
 
-        def insert(self, dj_comp_rec):
-            if dj_comp_rec in self.dj_comp_recs:
+        def insert(self, entity):
+            if entity in self.dj_comp_recs:
                 raise ValueError
-            self.dj_comp_recs.append(dj_comp_rec)
+            self.dj_comp_recs.append(entity)
 
         def delete(self, primary):
             try:
@@ -68,71 +56,34 @@ def fake_record_table():
         def __repr__(self):
             return self.__class__.__name__ + "()"
 
-    return FakeRecTable()
+    return FakeRecordTableFacade()
 
 
 @pytest.fixture
-def repo(fake_translator, fake_record_table):
-    return DJCompRecRepo(fake_translator, fake_record_table)
+def repo(fake_translator, fake_facade):
+    return DJCompRecRepo(fake_translator, fake_facade)
 
 
 @pytest.fixture
-def dj_modules():
-    return frozenset(
-        [
-            DJModule(module_file="module1.py", module_is_active="False"),
-            DJModule(module_file="module2.py", module_is_active="True"),
-        ]
-    )
-
-
-@pytest.fixture
-def dj_dists():
-    return frozenset(
-        [
-            DJDistribution(distribution_name="dist1", distribution_version="0.1.0"),
-            DJDistribution(distribution_name="dist2", distribution_version="0.1.1"),
-        ]
-    )
-
-
-@pytest.fixture
-def dj_module_affiliations():
-    return frozenset(
-        [
-            DJModuleAffiliation(module_file="module1.py", distribution_name="dist1"),
-            DJModuleAffiliation(module_file="module2.py", distribution_name="dist2"),
-        ]
-    )
-
-
-@pytest.fixture
-def computation_record(identifier, record):
+def comp_rec(identifier, record):
     return ComputationRecord(identifier, record)
 
 
 @pytest.fixture
-def dj_comp_rec(primary, dj_modules, dj_dists, dj_module_affiliations):
-    return DJComputationRecord(
-        primary=primary, modules=dj_modules, distributions=dj_dists, module_affiliations=dj_module_affiliations
-    )
-
-
-@pytest.fixture
-def add_computation_record(repo, computation_record):
-    repo.add(computation_record)
+def add_computation_record(repo, comp_rec):
+    repo.add(comp_rec)
 
 
 @pytest.mark.usefixtures("add_computation_record")
 class TestAdd:
     @staticmethod
-    def test_raises_error_if_already_existing(repo, computation_record):
+    def test_raises_error_if_already_existing(repo, comp_rec):
         with pytest.raises(ValueError, match="already exists!"):
-            repo.add(computation_record)
+            repo.add(comp_rec)
 
     @staticmethod
-    def test_inserts_dj_computation_record(fake_record_table, primary, dj_comp_rec):
-        assert fake_record_table.fetch(primary) == dj_comp_rec
+    def test_inserts_dj_computation_record(fake_facade, primary, dj_comp_rec):
+        assert fake_facade.fetch(primary) == dj_comp_rec
 
 
 @pytest.mark.parametrize("method", ["remove", "get"])
@@ -141,24 +92,24 @@ def test_raises_error_if_not_existing(repo, identifier, method):
         getattr(repo, method)(identifier)
 
 
-def test_removes_computation_record(repo, computation_record, identifier, fake_record_table, primary):
-    repo.add(computation_record)
+def test_removes_computation_record(repo, comp_rec, identifier, fake_facade, primary):
+    repo.add(comp_rec)
     repo.remove(identifier)
     with pytest.raises(KeyError):
-        fake_record_table.fetch(primary)
+        fake_facade.fetch(primary)
 
 
 class TestGet:
     @staticmethod
     @pytest.mark.usefixtures("add_computation_record")
-    def test_gets_computation_record_if_existing(repo, computation_record, identifier):
-        assert repo.get(identifier) == computation_record
+    def test_gets_computation_record_if_existing(repo, comp_rec, identifier):
+        assert repo.get(identifier) == comp_rec
 
     @staticmethod
     def test_raises_error_if_missing_module_referenced_in_affiliation(
-        primary, repo, identifier, fake_record_table, dj_dists, dj_module_affiliations
+        primary, repo, identifier, fake_facade, dj_dists, dj_module_affiliations
     ):
-        fake_record_table.insert(
+        fake_facade.insert(
             DJComputationRecord(
                 primary=primary,
                 modules=frozenset([DJModule(module_file="module1.py", module_is_active="False")]),
@@ -171,4 +122,4 @@ class TestGet:
 
 
 def test_repr(repo):
-    assert repr(repo) == "DJCompRecRepo(translator=FakeTranslator(), rec_table=FakeRecTable())"
+    assert repr(repo) == "DJCompRecRepo(translator=FakeTranslator(), rec_table=FakeRecordTableFacade())"

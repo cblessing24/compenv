@@ -2,7 +2,7 @@
 import dataclasses
 from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import Generator, Iterable, Literal
+from typing import ClassVar, Generator, Generic, Iterable, Literal, Type, TypeVar
 
 from ..model.computation import ComputationRecord, Identifier
 from ..model.record import ActiveModules, Distribution, InstalledDistributions, Module, Modules, Record
@@ -12,6 +12,8 @@ from .translator import DataJointTranslator, PrimaryKey
 @dataclasses.dataclass(frozen=True)
 class DJEntity:
     """Base class for all classes representing DataJoint entities."""
+
+    parts: ClassVar[dict[str, tuple[str, Type["DJEntity"]]]] = {}
 
 
 @dataclasses.dataclass(frozen=True)
@@ -42,37 +44,46 @@ class DJModuleAffiliation(DJEntity):
 class DJComputationRecord(DJEntity):
     """DataJoint entity representing a computation record."""
 
+    parts = {
+        "Module": ("modules", DJModule),
+        "Distribution": ("distributions", DJDistribution),
+        "ModuleAffiliation": ("module_affiliations", DJModuleAffiliation),
+    }
+
     primary: PrimaryKey
     modules: frozenset[DJModule]
     distributions: frozenset[DJDistribution]
     module_affiliations: frozenset[DJModuleAffiliation]
 
 
-class AbstractDJRecTable(ABC):
-    """Defines the interface for the record table."""
+_T = TypeVar("_T", bound=DJEntity)
+
+
+class AbstractTableFacade(ABC, Generic[_T]):
+    """Defines the interface for all table facades."""
 
     @abstractmethod
-    def insert(self, dj_comp_rec: DJComputationRecord) -> None:
-        """Insert the DataJoint computation record into the table if it does not already exist.
+    def insert(self, entity: _T) -> None:
+        """Insert the entity into the table if it does not already exist.
 
         Raises:
-            ValueError: The record already exists.
+            ValueError: The entity already exists.
         """
 
     @abstractmethod
     def delete(self, primary: PrimaryKey) -> None:
-        """Delete the DataJoint computation record matching the given primary key from the table if it exists.
+        """Delete the entity matching the given primary key from the table if it exists.
 
         Raises:
-            KeyError: No record matching the given key exists.
+            KeyError: No entity matching the given key exists.
         """
 
     @abstractmethod
-    def fetch(self, primary: PrimaryKey) -> DJComputationRecord:
-        """Fetch the DataJoint computation record matching the given primary key from the table if it exists.
+    def fetch(self, primary: PrimaryKey) -> _T:
+        """Fetch the entity matching the given primary key from the table if it exists.
 
         Raises:
-            KeyError: No record matching the given key exists.
+            KeyError: No entity matching the given key exists.
         """
 
 
@@ -95,7 +106,7 @@ class CompRecRepo(ABC):
 class DJCompRecRepo(CompRecRepo):
     """Repository that uses DataJoint tables to persist computation records."""
 
-    def __init__(self, translator: DataJointTranslator, rec_table: AbstractDJRecTable) -> None:
+    def __init__(self, translator: DataJointTranslator, rec_table: AbstractTableFacade[DJComputationRecord]) -> None:
         """Initialize the computation record repository."""
         self.translator = translator
         self.rec_table = rec_table
