@@ -1,4 +1,10 @@
+import dataclasses
+
 import pytest
+from datajoint.errors import DuplicateError
+
+from repro.adapters.repository import DJComputationRecord
+from repro.infrastructure.facade import RecordTableFacade
 
 
 class FakeTable:
@@ -26,7 +32,7 @@ class FakeTable:
                 )
 
         if entity in cls._data:
-            raise ValueError("Can't add already existing entity!")
+            raise DuplicateError
 
         cls._data.append(entity)
 
@@ -85,17 +91,73 @@ class FakeTable:
 
 
 @pytest.fixture
-def fake_record_table():
+def fake_tbl():
     class FakeRecordTable(FakeTable):
         attrs = {"a": int, "b": int}
 
         class Module(FakeTable):
             attrs = {"a": int, "b": int, "module_file": str, "module_is_active": str}
 
-        class InstalledDistribution(FakeTable):
+        class Distribution(FakeTable):
             attrs = {"a": int, "b": int, "distribution_name": str, "distribution_version": str}
 
         class ModuleAffiliation(FakeTable):
             attrs = {"a": int, "b": int, "module_file": str, "distribution_name": str}
 
     return FakeRecordTable()
+
+
+@pytest.fixture
+def facade(fake_tbl):
+    return RecordTableFacade(fake_tbl)
+
+
+class TestInsert:
+    @staticmethod
+    def test_raises_error_if_record_already_exists(facade, dj_comp_rec):
+        facade.insert(dj_comp_rec)
+        with pytest.raises(ValueError, match="already exists!"):
+            facade.insert(dj_comp_rec)
+
+    @staticmethod
+    def test_inserts_entity_into_master_table(facade, dj_comp_rec, fake_tbl, primary):
+        facade.insert(dj_comp_rec)
+        assert fake_tbl.fetch1() == primary
+
+    @staticmethod
+    @pytest.mark.parametrize("part,attr", list((p, a) for p, (a, _) in DJComputationRecord.parts.items()))
+    def test_inserts_part_entities_into_part_tables(facade, dj_comp_rec, fake_tbl, primary, part, attr):
+        facade.insert(dj_comp_rec)
+        assert getattr(fake_tbl, part).fetch(as_dict=True) == [
+            primary | dataclasses.asdict(m) for m in getattr(dj_comp_rec, attr)
+        ]
+
+
+@pytest.mark.parametrize("method", ["delete", "fetch"])
+def test_raises_error_if_record_does_not_exist(facade, primary, method):
+    with pytest.raises(KeyError, match="does not exist!"):
+        getattr(facade, method)(primary)
+
+
+class TestDelete:
+    @staticmethod
+    @pytest.mark.parametrize("part", list(DJComputationRecord.parts))
+    def test_deletes_part_entities_from_part_tables(facade, dj_comp_rec, fake_tbl, part):
+        facade.insert(dj_comp_rec)
+        facade.delete(dj_comp_rec.primary)
+        assert len(getattr(fake_tbl, part)()) == 0
+
+    @staticmethod
+    def test_deletes_entity_from_master_table(facade, dj_comp_rec, fake_tbl):
+        facade.insert(dj_comp_rec)
+        facade.delete(dj_comp_rec.primary)
+        assert len(fake_tbl) == 0
+
+
+def test_fetches_dj_computation_record(facade, dj_comp_rec):
+    facade.insert(dj_comp_rec)
+    assert facade.fetch(dj_comp_rec.primary) == dj_comp_rec
+
+
+def test_repr(facade):
+    assert repr(facade) == "RecordTableFacade(table=FakeRecordTable())"
