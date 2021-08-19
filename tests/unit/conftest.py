@@ -79,7 +79,5 @@ def dj_module_affiliations():
 
 
 @pytest.fixture
-def dj_comp_rec(primary, dj_modules, dj_dists, dj_module_affiliations):
-    return DJComputationRecord(
-        primary=primary, modules=dj_modules, distributions=dj_dists, module_affiliations=dj_module_affiliations
-    )
+def dj_comp_rec(dj_modules, dj_dists, dj_module_affiliations):
+    return DJComputationRecord(modules=dj_modules, distributions=dj_dists, module_affiliations=dj_module_affiliations)

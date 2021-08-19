@@ -36,20 +36,20 @@ def fake_facade():
         def __init__(self):
             self.dj_comp_recs = []
 
-        def insert(self, entity):
-            if entity in self.dj_comp_recs:
+        def insert(self, primary, entity):
+            if (primary, entity) in self.dj_comp_recs:
                 raise ValueError
-            self.dj_comp_recs.append(entity)
+            self.dj_comp_recs.append((primary, entity))
 
         def delete(self, primary):
             try:
-                del self.dj_comp_recs[next(i for i, r in enumerate(self.dj_comp_recs) if r.primary == primary)]
+                del self.dj_comp_recs[next(i for i, (p, _) in enumerate(self.dj_comp_recs) if p == primary)]
             except StopIteration as error:
                 raise KeyError from error
 
         def fetch(self, primary):
             try:
-                return next(r for r in self.dj_comp_recs if r.primary == primary)
+                return next(r for (p, r) in self.dj_comp_recs if p == primary)
             except StopIteration as error:
                 raise KeyError from error
 
@@ -110,12 +110,12 @@ class TestGet:
         primary, repo, identifier, fake_facade, dj_dists, dj_module_affiliations
     ):
         fake_facade.insert(
+            primary,
             DJComputationRecord(
-                primary=primary,
                 modules=frozenset([DJModule(module_file="module1.py", module_is_active="False")]),
                 distributions=dj_dists,
                 module_affiliations=dj_module_affiliations,
-            )
+            ),
         )
         with pytest.raises(ValueError, match="Module referenced in affiliation"):
             repo.get(identifier)

@@ -29,21 +29,19 @@ class RecordTableFacade(AbstractTableFacade[DJComputationRecord]):
         """Initialize the record table facade."""
         self.table = table
 
-    def insert(self, master_entity: DJComputationRecord) -> None:
+    def insert(self, primary: PrimaryKey, master_entity: DJComputationRecord) -> None:
         """Insert the record into the record table and its parts.
 
         Raises:
             ValueError: Record already exists.
         """
         try:
-            self.table.insert1(master_entity.primary)
+            self.table.insert1(primary)
         except DuplicateError as error:
-            raise ValueError(
-                f"Computation record with primary key '{master_entity.primary}' already exists!"
-            ) from error
+            raise ValueError(f"Computation record with primary key '{primary}' already exists!") from error
         for part in DJComputationRecord.parts:
             getattr(self.table, part.part_table)().insert(
-                [master_entity.primary | dataclasses.asdict(e) for e in getattr(master_entity, part.master_attr)]
+                [primary | dataclasses.asdict(e) for e in getattr(master_entity, part.master_attr)]
             )
 
     @_check_primary
@@ -70,7 +68,7 @@ class RecordTableFacade(AbstractTableFacade[DJComputationRecord]):
             part_entities = [dict(e.items() - primary.items()) for e in part_entities]
             part_entities = [part(**e) for e in part_entities]  # type: ignore
             entities[part.master_attr] = frozenset(part_entities)
-        return DJComputationRecord(primary, **entities)
+        return DJComputationRecord(**entities)
 
     def __repr__(self) -> str:
         """Return a string representation of the record table facade."""

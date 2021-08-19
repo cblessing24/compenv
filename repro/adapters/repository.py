@@ -7,7 +7,7 @@ from typing import Generator, Iterable, Literal
 from ..model.computation import ComputationRecord, Identifier
 from ..model.record import ActiveModules, Distribution, InstalledDistributions, Module, Modules, Record
 from .abstract import AbstractTableFacade, DJMasterEntity, DJPartEntity
-from .translator import DataJointTranslator, PrimaryKey
+from .translator import DataJointTranslator
 
 
 @dataclasses.dataclass(frozen=True)
@@ -49,7 +49,6 @@ class DJComputationRecord(DJMasterEntity):
 
     parts = [DJModule, DJDistribution, DJModuleAffiliation]
 
-    primary: PrimaryKey
     modules: frozenset[DJModule]
     distributions: frozenset[DJDistribution]
     module_affiliations: frozenset[DJModuleAffiliation]
@@ -85,14 +84,14 @@ class DJCompRecRepo(CompRecRepo):
 
         try:
             self.rec_table.insert(
+                primary,
                 DJComputationRecord(
-                    primary=primary,
                     modules=frozenset(self._persist_modules(comp_rec.record.modules)),
                     distributions=frozenset(self._persist_dists(comp_rec.record.installed_distributions)),
                     module_affiliations=frozenset(
                         self._get_module_affiliations(comp_rec.record.installed_distributions)
                     ),
-                )
+                ),
             )
         except ValueError as error:
             raise ValueError(f"Record with identifier '{comp_rec.identifier}' already exists!") from error
