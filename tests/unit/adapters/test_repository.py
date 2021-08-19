@@ -76,31 +76,31 @@ def comp_rec(identifier, record):
 
 
 @pytest.fixture
-def add_computation_record(repo, comp_rec):
-    repo.add(comp_rec)
+def add_computation_record(repo, identifier, comp_rec):
+    repo[identifier] = comp_rec
 
 
 @pytest.mark.usefixtures("add_computation_record")
 class TestAdd:
     @staticmethod
-    def test_raises_error_if_already_existing(repo, comp_rec):
+    def test_raises_error_if_already_existing(repo, identifier, comp_rec):
         with pytest.raises(ValueError, match="already exists!"):
-            repo.add(comp_rec)
+            repo[identifier] = comp_rec
 
     @staticmethod
     def test_inserts_dj_computation_record(fake_facade, primary, dj_comp_rec):
         assert fake_facade[primary] == dj_comp_rec
 
 
-@pytest.mark.parametrize("method", ["remove", "get"])
+@pytest.mark.parametrize("method", ["__delitem__", "__getitem__"])
 def test_raises_error_if_not_existing(repo, identifier, method):
     with pytest.raises(KeyError, match="does not exist!"):
         getattr(repo, method)(identifier)
 
 
-def test_removes_computation_record(repo, comp_rec, identifier, fake_facade, primary):
-    repo.add(comp_rec)
-    repo.remove(identifier)
+def test_removes_computation_record(repo, identifier, comp_rec, fake_facade, primary):
+    repo[identifier] = comp_rec
+    del repo[identifier]
     with pytest.raises(KeyError):
         fake_facade[primary]
 
@@ -109,7 +109,7 @@ class TestGet:
     @staticmethod
     @pytest.mark.usefixtures("add_computation_record")
     def test_gets_computation_record_if_existing(repo, comp_rec, identifier):
-        assert repo.get(identifier) == comp_rec
+        assert repo[identifier] == comp_rec
 
     @staticmethod
     def test_raises_error_if_missing_module_referenced_in_affiliation(
@@ -121,7 +121,17 @@ class TestGet:
             module_affiliations=dj_module_affiliations,
         )
         with pytest.raises(ValueError, match="Module referenced in affiliation"):
-            repo.get(identifier)
+            repo[identifier]
+
+
+def test_iteration(repo, identifier, comp_rec):
+    repo[identifier] = comp_rec
+    assert list(iter(repo)) == [identifier]
+
+
+def test_length(repo, identifier, comp_rec):
+    repo[identifier] = comp_rec
+    assert len(repo) == 1
 
 
 def test_repr(repo):

@@ -1,8 +1,9 @@
 """Contains repository code."""
 import dataclasses
 from abc import ABC, abstractmethod
+from collections.abc import Generator, Iterable, Iterator, MutableMapping
 from pathlib import Path
-from typing import Generator, Iterable, Literal
+from typing import Literal
 
 from ..model.computation import ComputationRecord, Identifier
 from ..model.record import ActiveModules, Distribution, InstalledDistributions, Module, Modules, Record
@@ -54,20 +55,28 @@ class DJComputationRecord(DJMasterEntity):
     module_affiliations: frozenset[DJModuleAffiliation]
 
 
-class CompRecRepo(ABC):
+class CompRecRepo(ABC, MutableMapping):
     """Defines the interface for the repository containing computation records."""
 
     @abstractmethod
-    def add(self, comp_rec: ComputationRecord) -> None:
+    def __setitem__(self, identifier: Identifier, comp_rec: ComputationRecord) -> None:
         """Add the given computation record to the repository if it does not already exist."""
 
     @abstractmethod
-    def remove(self, identifier: Identifier) -> None:
+    def __delitem__(self, identifier: Identifier) -> None:
         """Remove the computation record matching the given identifier from the repository if it exists."""
 
     @abstractmethod
-    def get(self, identifier: Identifier) -> ComputationRecord:
+    def __getitem__(self, identifier: Identifier) -> ComputationRecord:
         """Get the computation record matching the given identifier from the repository if it exists."""
+
+    @abstractmethod
+    def __iter__(self) -> Iterator[Identifier]:
+        """Iterate over the identifiers of all computation records."""
+
+    @abstractmethod
+    def __len__(self) -> int:
+        """Return the number of computation records in the repository."""
 
 
 class DJCompRecRepo(CompRecRepo):
@@ -78,9 +87,9 @@ class DJCompRecRepo(CompRecRepo):
         self.translator = translator
         self.rec_table = rec_table
 
-    def add(self, comp_rec: ComputationRecord) -> None:
+    def __setitem__(self, identifier: Identifier, comp_rec: ComputationRecord) -> None:
         """Add the given computation record to the repository if it does not already exist."""
-        primary = self.translator.to_primary_key(comp_rec.identifier)
+        primary = self.translator.to_primary_key(identifier)
 
         try:
             self.rec_table[primary] = DJComputationRecord(
@@ -89,7 +98,7 @@ class DJCompRecRepo(CompRecRepo):
                 module_affiliations=frozenset(self._get_module_affiliations(comp_rec.record.installed_distributions)),
             )
         except ValueError as error:
-            raise ValueError(f"Record with identifier '{comp_rec.identifier}' already exists!") from error
+            raise ValueError(f"Record with identifier '{identifier}' already exists!") from error
 
     @staticmethod
     def _persist_modules(modules: Iterable[Module]) -> Generator[DJModule, None, None]:
@@ -107,7 +116,7 @@ class DJCompRecRepo(CompRecRepo):
             for module in dist.modules:
                 yield DJModuleAffiliation(distribution_name=dist.name, module_file=str(module.file))
 
-    def remove(self, identifier: Identifier) -> None:
+    def __delitem__(self, identifier: Identifier) -> None:
         """Remove the computation record matching the given identifier from the repository if it exists."""
         primary = self.translator.to_primary_key(identifier)
 
@@ -116,7 +125,7 @@ class DJCompRecRepo(CompRecRepo):
         except KeyError as error:
             raise KeyError(f"Record with identifier '{identifier}' does not exist!") from error
 
-    def get(self, identifier: Identifier) -> ComputationRecord:
+    def __getitem__(self, identifier: Identifier) -> ComputationRecord:
         """Get the computation record matching the given identifier from the repository if it exists."""
         primary = self.translator.to_primary_key(identifier)
 
@@ -170,6 +179,14 @@ class DJCompRecRepo(CompRecRepo):
     @staticmethod
     def _reconstitute_module(module: DJModule) -> Module:
         return Module(file=Path(module.module_file), is_active=module.module_is_active == "True")
+
+    def __iter__(self) -> Iterator[Identifier]:
+        """Iterate over the identifiers of all computation records."""
+        return (self.translator.to_identifier(p) for p in self.rec_table)
+
+    def __len__(self) -> int:
+        """Return the number of computation records in the repository."""
+        return len(self.rec_table)
 
     def __repr__(self) -> str:
         """Return a string representation of the computation record repository."""
