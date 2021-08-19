@@ -20,7 +20,7 @@ RUN curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py \
     && python3.9 get-pip.py \
     && rm get-pip.py \
     && python3.9 -m pip install --upgrade pip
-RUN python3.9 -m pip install pdm==1.7.0
+RUN python3.9 -m pip install pdm==1.8.0
 COPY --chown=dev . reproducibility
 WORKDIR reproducibility
 RUN pdm sync -v
