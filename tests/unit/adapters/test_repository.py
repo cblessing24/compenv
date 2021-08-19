@@ -135,4 +135,4 @@ def test_length(repo, identifier, comp_rec):
 
 
 def test_repr(repo):
-    assert repr(repo) == "DJCompRecRepo(translator=FakeTranslator(), rec_table=FakeRecordTableFacade())"
+    assert repr(repo) == "DJCompRecRepo(translator=FakeTranslator(), facade=FakeRecordTableFacade())"

@@ -82,17 +82,17 @@ class CompRecRepo(ABC, MutableMapping):
 class DJCompRecRepo(CompRecRepo):
     """Repository that uses DataJoint tables to persist computation records."""
 
-    def __init__(self, translator: DataJointTranslator, rec_table: AbstractTableFacade[DJComputationRecord]) -> None:
+    def __init__(self, translator: DataJointTranslator, facade: AbstractTableFacade[DJComputationRecord]) -> None:
         """Initialize the computation record repository."""
         self.translator = translator
-        self.rec_table = rec_table
+        self.facade = facade
 
     def __setitem__(self, identifier: Identifier, comp_rec: ComputationRecord) -> None:
         """Add the given computation record to the repository if it does not already exist."""
         primary = self.translator.to_primary_key(identifier)
 
         try:
-            self.rec_table[primary] = DJComputationRecord(
+            self.facade[primary] = DJComputationRecord(
                 modules=frozenset(self._persist_modules(comp_rec.record.modules)),
                 distributions=frozenset(self._persist_dists(comp_rec.record.installed_distributions)),
                 module_affiliations=frozenset(self._get_module_affiliations(comp_rec.record.installed_distributions)),
@@ -121,7 +121,7 @@ class DJCompRecRepo(CompRecRepo):
         primary = self.translator.to_primary_key(identifier)
 
         try:
-            del self.rec_table[primary]
+            del self.facade[primary]
         except KeyError as error:
             raise KeyError(f"Record with identifier '{identifier}' does not exist!") from error
 
@@ -130,7 +130,7 @@ class DJCompRecRepo(CompRecRepo):
         primary = self.translator.to_primary_key(identifier)
 
         try:
-            dj_comp_rec = self.rec_table[primary]
+            dj_comp_rec = self.facade[primary]
         except KeyError as error:
             raise KeyError(f"Record with identifier '{identifier}' does not exist!") from error
 
@@ -182,12 +182,12 @@ class DJCompRecRepo(CompRecRepo):
 
     def __iter__(self) -> Iterator[Identifier]:
         """Iterate over the identifiers of all computation records."""
-        return (self.translator.to_identifier(p) for p in self.rec_table)
+        return (self.translator.to_identifier(p) for p in self.facade)
 
     def __len__(self) -> int:
         """Return the number of computation records in the repository."""
-        return len(self.rec_table)
+        return len(self.facade)
 
     def __repr__(self) -> str:
         """Return a string representation of the computation record repository."""
-        return f"{self.__class__.__name__}(translator={self.translator}, rec_table={self.rec_table})"
+        return f"{self.__class__.__name__}(translator={self.translator}, facade={self.facade})"
