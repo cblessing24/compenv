@@ -120,12 +120,12 @@ class TestInsert:
             facade.insert(dj_comp_rec)
 
     @staticmethod
-    def test_inserts_entity_into_master_table(facade, dj_comp_rec, fake_tbl, primary):
+    def test_inserts_master_entity_into_master_table(facade, dj_comp_rec, fake_tbl, primary):
         facade.insert(dj_comp_rec)
         assert fake_tbl.fetch1() == primary
 
     @staticmethod
-    @pytest.mark.parametrize("part,attr", list((p, a) for p, (a, _) in DJComputationRecord.parts.items()))
+    @pytest.mark.parametrize("part,attr", list((p.part_table, p.master_attr) for p in DJComputationRecord.parts))
     def test_inserts_part_entities_into_part_tables(facade, dj_comp_rec, fake_tbl, primary, part, attr):
         facade.insert(dj_comp_rec)
         assert getattr(fake_tbl, part).fetch(as_dict=True) == [
@@ -145,10 +145,10 @@ class TestDelete:
     def test_deletes_part_entities_from_part_tables(facade, dj_comp_rec, fake_tbl, part):
         facade.insert(dj_comp_rec)
         facade.delete(dj_comp_rec.primary)
-        assert len(getattr(fake_tbl, part)()) == 0
+        assert len(getattr(fake_tbl, part.part_table)()) == 0
 
     @staticmethod
-    def test_deletes_entity_from_master_table(facade, dj_comp_rec, fake_tbl):
+    def test_deletes_master_entity_from_master_table(facade, dj_comp_rec, fake_tbl):
         facade.insert(dj_comp_rec)
         facade.delete(dj_comp_rec.primary)
         assert len(fake_tbl) == 0

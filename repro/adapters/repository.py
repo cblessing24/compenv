@@ -6,43 +6,48 @@ from typing import Generator, Iterable, Literal
 
 from ..model.computation import ComputationRecord, Identifier
 from ..model.record import ActiveModules, Distribution, InstalledDistributions, Module, Modules, Record
-from .abstract import AbstractTableFacade, DJEntity
+from .abstract import AbstractTableFacade, DJMasterEntity, DJPartEntity
 from .translator import DataJointTranslator, PrimaryKey
 
 
 @dataclasses.dataclass(frozen=True)
-class DJModule(DJEntity):
+class DJModule(DJPartEntity):
     """DataJoint entity representing a module."""
+
+    part_table = "Module"
+    master_attr = "modules"
 
     module_file: str
     module_is_active: Literal["True", "False"]
 
 
 @dataclasses.dataclass(frozen=True)
-class DJDistribution(DJEntity):
+class DJDistribution(DJPartEntity):
     """DataJoint entity representing a distribution."""
+
+    part_table = "Distribution"
+    master_attr = "distributions"
 
     distribution_name: str
     distribution_version: str
 
 
 @dataclasses.dataclass(frozen=True)
-class DJModuleAffiliation(DJEntity):
+class DJModuleAffiliation(DJPartEntity):
     """DataJoint entity representing the affiliation of a given module to a distribution."""
+
+    part_table = "ModuleAffiliation"
+    master_attr = "module_affiliations"
 
     module_file: str
     distribution_name: str
 
 
 @dataclasses.dataclass(frozen=True)
-class DJComputationRecord(DJEntity):
+class DJComputationRecord(DJMasterEntity):
     """DataJoint entity representing a computation record."""
 
-    parts = {
-        "Module": ("modules", DJModule),
-        "Distribution": ("distributions", DJDistribution),
-        "ModuleAffiliation": ("module_affiliations", DJModuleAffiliation),
-    }
+    parts = [DJModule, DJDistribution, DJModuleAffiliation]
 
     primary: PrimaryKey
     modules: frozenset[DJModule]

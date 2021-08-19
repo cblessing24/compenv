@@ -1,4 +1,6 @@
 """Contains abstract base classes defining interfaces used by code in the adapter layer."""
+from __future__ import annotations
+
 import dataclasses
 from abc import ABC, abstractmethod
 from typing import ClassVar, Generic, Type, TypeVar
@@ -7,20 +9,28 @@ from .translator import PrimaryKey
 
 
 @dataclasses.dataclass(frozen=True)
-class DJEntity(ABC):
-    """Base class for all classes representing DataJoint entities."""
+class DJMasterEntity:
+    """Base class for all classes representing DataJoint entities in master tables."""
 
-    parts: ClassVar[dict[str, tuple[str, Type["DJEntity"]]]] = {}
+    parts: ClassVar[list[Type[DJPartEntity]]] = []
 
 
-_T = TypeVar("_T", bound=DJEntity)
+@dataclasses.dataclass(frozen=True)
+class DJPartEntity:
+    """Base class for all classes representing DataJoint entities in part tables."""
+
+    part_table: ClassVar[str]
+    master_attr: ClassVar[str]
+
+
+_T = TypeVar("_T", bound=DJMasterEntity)
 
 
 class AbstractTableFacade(ABC, Generic[_T]):
     """Defines the interface for all table facades."""
 
     @abstractmethod
-    def insert(self, entity: _T) -> None:
+    def insert(self, master_entity: _T) -> None:
         """Insert the entity into the table if it does not already exist.
 
         Raises:
