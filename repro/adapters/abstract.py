@@ -3,7 +3,8 @@ from __future__ import annotations
 
 import dataclasses
 from abc import ABC, abstractmethod
-from typing import ClassVar, Generic, Type, TypeVar
+from collections.abc import MutableMapping
+from typing import ClassVar, Generic, Iterator, Type, TypeVar
 
 from .translator import PrimaryKey
 
@@ -26,11 +27,11 @@ class DJPartEntity:
 _T = TypeVar("_T", bound=DJMasterEntity)
 
 
-class AbstractTableFacade(ABC, Generic[_T]):
+class AbstractTableFacade(ABC, MutableMapping, Generic[_T]):
     """Defines the interface for all table facades."""
 
     @abstractmethod
-    def insert(self, primary: PrimaryKey, master_entity: _T) -> None:
+    def __setitem__(self, primary: PrimaryKey, master_entity: _T) -> None:
         """Insert the given entity into the table under the given primary key if it does not already exist.
 
         Raises:
@@ -38,7 +39,7 @@ class AbstractTableFacade(ABC, Generic[_T]):
         """
 
     @abstractmethod
-    def delete(self, primary: PrimaryKey) -> None:
+    def __delitem__(self, primary: PrimaryKey) -> None:
         """Delete the entity matching the given primary key from the table if it exists.
 
         Raises:
@@ -46,9 +47,17 @@ class AbstractTableFacade(ABC, Generic[_T]):
         """
 
     @abstractmethod
-    def fetch(self, primary: PrimaryKey) -> _T:
+    def __getitem__(self, primary: PrimaryKey) -> _T:
         """Fetch the entity matching the given primary key from the table if it exists.
 
         Raises:
             KeyError: No entity matching the given key exists.
         """
+
+    @abstractmethod
+    def __iter__(self) -> Iterator[PrimaryKey]:
+        """Iterate over the primary keys of all entities in the table."""
+
+    @abstractmethod
+    def __len__(self) -> int:
+        """Return the number of entities in the table."""

@@ -83,15 +83,10 @@ class DJCompRecRepo(CompRecRepo):
         primary = self.translator.to_primary_key(comp_rec.identifier)
 
         try:
-            self.rec_table.insert(
-                primary,
-                DJComputationRecord(
-                    modules=frozenset(self._persist_modules(comp_rec.record.modules)),
-                    distributions=frozenset(self._persist_dists(comp_rec.record.installed_distributions)),
-                    module_affiliations=frozenset(
-                        self._get_module_affiliations(comp_rec.record.installed_distributions)
-                    ),
-                ),
+            self.rec_table[primary] = DJComputationRecord(
+                modules=frozenset(self._persist_modules(comp_rec.record.modules)),
+                distributions=frozenset(self._persist_dists(comp_rec.record.installed_distributions)),
+                module_affiliations=frozenset(self._get_module_affiliations(comp_rec.record.installed_distributions)),
             )
         except ValueError as error:
             raise ValueError(f"Record with identifier '{comp_rec.identifier}' already exists!") from error
@@ -117,7 +112,7 @@ class DJCompRecRepo(CompRecRepo):
         primary = self.translator.to_primary_key(identifier)
 
         try:
-            self.rec_table.delete(primary)
+            del self.rec_table[primary]
         except KeyError as error:
             raise KeyError(f"Record with identifier '{identifier}' does not exist!") from error
 
@@ -126,7 +121,7 @@ class DJCompRecRepo(CompRecRepo):
         primary = self.translator.to_primary_key(identifier)
 
         try:
-            dj_comp_rec = self.rec_table.fetch(primary)
+            dj_comp_rec = self.rec_table[primary]
         except KeyError as error:
             raise KeyError(f"Record with identifier '{identifier}' does not exist!") from error
 

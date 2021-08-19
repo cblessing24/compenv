@@ -36,22 +36,28 @@ def fake_facade():
         def __init__(self):
             self.dj_comp_recs = []
 
-        def insert(self, primary, entity):
+        def __setitem__(self, primary, entity):
             if (primary, entity) in self.dj_comp_recs:
                 raise ValueError
             self.dj_comp_recs.append((primary, entity))
 
-        def delete(self, primary):
+        def __delitem__(self, primary):
             try:
                 del self.dj_comp_recs[next(i for i, (p, _) in enumerate(self.dj_comp_recs) if p == primary)]
             except StopIteration as error:
                 raise KeyError from error
 
-        def fetch(self, primary):
+        def __getitem__(self, primary):
             try:
                 return next(r for (p, r) in self.dj_comp_recs if p == primary)
             except StopIteration as error:
                 raise KeyError from error
+
+        def __iter__(self):
+            return (p for (p, _) in self.dj_comp_recs)
+
+        def __len__(self):
+            return len(self.dj_comp_recs)
 
         def __repr__(self):
             return self.__class__.__name__ + "()"
@@ -83,7 +89,7 @@ class TestAdd:
 
     @staticmethod
     def test_inserts_dj_computation_record(fake_facade, primary, dj_comp_rec):
-        assert fake_facade.fetch(primary) == dj_comp_rec
+        assert fake_facade[primary] == dj_comp_rec
 
 
 @pytest.mark.parametrize("method", ["remove", "get"])
@@ -96,7 +102,7 @@ def test_removes_computation_record(repo, comp_rec, identifier, fake_facade, pri
     repo.add(comp_rec)
     repo.remove(identifier)
     with pytest.raises(KeyError):
-        fake_facade.fetch(primary)
+        fake_facade[primary]
 
 
 class TestGet:
@@ -109,13 +115,10 @@ class TestGet:
     def test_raises_error_if_missing_module_referenced_in_affiliation(
         primary, repo, identifier, fake_facade, dj_dists, dj_module_affiliations
     ):
-        fake_facade.insert(
-            primary,
-            DJComputationRecord(
-                modules=frozenset([DJModule(module_file="module1.py", module_is_active="False")]),
-                distributions=dj_dists,
-                module_affiliations=dj_module_affiliations,
-            ),
+        fake_facade[primary] = DJComputationRecord(
+            modules=frozenset([DJModule(module_file="module1.py", module_is_active="False")]),
+            distributions=dj_dists,
+            module_affiliations=dj_module_affiliations,
         )
         with pytest.raises(ValueError, match="Module referenced in affiliation"):
             repo.get(identifier)

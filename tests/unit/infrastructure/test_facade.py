@@ -72,6 +72,10 @@ class FakeTable:
         return all(e in cls._data for e in other)
 
     @classmethod
+    def __iter__(cls):
+        return iter(cls._restricted_data)
+
+    @classmethod
     def __len__(cls):
         return len(cls._restricted_data)
 
@@ -115,25 +119,25 @@ def facade(fake_tbl):
 class TestInsert:
     @staticmethod
     def test_raises_error_if_record_already_exists(facade, primary, dj_comp_rec):
-        facade.insert(primary, dj_comp_rec)
+        facade[primary] = dj_comp_rec
         with pytest.raises(ValueError, match="already exists!"):
-            facade.insert(primary, dj_comp_rec)
+            facade[primary] = dj_comp_rec
 
     @staticmethod
     def test_inserts_master_entity_into_master_table(facade, primary, dj_comp_rec, fake_tbl):
-        facade.insert(primary, dj_comp_rec)
+        facade[primary] = dj_comp_rec
         assert fake_tbl.fetch1() == primary
 
     @staticmethod
     @pytest.mark.parametrize("part,attr", list((p.part_table, p.master_attr) for p in DJComputationRecord.parts))
     def test_inserts_part_entities_into_part_tables(facade, primary, dj_comp_rec, fake_tbl, part, attr):
-        facade.insert(primary, dj_comp_rec)
+        facade[primary] = dj_comp_rec
         assert getattr(fake_tbl, part).fetch(as_dict=True) == [
             primary | dataclasses.asdict(m) for m in getattr(dj_comp_rec, attr)
         ]
 
 
-@pytest.mark.parametrize("method", ["delete", "fetch"])
+@pytest.mark.parametrize("method", ["__delitem__", "__getitem__"])
 def test_raises_error_if_record_does_not_exist(facade, primary, method):
     with pytest.raises(KeyError, match="does not exist!"):
         getattr(facade, method)(primary)
@@ -143,20 +147,30 @@ class TestDelete:
     @staticmethod
     @pytest.mark.parametrize("part", list(DJComputationRecord.parts))
     def test_deletes_part_entities_from_part_tables(facade, primary, dj_comp_rec, fake_tbl, part):
-        facade.insert(primary, dj_comp_rec)
-        facade.delete(primary)
+        facade[primary] = dj_comp_rec
+        del facade[primary]
         assert len(getattr(fake_tbl, part.part_table)()) == 0
 
     @staticmethod
     def test_deletes_master_entity_from_master_table(facade, primary, dj_comp_rec, fake_tbl):
-        facade.insert(primary, dj_comp_rec)
-        facade.delete(primary)
+        facade[primary] = dj_comp_rec
+        del facade[primary]
         assert len(fake_tbl) == 0
 
 
 def test_fetches_dj_computation_record(facade, primary, dj_comp_rec):
-    facade.insert(primary, dj_comp_rec)
-    assert facade.fetch(primary) == dj_comp_rec
+    facade[primary] = dj_comp_rec
+    assert facade[primary] == dj_comp_rec
+
+
+def test_length(facade, primary, dj_comp_rec):
+    facade[primary] = dj_comp_rec
+    assert len(facade) == 1
+
+
+def test_iteration(facade, primary, dj_comp_rec, fake_tbl):
+    facade[primary] = dj_comp_rec
+    assert list(iter(facade)) == list(iter(fake_tbl))
 
 
 def test_repr(facade):

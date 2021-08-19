@@ -2,7 +2,8 @@
 from __future__ import annotations
 
 import dataclasses
-from typing import Any, Callable
+from collections.abc import Callable, Iterator
+from typing import Any
 
 from datajoint.errors import DuplicateError
 from datajoint.table import Table
@@ -29,7 +30,7 @@ class RecordTableFacade(AbstractTableFacade[DJComputationRecord]):
         """Initialize the record table facade."""
         self.table = table
 
-    def insert(self, primary: PrimaryKey, master_entity: DJComputationRecord) -> None:
+    def __setitem__(self, primary: PrimaryKey, master_entity: DJComputationRecord) -> None:
         """Insert the record into the record table and its parts.
 
         Raises:
@@ -45,7 +46,7 @@ class RecordTableFacade(AbstractTableFacade[DJComputationRecord]):
             )
 
     @_check_primary
-    def delete(self, primary: PrimaryKey) -> None:
+    def __delitem__(self, primary: PrimaryKey) -> None:
         """Delete the record matching the given primary key from the record table and its parts.
 
         Raises:
@@ -56,7 +57,7 @@ class RecordTableFacade(AbstractTableFacade[DJComputationRecord]):
         (self.table & primary).delete_quick()
 
     @_check_primary
-    def fetch(self, primary: PrimaryKey) -> DJComputationRecord:
+    def __getitem__(self, primary: PrimaryKey) -> DJComputationRecord:
         """Fetch the record matching the given primary key from the record table and its parts.
 
         Raises:
@@ -69,6 +70,14 @@ class RecordTableFacade(AbstractTableFacade[DJComputationRecord]):
             part_entities = [part(**e) for e in part_entities]  # type: ignore
             entities[part.master_attr] = frozenset(part_entities)
         return DJComputationRecord(**entities)
+
+    def __iter__(self) -> Iterator[PrimaryKey]:
+        """Iterate over the primary keys of all the records in the table."""
+        return iter(self.table)
+
+    def __len__(self) -> int:
+        """Return the number of records in the table."""
+        return len(self.table)
 
     def __repr__(self) -> str:
         """Return a string representation of the record table facade."""
