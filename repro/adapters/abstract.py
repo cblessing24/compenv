@@ -23,6 +23,8 @@ class DJPartEntity:
     part_table: ClassVar[str]
     master_attr: ClassVar[str]
 
+    definition: ClassVar[str]
+
 
 _T = TypeVar("_T", bound=DJMasterEntity)
 

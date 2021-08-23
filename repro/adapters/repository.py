@@ -18,6 +18,12 @@ class DJModule(DJPartEntity):
     part_table = "Module"
     master_attr = "modules"
 
+    definition = """
+    module_file: varchar(64)
+    ---
+    module_is_active: enum("True", "False")
+    """
+
     module_file: str
     module_is_active: Literal["True", "False"]
 
@@ -29,6 +35,12 @@ class DJDistribution(DJPartEntity):
     part_table = "Distribution"
     master_attr = "distributions"
 
+    definition = """
+    distribution_name: varchar(64)
+    ---
+    distribution_version: varchar(64)
+    """
+
     distribution_name: str
     distribution_version: str
 
@@ -39,6 +51,11 @@ class DJModuleAffiliation(DJPartEntity):
 
     part_table = "ModuleAffiliation"
     master_attr = "module_affiliations"
+
+    definition = """
+    -> Module
+    -> Distribution
+    """
 
     module_file: str
     distribution_name: str
