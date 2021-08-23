@@ -1,7 +1,7 @@
 import pytest
 from datajoint.user_tables import Lookup, Part
 
-from repro.adapters.abstract import DJPartEntity
+from repro.adapters.abstract import PartEntity
 from repro.infrastructure.factory import RecordTableFactory
 
 
@@ -46,7 +46,7 @@ class TestMasterClass:
         assert fake_schema.table_cls.definition == "-> Parent"
 
 
-@pytest.mark.parametrize("part", DJPartEntity.__subclasses__())
+@pytest.mark.parametrize("part", PartEntity.__subclasses__())
 @pytest.mark.usefixtures("produce_instance")
 class TestPartClasses:
     @staticmethod

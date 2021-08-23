@@ -5,7 +5,7 @@ from datajoint.schemas import Schema
 from datajoint.table import Table
 from datajoint.user_tables import Lookup, Part
 
-from ..adapters.abstract import DJPartEntity
+from ..adapters.abstract import PartEntity
 
 
 class RecordTableFactory:
@@ -20,7 +20,7 @@ class RecordTableFactory:
     def __call__(self) -> Table:
         """Produce a record table instance."""
         master_cls = type("Record", (Lookup,), {"definition": "-> " + self.parent})
-        for part_cls in DJPartEntity.__subclasses__():
+        for part_cls in PartEntity.__subclasses__():
             setattr(
                 master_cls,
                 part_cls.__name__,

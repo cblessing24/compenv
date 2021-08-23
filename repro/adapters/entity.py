@@ -1,11 +1,11 @@
 import dataclasses
 from typing import Literal
 
-from .abstract import DJMasterEntity, DJPartEntity
+from .abstract import MasterEntity, PartEntity
 
 
 @dataclasses.dataclass(frozen=True)
-class Module(DJPartEntity):
+class Module(PartEntity):
     """DataJoint entity representing a module."""
 
     master_attr = "modules"
@@ -24,7 +24,7 @@ DJModule = Module
 
 
 @dataclasses.dataclass(frozen=True)
-class Distribution(DJPartEntity):
+class Distribution(PartEntity):
     """DataJoint entity representing a distribution."""
 
     master_attr = "distributions"
@@ -43,7 +43,7 @@ DJDistribution = Distribution
 
 
 @dataclasses.dataclass(frozen=True)
-class ModuleAffiliation(DJPartEntity):
+class ModuleAffiliation(PartEntity):
     """DataJoint entity representing the affiliation of a given module to a distribution."""
 
     master_attr = "module_affiliations"
@@ -61,7 +61,7 @@ DJModuleAffiliation = ModuleAffiliation
 
 
 @dataclasses.dataclass(frozen=True)
-class ComputationRecord(DJMasterEntity):
+class ComputationRecord(MasterEntity):
     """DataJoint entity representing a computation record."""
 
     parts = [Module, Distribution, ModuleAffiliation]

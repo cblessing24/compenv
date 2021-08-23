@@ -10,14 +10,14 @@ from .translator import PrimaryKey
 
 
 @dataclasses.dataclass(frozen=True)
-class DJMasterEntity:
+class MasterEntity:
     """Base class for all classes representing DataJoint entities in master tables."""
 
-    parts: ClassVar[list[Type[DJPartEntity]]] = []
+    parts: ClassVar[list[Type[PartEntity]]] = []
 
 
 @dataclasses.dataclass(frozen=True)
-class DJPartEntity:
+class PartEntity:
     """Base class for all classes representing DataJoint entities in part tables."""
 
     part_table: ClassVar[str]
@@ -26,7 +26,7 @@ class DJPartEntity:
     definition: ClassVar[str]
 
 
-_T = TypeVar("_T", bound=DJMasterEntity)
+_T = TypeVar("_T", bound=MasterEntity)
 
 
 class AbstractTableFacade(ABC, MutableMapping, Generic[_T]):
