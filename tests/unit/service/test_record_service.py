@@ -12,11 +12,17 @@ def fake_repository():
     return FakeRespository()
 
 
-def test_trigger_is_triggered(environment, fake_repository, fake_trigger):
-    record.record(fake_repository, "identifier", fake_trigger)
-    assert fake_trigger.triggered
+@pytest.mark.usefixtures("prepare_environment")
+class TestRecord:
+    @staticmethod
+    @pytest.fixture(autouse=True)
+    def record_environment(fake_repository, fake_trigger):
+        record.record(fake_repository, "identifier", fake_trigger)
 
+    @staticmethod
+    def test_trigger_is_triggered(fake_trigger):
+        assert fake_trigger.triggered
 
-def test_computation_record_is_added_to_repository(environment, fake_repository, fake_trigger, computation_record):
-    record.record(fake_repository, "identifier", fake_trigger)
-    assert fake_repository["identifier"] == computation_record
+    @staticmethod
+    def test_computation_record_is_added_to_repository(fake_repository, computation_record):
+        assert fake_repository["identifier"] == computation_record

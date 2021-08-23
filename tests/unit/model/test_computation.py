@@ -6,6 +6,7 @@ from repro.model.computation import Computation, ComputationRecord
 from repro.model.environment import Environment
 
 
+@pytest.mark.usefixtures("prepare_environment")
 class TestComputation:
     @staticmethod
     @pytest.fixture
@@ -14,7 +15,7 @@ class TestComputation:
 
     @staticmethod
     @pytest.fixture
-    def environment(environment, recorded_records):
+    def environment(recorded_records):
         original_record = Environment.record
 
         def tracking_record(*args, **kwargs):
@@ -70,11 +71,6 @@ class TestComputation:
 
 
 class TestComputationRecord:
-    @staticmethod
-    @pytest.fixture
-    def computation_record(record):
-        return ComputationRecord("identifier", record)
-
     @staticmethod
     @pytest.mark.parametrize("attr", ["identifier", "record"])
     def test_attributes_are_immutable(computation_record, attr):

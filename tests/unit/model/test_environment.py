@@ -1,7 +1,15 @@
 import pytest
 
+from repro.model.environment import Environment
 
+
+@pytest.mark.usefixtures("prepare_environment")
 class TestEnvironment:
+    @staticmethod
+    @pytest.fixture
+    def environment():
+        return Environment()
+
     @staticmethod
     def test_correct_record_is_recorded(environment, record):
         assert environment.record() == record
