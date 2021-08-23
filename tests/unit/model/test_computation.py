@@ -2,7 +2,6 @@ import textwrap
 
 import pytest
 
-from repro.model import record as record_module
 from repro.model.computation import Computation, ComputationRecord
 from repro.model.environment import Environment
 
@@ -25,29 +24,6 @@ class TestComputation:
 
         Environment.record = staticmethod(tracking_record)
         return Environment()
-
-    @staticmethod
-    @pytest.fixture
-    def fake_trigger():
-        class FakeTrigger:
-            triggered = False
-            change_environment = False
-
-            def __call__(self):
-                if self.change_environment:
-                    self._change_environment()
-                self.triggered = True
-
-            def _change_environment(self):
-                def fake_get_active_modules():
-                    return iter(frozenset())
-
-                record_module.get_active_modules = fake_get_active_modules
-
-            def __repr__(self):
-                return f"{self.__class__.__name__}()"
-
-        return FakeTrigger()
 
     @staticmethod
     @pytest.fixture

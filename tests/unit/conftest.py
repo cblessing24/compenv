@@ -3,6 +3,9 @@ from pathlib import Path
 import pytest
 
 from repro.adapters.repository import DJComputationRecord, DJDistribution, DJModule, DJModuleAffiliation
+from repro.model import Environment
+from repro.model import record as record_module
+from repro.model.computation import ComputationRecord
 from repro.model.record import (
     ActiveDistributions,
     ActiveModules,
@@ -36,11 +39,29 @@ def active_modules():
 
 
 @pytest.fixture
+def environment(installed_distributions, active_modules):
+    def fake_get_active_modules():
+        return iter(active_modules)
+
+    def fake_get_installed_distributions():
+        return iter(installed_distributions)
+
+    record_module.get_active_modules = fake_get_active_modules
+    record_module.get_installed_distributions = fake_get_installed_distributions
+    return Environment()
+
+
+@pytest.fixture
 def record(installed_distributions, active_modules):
     return Record(
         installed_distributions=installed_distributions,
         active_modules=active_modules,
     )
+
+
+@pytest.fixture
+def computation_record(record):
+    return ComputationRecord("identifier", record)
 
 
 @pytest.fixture
@@ -81,3 +102,26 @@ def dj_module_affiliations():
 @pytest.fixture
 def dj_comp_rec(dj_modules, dj_dists, dj_module_affiliations):
     return DJComputationRecord(modules=dj_modules, distributions=dj_dists, module_affiliations=dj_module_affiliations)
+
+
+@pytest.fixture
+def fake_trigger():
+    class FakeTrigger:
+        triggered = False
+        change_environment = False
+
+        def __call__(self):
+            if self.change_environment:
+                self._change_environment()
+            self.triggered = True
+
+        def _change_environment(self):
+            def fake_get_active_modules():
+                return iter(frozenset())
+
+            record_module.get_active_modules = fake_get_active_modules
+
+        def __repr__(self):
+            return f"{self.__class__.__name__}()"
+
+    return FakeTrigger()
