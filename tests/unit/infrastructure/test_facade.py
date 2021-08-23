@@ -112,8 +112,20 @@ def fake_tbl():
 
 
 @pytest.fixture
-def facade(fake_tbl):
-    return RecordTableFacade(fake_tbl)
+def fake_factory(fake_tbl):
+    class FakeFactory:
+        def __call__(self):
+            return fake_tbl
+
+        def __repr__(self):
+            return self.__class__.__name__ + "()"
+
+    return FakeFactory()
+
+
+@pytest.fixture
+def facade(fake_factory):
+    return RecordTableFacade(fake_factory)
 
 
 class TestInsert:
@@ -174,4 +186,4 @@ def test_iteration(facade, primary, dj_comp_rec, fake_tbl):
 
 
 def test_repr(facade):
-    assert repr(facade) == "RecordTableFacade(table=FakeRecordTable())"
+    assert repr(facade) == "RecordTableFacade(factory=FakeFactory())"

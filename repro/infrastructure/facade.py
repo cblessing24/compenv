@@ -6,7 +6,8 @@ from collections.abc import Callable, Iterator
 from typing import Any
 
 from datajoint.errors import DuplicateError
-from datajoint.table import Table
+
+from repro.infrastructure.factory import RecordTableFactory
 
 from ..adapters.repository import AbstractTableFacade, DJComputationRecord
 from ..adapters.translator import PrimaryKey
@@ -16,7 +17,7 @@ def _check_primary(
     func: Callable[[RecordTableFacade, PrimaryKey], Any]
 ) -> Callable[[RecordTableFacade, PrimaryKey], Any]:
     def wrapper(self: RecordTableFacade, primary: PrimaryKey) -> Any:
-        if primary not in self.table:
+        if primary not in self.factory():
             raise KeyError(f"Computation record with primary key '{primary}' does not exist!")
         return func(self, primary)
 
@@ -26,9 +27,9 @@ def _check_primary(
 class RecordTableFacade(AbstractTableFacade[DJComputationRecord]):
     """Facade around a DataJoint table that stores computation records."""
 
-    def __init__(self, table: Table) -> None:
+    def __init__(self, factory: RecordTableFactory) -> None:
         """Initialize the record table facade."""
-        self.table = table
+        self.factory = factory
 
     def __setitem__(self, primary: PrimaryKey, master_entity: DJComputationRecord) -> None:
         """Insert the record into the record table and its parts.
@@ -37,11 +38,11 @@ class RecordTableFacade(AbstractTableFacade[DJComputationRecord]):
             ValueError: Record already exists.
         """
         try:
-            self.table.insert1(primary)
+            self.factory().insert1(primary)
         except DuplicateError as error:
             raise ValueError(f"Computation record with primary key '{primary}' already exists!") from error
         for part in DJComputationRecord.parts:
-            getattr(self.table, part.part_table)().insert(
+            getattr(self.factory(), part.part_table)().insert(
                 [primary | dataclasses.asdict(e) for e in getattr(master_entity, part.master_attr)]
             )
 
@@ -53,8 +54,8 @@ class RecordTableFacade(AbstractTableFacade[DJComputationRecord]):
             KeyError: No record matching the given primary key exists.
         """
         for part in DJComputationRecord.parts:
-            (getattr(self.table, part.part_table)() & primary).delete_quick()
-        (self.table & primary).delete_quick()
+            (getattr(self.factory(), part.part_table)() & primary).delete_quick()
+        (self.factory() & primary).delete_quick()
 
     @_check_primary
     def __getitem__(self, primary: PrimaryKey) -> DJComputationRecord:
@@ -65,7 +66,7 @@ class RecordTableFacade(AbstractTableFacade[DJComputationRecord]):
         """
         entities = {}
         for part in DJComputationRecord.parts:
-            part_entities = (getattr(self.table, part.part_table)() & primary).fetch(as_dict=True)
+            part_entities = (getattr(self.factory(), part.part_table)() & primary).fetch(as_dict=True)
             part_entities = [dict(e.items() - primary.items()) for e in part_entities]
             part_entities = [part(**e) for e in part_entities]  # type: ignore
             entities[part.master_attr] = frozenset(part_entities)
@@ -73,12 +74,12 @@ class RecordTableFacade(AbstractTableFacade[DJComputationRecord]):
 
     def __iter__(self) -> Iterator[PrimaryKey]:
         """Iterate over the primary keys of all the records in the table."""
-        return iter(self.table)
+        return iter(self.factory())
 
     def __len__(self) -> int:
         """Return the number of records in the table."""
-        return len(self.table)
+        return len(self.factory())
 
     def __repr__(self) -> str:
         """Return a string representation of the record table facade."""
-        return f"{self.__class__.__name__}(table={repr(self.table)})"
+        return f"{self.__class__.__name__}(factory={repr(self.factory)})"
