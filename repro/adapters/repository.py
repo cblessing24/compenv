@@ -1,40 +1,16 @@
-"""Contains repository code."""
-from abc import ABC, abstractmethod
-from collections.abc import Generator, Iterable, Iterator, MutableMapping
+"""Contains the DataJoint implementation of the computation record repository."""
+from collections.abc import Generator, Iterable, Iterator
 from pathlib import Path
 
 from ..model.computation import ComputationRecord, Identifier
 from ..model.record import ActiveModules, Distribution, InstalledDistributions, Module, Modules, Record
+from ..service.abstract import ComputationRecordRepository
 from .abstract import AbstractTableFacade
 from .entity import DJComputationRecord, DJDistribution, DJModule, DJModuleAffiliation
 from .translator import DataJointTranslator
 
 
-class CompRecRepo(ABC, MutableMapping):
-    """Defines the interface for the repository containing computation records."""
-
-    @abstractmethod
-    def __setitem__(self, identifier: Identifier, comp_rec: ComputationRecord) -> None:
-        """Add the given computation record to the repository if it does not already exist."""
-
-    @abstractmethod
-    def __delitem__(self, identifier: Identifier) -> None:
-        """Remove the computation record matching the given identifier from the repository if it exists."""
-
-    @abstractmethod
-    def __getitem__(self, identifier: Identifier) -> ComputationRecord:
-        """Get the computation record matching the given identifier from the repository if it exists."""
-
-    @abstractmethod
-    def __iter__(self) -> Iterator[Identifier]:
-        """Iterate over the identifiers of all computation records."""
-
-    @abstractmethod
-    def __len__(self) -> int:
-        """Return the number of computation records in the repository."""
-
-
-class DJCompRecRepo(CompRecRepo):
+class DJCompRecRepo(ComputationRecordRepository):
     """Repository that uses DataJoint tables to persist computation records."""
 
     def __init__(self, translator: DataJointTranslator, facade: AbstractTableFacade[DJComputationRecord]) -> None:
