@@ -1,3 +1,4 @@
+"""Contains DataJoint entities."""
 import dataclasses
 from typing import Literal
 
