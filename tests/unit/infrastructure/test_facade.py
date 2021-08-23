@@ -141,7 +141,7 @@ class TestInsert:
         assert fake_tbl.fetch1() == primary
 
     @staticmethod
-    @pytest.mark.parametrize("part,attr", list((p.part_table, p.master_attr) for p in DJComputationRecord.parts))
+    @pytest.mark.parametrize("part,attr", list((p.__name__, p.master_attr) for p in DJComputationRecord.parts))
     def test_inserts_part_entities_into_part_tables(facade, primary, dj_comp_rec, fake_tbl, part, attr):
         facade[primary] = dj_comp_rec
         assert getattr(fake_tbl, part).fetch(as_dict=True) == [
@@ -161,7 +161,7 @@ class TestDelete:
     def test_deletes_part_entities_from_part_tables(facade, primary, dj_comp_rec, fake_tbl, part):
         facade[primary] = dj_comp_rec
         del facade[primary]
-        assert len(getattr(fake_tbl, part.part_table)()) == 0
+        assert len(getattr(fake_tbl, part.__name__)()) == 0
 
     @staticmethod
     def test_deletes_master_entity_from_master_table(facade, primary, dj_comp_rec, fake_tbl):

@@ -42,7 +42,7 @@ class RecordTableFacade(AbstractTableFacade[DJComputationRecord]):
         except DuplicateError as error:
             raise ValueError(f"Computation record with primary key '{primary}' already exists!") from error
         for part in DJComputationRecord.parts:
-            getattr(self.factory(), part.part_table)().insert(
+            getattr(self.factory(), part.__name__)().insert(
                 [primary | dataclasses.asdict(e) for e in getattr(master_entity, part.master_attr)]
             )
 
@@ -54,7 +54,7 @@ class RecordTableFacade(AbstractTableFacade[DJComputationRecord]):
             KeyError: No record matching the given primary key exists.
         """
         for part in DJComputationRecord.parts:
-            (getattr(self.factory(), part.part_table)() & primary).delete_quick()
+            (getattr(self.factory(), part.__name__)() & primary).delete_quick()
         (self.factory() & primary).delete_quick()
 
     @_check_primary
@@ -66,7 +66,7 @@ class RecordTableFacade(AbstractTableFacade[DJComputationRecord]):
         """
         entities = {}
         for part in DJComputationRecord.parts:
-            part_entities = (getattr(self.factory(), part.part_table)() & primary).fetch(as_dict=True)
+            part_entities = (getattr(self.factory(), part.__name__)() & primary).fetch(as_dict=True)
             part_entities = [dict(e.items() - primary.items()) for e in part_entities]
             part_entities = [part(**e) for e in part_entities]  # type: ignore
             entities[part.master_attr] = frozenset(part_entities)

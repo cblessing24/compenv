@@ -8,7 +8,6 @@ from .abstract import DJMasterEntity, DJPartEntity
 class Module(DJPartEntity):
     """DataJoint entity representing a module."""
 
-    part_table = "Module"
     master_attr = "modules"
 
     definition = """
@@ -28,7 +27,6 @@ DJModule = Module
 class Distribution(DJPartEntity):
     """DataJoint entity representing a distribution."""
 
-    part_table = "Distribution"
     master_attr = "distributions"
 
     definition = """
@@ -48,7 +46,6 @@ DJDistribution = Distribution
 class ModuleAffiliation(DJPartEntity):
     """DataJoint entity representing the affiliation of a given module to a distribution."""
 
-    part_table = "ModuleAffiliation"
     master_attr = "module_affiliations"
 
     definition = """
