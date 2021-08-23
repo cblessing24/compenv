@@ -1,6 +1,7 @@
 import pytest
 
-from repro.adapters.repository import AbstractTableFacade, DJCompRecRepo, DJComputationRecord, DJModule
+from repro.adapters.entity import DJComputationRecord, DJModule
+from repro.adapters.repository import AbstractTableFacade, DJCompRecRepo
 from repro.model.computation import ComputationRecord
 
 

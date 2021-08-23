@@ -1,75 +1,13 @@
 """Contains repository code."""
-import dataclasses
 from abc import ABC, abstractmethod
 from collections.abc import Generator, Iterable, Iterator, MutableMapping
 from pathlib import Path
-from typing import Literal
 
 from ..model.computation import ComputationRecord, Identifier
 from ..model.record import ActiveModules, Distribution, InstalledDistributions, Module, Modules, Record
-from .abstract import AbstractTableFacade, DJMasterEntity, DJPartEntity
+from .abstract import AbstractTableFacade
+from .entity import DJComputationRecord, DJDistribution, DJModule, DJModuleAffiliation
 from .translator import DataJointTranslator
-
-
-@dataclasses.dataclass(frozen=True)
-class DJModule(DJPartEntity):
-    """DataJoint entity representing a module."""
-
-    part_table = "Module"
-    master_attr = "modules"
-
-    definition = """
-    module_file: varchar(64)
-    ---
-    module_is_active: enum("True", "False")
-    """
-
-    module_file: str
-    module_is_active: Literal["True", "False"]
-
-
-@dataclasses.dataclass(frozen=True)
-class DJDistribution(DJPartEntity):
-    """DataJoint entity representing a distribution."""
-
-    part_table = "Distribution"
-    master_attr = "distributions"
-
-    definition = """
-    distribution_name: varchar(64)
-    ---
-    distribution_version: varchar(64)
-    """
-
-    distribution_name: str
-    distribution_version: str
-
-
-@dataclasses.dataclass(frozen=True)
-class DJModuleAffiliation(DJPartEntity):
-    """DataJoint entity representing the affiliation of a given module to a distribution."""
-
-    part_table = "ModuleAffiliation"
-    master_attr = "module_affiliations"
-
-    definition = """
-    -> Module
-    -> Distribution
-    """
-
-    module_file: str
-    distribution_name: str
-
-
-@dataclasses.dataclass(frozen=True)
-class DJComputationRecord(DJMasterEntity):
-    """DataJoint entity representing a computation record."""
-
-    parts = [DJModule, DJDistribution, DJModuleAffiliation]
-
-    modules: frozenset[DJModule]
-    distributions: frozenset[DJDistribution]
-    module_affiliations: frozenset[DJModuleAffiliation]
 
 
 class CompRecRepo(ABC, MutableMapping):
