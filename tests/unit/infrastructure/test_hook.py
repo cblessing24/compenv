@@ -1,6 +1,6 @@
 import pytest
 
-from repro.hook import hook_into_make_method
+from repro.infrastructure.hook import hook_into_make_method
 
 
 @pytest.fixture
