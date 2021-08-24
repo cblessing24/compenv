@@ -7,20 +7,20 @@ from ..model.record import ActiveModules, Distribution, InstalledDistributions, 
 from ..service.abstract import ComputationRecordRepository
 from .abstract import AbstractTableFacade
 from .entity import DJComputationRecord, DJDistribution, DJModule, DJModuleAffiliation
-from .translator import DataJointTranslator
+from .translator import DJTranslator
 
 
 class DJCompRecRepo(ComputationRecordRepository):
     """Repository that uses DataJoint tables to persist computation records."""
 
-    def __init__(self, translator: DataJointTranslator, facade: AbstractTableFacade[DJComputationRecord]) -> None:
+    def __init__(self, translator: DJTranslator, facade: AbstractTableFacade[DJComputationRecord]) -> None:
         """Initialize the computation record repository."""
         self.translator = translator
         self.facade = facade
 
     def __setitem__(self, identifier: Identifier, comp_rec: ComputationRecord) -> None:
         """Add the given computation record to the repository if it does not already exist."""
-        primary = self.translator.to_primary_key(identifier)
+        primary = self.translator.to_primary(identifier)
 
         try:
             self.facade[primary] = DJComputationRecord(
@@ -49,7 +49,7 @@ class DJCompRecRepo(ComputationRecordRepository):
 
     def __delitem__(self, identifier: Identifier) -> None:
         """Remove the computation record matching the given identifier from the repository if it exists."""
-        primary = self.translator.to_primary_key(identifier)
+        primary = self.translator.to_primary(identifier)
 
         try:
             del self.facade[primary]
@@ -58,7 +58,7 @@ class DJCompRecRepo(ComputationRecordRepository):
 
     def __getitem__(self, identifier: Identifier) -> ComputationRecord:
         """Get the computation record matching the given identifier from the repository if it exists."""
-        primary = self.translator.to_primary_key(identifier)
+        primary = self.translator.to_primary(identifier)
 
         try:
             dj_comp_rec = self.facade[primary]

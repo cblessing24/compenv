@@ -8,7 +8,7 @@ from ..model.computation import Identifier
 PrimaryKey = NewType("PrimaryKey", dict[str, Union[int, str, float]])
 
 
-class DataJointTranslator:
+class DJTranslator:
     """Translator used to translate between DataJoint-specific primary keys and dommain-model-specific identifiers.
 
     Translations from identifier to primary key are only possible if the same primary key was previously translated into
@@ -20,17 +20,17 @@ class DataJointTranslator:
         self._to_identifier = to_identifier
         self._reverse_translations: dict[Identifier, PrimaryKey] = {}
 
-    def to_identifier(self, primary_key: PrimaryKey) -> Identifier:
+    def to_identifier(self, primary: PrimaryKey) -> Identifier:
         """Translate the identifier to its corresponding primary key."""
-        identifier = self._to_identifier(primary_key)
-        self._reverse_translations[identifier] = primary_key
+        identifier = self._to_identifier(primary)
+        self._reverse_translations[identifier] = primary
         return identifier
 
-    def to_primary_key(self, identifier: Identifier) -> PrimaryKey:
+    def to_primary(self, identifier: Identifier) -> PrimaryKey:
         """Translate the primary key into its corresponding identifier."""
         return self._reverse_translations[identifier]
 
 
-def blake2b(primary_key: PrimaryKey) -> Identifier:
+def blake2b(primary: PrimaryKey) -> Identifier:
     """Convert the primary key into an identifier using the blake2b hashing algorithm."""
-    return Identifier(hashlib.blake2b(json.dumps(primary_key, sort_keys=True).encode()).hexdigest())
+    return Identifier(hashlib.blake2b(json.dumps(primary, sort_keys=True).encode()).hexdigest())

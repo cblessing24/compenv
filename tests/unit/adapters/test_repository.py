@@ -21,7 +21,7 @@ def fake_translator(identifier, primary):
             assert primary == self._primary
             return self._identifier
 
-        def to_primary_key(self, identifier):
+        def to_primary(self, identifier):
             assert identifier == self._identifier
             return self._primary
 

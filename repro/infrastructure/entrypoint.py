@@ -6,7 +6,7 @@ from typing import Callable, Type, TypeVar
 from datajoint.autopopulate import AutoPopulate
 
 from ..adapters.repository import DJCompRecRepo
-from ..adapters.translator import DataJointTranslator, PrimaryKey, blake2b
+from ..adapters.translator import DJTranslator, PrimaryKey, blake2b
 from ..service import record
 from .facade import RecordTableFacade
 from .factory import RecordTableFactory
@@ -22,7 +22,7 @@ def record_environment(table_cls: Type[_T]) -> Type[_T]:
 
     schema = table_cls.connection.schemas[table_cls.database]
     factory = RecordTableFactory(schema, parent=table_cls.__name__)
-    translator = DataJointTranslator(blake2b)
+    translator = DJTranslator(blake2b)
     repo = DJCompRecRepo(facade=RecordTableFacade(factory), translator=translator)
 
     def hook(trigger: Callable[[PrimaryKey], None], table_cls: _T, key: PrimaryKey) -> None:

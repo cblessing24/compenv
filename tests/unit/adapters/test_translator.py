@@ -1,6 +1,6 @@
 import pytest
 
-from repro.adapters.translator import DataJointTranslator, blake2b
+from repro.adapters.translator import DJTranslator, blake2b
 
 
 class TestDataJointTranslator:
@@ -10,7 +10,7 @@ class TestDataJointTranslator:
         def to_identifier(primary_key):
             return "identifier"
 
-        return DataJointTranslator(to_identifier)
+        return DJTranslator(to_identifier)
 
     @staticmethod
     def test_translation_to_identifier(translator):
@@ -19,7 +19,7 @@ class TestDataJointTranslator:
     @staticmethod
     def test_translation_to_primary_key(translator):
         identifier = translator.to_identifier("primary_key")
-        assert translator.to_primary_key(identifier) == "primary_key"
+        assert translator.to_primary(identifier) == "primary_key"
 
 
 class TestBlake2b:
