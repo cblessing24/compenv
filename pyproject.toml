@@ -15,6 +15,8 @@ license = {text = "GPL-3.0-or-later"}
 [project.urls]
 homepage = ""
 
+
+[project.optional-dependencies]
 [build-system]
 requires = ["pdm-pep517"]
 build-backend = "pdm.pep517.api"
@@ -32,6 +34,8 @@ dev = [
     "mypy~=0.812",
     "flake8-docstrings~=1.6",
     "pytest-cov~=2.11",
+    "docker~=5.0",
+    "pymysql~=1.0",
 ]
 
 [tool.black]
