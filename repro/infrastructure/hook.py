@@ -1,14 +1,15 @@
 """Contains code related to hooks."""
-from typing import Callable, Mapping, Type, TypeVar, Union
+from typing import Callable, Type, TypeVar
 
 from datajoint.table import Table
 
-Key = Mapping[str, Union[int, str]]
+from ..adapters.translator import PrimaryKey
+
 TableTypeVar = TypeVar("TableTypeVar", bound=Table)
 
 
 def hook_into_make_method(
-    hook: Callable[[Callable[[Key], None], Table, Key], None]
+    hook: Callable[[Callable[[PrimaryKey], None], Table, PrimaryKey], None]
 ) -> Callable[[Type[TableTypeVar]], Type[TableTypeVar]]:
     """Give control over the execution of a table's make method to a callable hook.
 
@@ -21,7 +22,7 @@ def hook_into_make_method(
     def _hook_into_make_method(table_cls: Type[TableTypeVar]) -> Type[TableTypeVar]:
         original_make_method = table_cls.make
 
-        def hooked_make_method(table: TableTypeVar, key: Key) -> None:
+        def hooked_make_method(table: TableTypeVar, key: PrimaryKey) -> None:
             hook(original_make_method, table, key)
 
         table_cls.make = hooked_make_method
