@@ -35,7 +35,7 @@ def produce_instance(factory):
 class TestMasterClass:
     @staticmethod
     def test_class_has_correct_name(fake_schema):
-        assert fake_schema.table_cls.__name__ == "Record"
+        assert fake_schema.table_cls.__name__ == "ParentRecord"
 
     @staticmethod
     def test_class_is_lookup_table(fake_schema):

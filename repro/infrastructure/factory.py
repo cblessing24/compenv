@@ -19,7 +19,7 @@ class RecordTableFactory:
     @cache
     def __call__(self) -> Table:
         """Produce a record table instance."""
-        master_cls = type("Record", (Lookup,), {"definition": "-> " + self.parent})
+        master_cls = type(self.parent + "Record", (Lookup,), {"definition": "-> " + self.parent})
         for part_cls in PartEntity.__subclasses__():
             setattr(
                 master_cls,
