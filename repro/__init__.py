@@ -1,7 +1,7 @@
 """Contains reproducibility tools."""
 from .adapters.distribution import InstalledDistributionConverter
 from .adapters.module import ActiveModuleConverter
-from .infrastructure.entrypoint import record_environment
+from .infrastructure.entrypoint import record_environment  # noqa: F401
 from .model import record
 
 record.get_installed_distributions = InstalledDistributionConverter()
