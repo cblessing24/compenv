@@ -34,7 +34,6 @@ class Distribution(PartEntity):
     definition = """
     -> master
     distribution_name: varchar(64)
-    ---
     distribution_version: varchar(64)
     """
 
@@ -58,6 +57,7 @@ class ModuleAffiliation(PartEntity):
 
     module_file: str
     distribution_name: str
+    distribution_version: str
 
 
 DJModuleAffiliation = ModuleAffiliation

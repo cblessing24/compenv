@@ -91,8 +91,8 @@ def dj_dists():
 def dj_module_affiliations():
     return frozenset(
         [
-            DJModuleAffiliation(module_file="module1.py", distribution_name="dist1"),
-            DJModuleAffiliation(module_file="module2.py", distribution_name="dist2"),
+            DJModuleAffiliation(module_file="module1.py", distribution_name="dist1", distribution_version="0.1.0"),
+            DJModuleAffiliation(module_file="module2.py", distribution_name="dist2", distribution_version="0.1.1"),
         ]
     )
 

@@ -45,7 +45,9 @@ class DJCompRecRepo(ComputationRecordRepository):
     def _get_module_affiliations(dists: Iterable[Distribution]) -> Generator[DJModuleAffiliation, None, None]:
         for dist in dists:
             for module in dist.modules:
-                yield DJModuleAffiliation(distribution_name=dist.name, module_file=str(module.file))
+                yield DJModuleAffiliation(
+                    distribution_name=dist.name, distribution_version=dist.version, module_file=str(module.file)
+                )
 
     def __delitem__(self, identifier: Identifier) -> None:
         """Remove the computation record matching the given identifier from the repository if it exists."""
@@ -92,7 +94,12 @@ class DJCompRecRepo(ComputationRecordRepository):
     def _filter_dj_affiliations(
         dj_dist: DJDistribution, dj_affiliations: Iterable[DJModuleAffiliation]
     ) -> Generator[DJModuleAffiliation, None, None]:
-        return (a for a in dj_affiliations if a.distribution_name == dj_dist.distribution_name)
+        return (
+            a
+            for a in dj_affiliations
+            if a.distribution_name == dj_dist.distribution_name
+            and a.distribution_version == dj_dist.distribution_version
+        )
 
     def _reconstitue_dist(self, dj_dist: DJDistribution, dj_modules: Iterable[DJModule]) -> Distribution:
         return Distribution(

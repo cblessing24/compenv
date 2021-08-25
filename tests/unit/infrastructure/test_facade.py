@@ -106,7 +106,7 @@ def fake_tbl():
             attrs = {"a": int, "b": int, "distribution_name": str, "distribution_version": str}
 
         class ModuleAffiliation(FakeTable):
-            attrs = {"a": int, "b": int, "module_file": str, "distribution_name": str}
+            attrs = {"a": int, "b": int, "module_file": str, "distribution_name": str, "distribution_version": str}
 
     return FakeRecordTable()
 
