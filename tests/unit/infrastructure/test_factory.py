@@ -41,6 +41,11 @@ def produce_instance(factory):
     return factory()
 
 
+@pytest.mark.usefixtures("factory")
+def test_table_is_created_when_factory_is_initialized(fake_schema):
+    assert fake_schema.table_cls
+
+
 @pytest.mark.usefixtures("produce_instance")
 class TestMasterClass:
     @staticmethod
