@@ -12,6 +12,7 @@ class Module(PartEntity):
     master_attr = "modules"
 
     definition = """
+    -> master
     module_file: varchar(256)
     ---
     module_is_active: enum("True", "False")
@@ -31,6 +32,7 @@ class Distribution(PartEntity):
     master_attr = "distributions"
 
     definition = """
+    -> master
     distribution_name: varchar(64)
     ---
     distribution_version: varchar(64)
@@ -50,8 +52,8 @@ class ModuleAffiliation(PartEntity):
     master_attr = "module_affiliations"
 
     definition = """
-    -> Module
-    -> Distribution
+    -> master.Module
+    -> master.Distribution
     """
 
     module_file: str
