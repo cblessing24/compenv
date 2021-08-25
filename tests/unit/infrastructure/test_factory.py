@@ -74,7 +74,7 @@ class TestPartClasses:
 
     @staticmethod
     def test_part_classes_have_correct_definitions(fake_schema, part):
-        assert getattr(fake_schema.table_cls, part.__name__).definition == "-> master\n" + part.definition
+        assert getattr(fake_schema.table_cls, part.__name__).definition == part.definition
 
 
 @pytest.mark.usefixtures("produce_instance")

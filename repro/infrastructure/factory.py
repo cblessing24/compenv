@@ -27,7 +27,7 @@ class RecordTableFactory:
             setattr(
                 master_cls,
                 part_cls.__name__,
-                type(part_cls.__name__, (Part,), {"definition": "-> master\n" + part_cls.definition}),
+                type(part_cls.__name__, (Part,), {"definition": part_cls.definition}),
             )
         return self.schema(master_cls, context={self.parent.__name__: self.parent})()
 
