@@ -12,7 +12,7 @@ class Module(PartEntity):
     master_attr = "modules"
 
     definition = """
-    module_file: varchar(64)
+    module_file: varchar(256)
     ---
     module_is_active: enum("True", "False")
     """
