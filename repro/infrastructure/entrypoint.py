@@ -21,7 +21,7 @@ def record_environment(table_cls: Type[_T]) -> Type[_T]:
         raise ValueError("Schema decorator must be applied before applying this decorator!")
 
     schema = table_cls.connection.schemas[table_cls.database]
-    factory = RecordTableFactory(schema, parent=table_cls.__name__)
+    factory = RecordTableFactory(schema, parent=table_cls)
     translator = DJTranslator(blake2b)
     repo = DJCompRecRepo(facade=RecordTableFacade(factory), translator=translator)
 

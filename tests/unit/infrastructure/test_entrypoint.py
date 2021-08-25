@@ -14,7 +14,7 @@ def fake_schema():
         def __init__(self, database):
             self.database = database
 
-        def __call__(self, table_cls):
+        def __call__(self, table_cls, context=None):
             table_cls.database = self.database
             table_cls.connection = FakeConnection(self)
             return table_cls
@@ -53,4 +53,4 @@ def test_table_factory_has_correct_schema(fake_schema, fake_table_cls):
 
 def test_table_factory_has_correct_parent(fake_schema, fake_table_cls):
     fake_table_cls = record_environment(fake_schema(fake_table_cls))
-    assert fake_table_cls.records.parent == fake_table_cls.__name__
+    assert fake_table_cls.records.parent == fake_table_cls
