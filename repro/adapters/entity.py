@@ -34,7 +34,7 @@ class Distribution(PartEntity):
     definition = """
     -> master
     distribution_name: varchar(64)
-    distribution_version: varchar(64)
+    distribution_version: varchar(128)
     """
 
     distribution_name: str
