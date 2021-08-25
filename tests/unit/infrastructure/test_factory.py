@@ -10,9 +10,11 @@ def fake_schema():
     class FakeSchema:
         def __init__(self):
             self.table_cls = None
+            self.context = None
 
-        def __call__(self, cls):
+        def __call__(self, cls, context=None):
             self.table_cls = cls
+            self.context = context
             return cls
 
         def __repr__(self):
@@ -22,8 +24,16 @@ def fake_schema():
 
 
 @pytest.fixture
-def factory(fake_schema):
-    return RecordTableFactory(fake_schema, parent="Parent")
+def fake_parent():
+    class FakeParent:
+        pass
+
+    return FakeParent
+
+
+@pytest.fixture
+def factory(fake_schema, fake_parent):
+    return RecordTableFactory(fake_schema, parent=fake_parent)
 
 
 @pytest.fixture
@@ -35,7 +45,7 @@ def produce_instance(factory):
 class TestMasterClass:
     @staticmethod
     def test_class_has_correct_name(fake_schema):
-        assert fake_schema.table_cls.__name__ == "ParentRecord"
+        assert fake_schema.table_cls.__name__ == "FakeParentRecord"
 
     @staticmethod
     def test_class_is_lookup_table(fake_schema):
@@ -43,7 +53,7 @@ class TestMasterClass:
 
     @staticmethod
     def test_class_has_correct_definition(fake_schema):
-        assert fake_schema.table_cls.definition == "-> Parent"
+        assert fake_schema.table_cls.definition == "-> FakeParent"
 
 
 @pytest.mark.parametrize("part", PartEntity.__subclasses__())
@@ -62,6 +72,11 @@ class TestPartClasses:
         assert getattr(fake_schema.table_cls, part.__name__).definition == "-> master\n" + part.definition
 
 
+@pytest.mark.usefixtures("produce_instance")
+def test_schema_is_called_with_correct_context(fake_schema, fake_parent):
+    assert fake_schema.context == {"FakeParent": fake_parent}
+
+
 def test_if_instance_is_instance_of_class(produce_instance, fake_schema):
     assert isinstance(produce_instance, fake_schema.table_cls)
 
@@ -70,5 +85,5 @@ def test_instance_is_cached(factory):
     assert factory() is factory()
 
 
-def test_repr(factory):
-    assert repr(factory) == "RecordTableFactory(schema=FakeSchema(), parent='Parent')"
+def test_repr(factory, fake_parent):
+    assert repr(factory) == f"RecordTableFactory(schema=FakeSchema(), parent={repr(fake_parent)})"
