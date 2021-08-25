@@ -23,7 +23,7 @@ class DJTranslator:
     def to_identifier(self, primary: PrimaryKey) -> Identifier:
         """Translate the identifier to its corresponding primary key."""
         identifier = self._to_identifier(primary)
-        self._reverse_translations[identifier] = primary
+        self._reverse_translations[identifier] = PrimaryKey(primary.copy())
         return identifier
 
     def to_primary(self, identifier: Identifier) -> PrimaryKey:
