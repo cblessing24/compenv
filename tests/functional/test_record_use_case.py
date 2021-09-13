@@ -92,8 +92,7 @@ def test_record_is_added_to_record_table(schema):
         number: float
         """
 
-    @record_environment
-    @schema
+    @record_environment(schema)
     class MyComputedTable(Computed):
         definition = """
         -> MyManualTable

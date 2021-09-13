@@ -77,9 +77,10 @@ class TestPartClasses:
         assert getattr(fake_schema.table_cls, part.__name__).definition == part.definition
 
 
-@pytest.mark.usefixtures("produce_instance")
-def test_schema_is_called_with_correct_context(fake_schema, fake_parent):
-    assert fake_schema.context == {"FakeParent": fake_parent}
+def test_parent_is_added_to_context_when_schema_is_called(fake_schema, fake_parent):
+    fake_schema.context = {"foo": "bar"}
+    factory = RecordTableFactory(fake_schema, parent=fake_parent)
+    assert fake_schema.context == {"foo": "bar", "FakeParent": fake_parent}
 
 
 def test_if_instance_is_instance_of_class(produce_instance, fake_schema):

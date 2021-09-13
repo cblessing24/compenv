@@ -29,7 +29,10 @@ class RecordTableFactory:
                 part_cls.__name__,
                 type(part_cls.__name__, (Part,), {"definition": part_cls.definition}),
             )
-        return self.schema(master_cls, context={self.parent.__name__: self.parent})()
+        context = {self.parent.__name__: self.parent}
+        if self.schema.context:
+            context.update(self.schema.context)
+        return self.schema(master_cls, context=context)()
 
     def __repr__(self) -> str:
         """Create a string representation of the factory."""

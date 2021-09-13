@@ -1,8 +1,12 @@
 """Contains reproducibility tools."""
+import inspect
+
 from .adapters.distribution import InstalledDistributionConverter
 from .adapters.module import ActiveModuleConverter
-from .infrastructure.entrypoint import record_environment  # noqa: F401
+from .infrastructure.entrypoint import EnvironmentRecorder
 from .model import record
 
 record.get_installed_distributions = InstalledDistributionConverter()
 record.get_active_modules = ActiveModuleConverter()
+
+record_environment = EnvironmentRecorder(get_current_frame=inspect.currentframe)

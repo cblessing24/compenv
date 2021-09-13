@@ -68,7 +68,7 @@ class RecordTableFacade(AbstractTableFacade[DJComputationRecord]):
         for part in DJComputationRecord.parts:
             part_entities = (getattr(self.factory(), part.__name__)() & primary).fetch(as_dict=True)
             part_entities = [dict(e.items() - primary.items()) for e in part_entities]
-            part_entities = [part(**e) for e in part_entities]  # type: ignore
+            part_entities = [part(**e) for e in part_entities]
             entities[part.master_attr] = frozenset(part_entities)
         return DJComputationRecord(**entities)
 
