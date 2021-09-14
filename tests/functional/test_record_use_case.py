@@ -1,3 +1,4 @@
+import os
 import time
 
 import datajoint as dj
@@ -11,7 +12,7 @@ HEALTH_CHECK_MAX_RETRIES = 60
 HEALTH_CHECK_INTERVAL = 1
 
 DB_IMAGE_TAG = "8"
-DB_HOST = "localhost"
+DB_HOST = "dj-mysql" if os.environ.get("DOCKER") else "localhost"
 DB_USER = "root"
 DB_PASSWORD = "simple"
 DB_PORT = "3306"
@@ -64,6 +65,7 @@ def start_database(docker_client):
         "detach": True,
         "auto_remove": True,
         "name": "dj-mysql",
+        "network": "test",
         "environment": {"MYSQL_ROOT_PASSWORD": DB_PASSWORD},
         "ports": {DB_PORT: DB_PORT},
     }
