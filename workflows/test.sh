@@ -11,5 +11,5 @@ mkdir -p reports \
         -u dev:"$(stat -c "%g" /var/run/docker.sock)" \
         -e DOCKER=1 \
         --net test \
-        reproducibility pytest --cov --cov-report=xml:/home/dev/reports/coverage.xml tests \
+        reproducibility pytest --cov --cov-report=xml:/home/dev/reports/coverage.xml \
     && bash <(curl -s https://codecov.io/bash) -f "$PWD/reports/coverage.xml"
