@@ -1,6 +1,6 @@
 """Contains the DataJoint implementation of the computation record repository."""
-from collections.abc import Generator, Iterable, Iterator
 from pathlib import Path
+from typing import Generator, Iterable, Iterator
 
 from ..model.computation import ComputationRecord, Identifier
 from ..model.record import ActiveModules, Distribution, InstalledDistributions, Module, Modules, Record

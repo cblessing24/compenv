@@ -1,11 +1,11 @@
 """Contains code used for translation between external and internal data."""
 import hashlib
 import json
-from typing import Callable, NewType, Union
+from typing import Callable, Dict, NewType, Union
 
 from ..model.computation import Identifier
 
-PrimaryKey = NewType("PrimaryKey", dict[str, Union[int, str, float]])
+PrimaryKey = NewType("PrimaryKey", Dict[str, Union[int, str, float]])
 
 
 class DJTranslator:
@@ -18,7 +18,7 @@ class DJTranslator:
     def __init__(self, to_identifier: Callable[[PrimaryKey], Identifier]) -> None:
         """Initialize the translator."""
         self._to_identifier = to_identifier
-        self._reverse_translations: dict[Identifier, PrimaryKey] = {}
+        self._reverse_translations: Dict[Identifier, PrimaryKey] = {}
 
     def to_identifier(self, primary: PrimaryKey) -> Identifier:
         """Translate the identifier to its corresponding primary key."""

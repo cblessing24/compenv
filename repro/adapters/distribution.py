@@ -1,7 +1,8 @@
 """Contains code related to getting information about installed distributions."""
-from functools import cache
+from functools import lru_cache
 from importlib import metadata
 from pathlib import Path
+from typing import Set
 
 from ..model.record import Distribution, InstalledDistributions, Module, Modules
 from .module import ActiveModuleConverter
@@ -14,10 +15,10 @@ class InstalledDistributionConverter:
     _path_cls = Path
     _get_active_modules_func = ActiveModuleConverter()
 
-    @cache
+    @lru_cache(maxsize=None)
     def __call__(self) -> InstalledDistributions:
         """Return a dictionary containing all installed distributions."""
-        conv_dists: set[Distribution] = set()
+        conv_dists: Set[Distribution] = set()
         for orig_dist in self._get_installed_distributions_func():
             conv_dists.add(self._convert_distribution(orig_dist))
         return InstalledDistributions(conv_dists)
@@ -29,7 +30,7 @@ class InstalledDistributionConverter:
             modules = set()
         return Distribution(orig_dist.metadata["Name"], orig_dist.metadata["Version"], modules=Modules(modules))
 
-    def _convert_files_to_modules(self, files: set[metadata.PackagePath]) -> set[Module]:
+    def _convert_files_to_modules(self, files: Set[metadata.PackagePath]) -> Set[Module]:
         valid_files = {f for f in files if f.suffix == ".py"}
         abs_files = {self._path_cls(f.locate()) for f in valid_files}
         existing_files = {f for f in abs_files if f.exists()}

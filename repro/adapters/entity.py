@@ -1,6 +1,6 @@
 """Contains DataJoint entities."""
 import dataclasses
-from typing import Literal
+from typing import FrozenSet, Literal
 
 from .abstract import MasterEntity, PartEntity
 
@@ -69,9 +69,9 @@ class ComputationRecord(MasterEntity):
 
     parts = [Module, Distribution, ModuleAffiliation]
 
-    modules: frozenset[Module]
-    distributions: frozenset[Distribution]
-    module_affiliations: frozenset[ModuleAffiliation]
+    modules: FrozenSet[Module]
+    distributions: FrozenSet[Distribution]
+    module_affiliations: FrozenSet[ModuleAffiliation]
 
 
 DJComputationRecord = ComputationRecord

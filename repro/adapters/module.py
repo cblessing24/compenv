@@ -1,6 +1,6 @@
 """Contains code related to classifying modules."""
 import sys
-from functools import cache
+from functools import lru_cache
 from pathlib import Path
 from types import ModuleType
 from typing import Iterator, Mapping
@@ -13,7 +13,7 @@ class ActiveModuleConverter:
 
     _active_modules: Mapping[str, ModuleType] = sys.modules
 
-    @cache
+    @lru_cache(maxsize=None)
     def __call__(self) -> ActiveModules:
         """Return a dictionary containing all active modules that are neither built-in nor namespaces."""
         return ActiveModules(Module(Path(nbm.__file__), is_active=True) for nbm in self._non_namespace_modules)
