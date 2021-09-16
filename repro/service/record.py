@@ -1,5 +1,5 @@
 """Contains the record use-case."""
-from collections.abc import Callable
+from typing import Callable
 
 from ..model.computation import Computation, Identifier
 from ..model.environment import Environment
