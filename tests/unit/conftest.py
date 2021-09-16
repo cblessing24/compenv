@@ -2,7 +2,7 @@ from pathlib import Path
 
 import pytest
 
-from repro.adapters.repository import DJComputationRecord, DJDistribution, DJModule, DJModuleAffiliation
+from repro.adapters.repository import DJComputationRecord, DJDistribution, DJMembership, DJModule
 from repro.model import record as record_module
 from repro.model.computation import ComputationRecord
 from repro.model.record import (
@@ -88,18 +88,18 @@ def dj_dists():
 
 
 @pytest.fixture
-def dj_module_affiliations():
+def dj_memberships():
     return frozenset(
         [
-            DJModuleAffiliation(module_file="module1.py", distribution_name="dist1", distribution_version="0.1.0"),
-            DJModuleAffiliation(module_file="module2.py", distribution_name="dist2", distribution_version="0.1.1"),
+            DJMembership(module_file="module1.py", distribution_name="dist1", distribution_version="0.1.0"),
+            DJMembership(module_file="module2.py", distribution_name="dist2", distribution_version="0.1.1"),
         ]
     )
 
 
 @pytest.fixture
-def dj_comp_rec(dj_modules, dj_dists, dj_module_affiliations):
-    return DJComputationRecord(modules=dj_modules, distributions=dj_dists, module_affiliations=dj_module_affiliations)
+def dj_comp_rec(dj_modules, dj_dists, dj_memberships):
+    return DJComputationRecord(modules=dj_modules, distributions=dj_dists, memberships=dj_memberships)
 
 
 @pytest.fixture

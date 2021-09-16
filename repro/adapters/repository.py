@@ -6,7 +6,7 @@ from ..model.computation import ComputationRecord, Identifier
 from ..model.record import ActiveModules, Distribution, InstalledDistributions, Module, Modules, Record
 from ..service.abstract import ComputationRecordRepository
 from .abstract import AbstractTableFacade
-from .entity import DJComputationRecord, DJDistribution, DJModule, DJModuleAffiliation
+from .entity import DJComputationRecord, DJDistribution, DJMembership, DJModule
 from .translator import DJTranslator
 
 
@@ -26,7 +26,7 @@ class DJCompRecRepo(ComputationRecordRepository):
             self.facade[primary] = DJComputationRecord(
                 modules=frozenset(self._persist_modules(comp_rec.record.modules)),
                 distributions=frozenset(self._persist_dists(comp_rec.record.installed_distributions)),
-                module_affiliations=frozenset(self._get_module_affiliations(comp_rec.record.installed_distributions)),
+                memberships=frozenset(self._get_memberships(comp_rec.record.installed_distributions)),
             )
         except ValueError as error:
             raise ValueError(f"Record with identifier '{identifier}' already exists!") from error
@@ -42,10 +42,10 @@ class DJCompRecRepo(ComputationRecordRepository):
             yield DJDistribution(distribution_name=dist.name, distribution_version=dist.version)
 
     @staticmethod
-    def _get_module_affiliations(dists: Iterable[Distribution]) -> Generator[DJModuleAffiliation, None, None]:
+    def _get_memberships(dists: Iterable[Distribution]) -> Generator[DJMembership, None, None]:
         for dist in dists:
             for module in dist.modules:
-                yield DJModuleAffiliation(
+                yield DJMembership(
                     distribution_name=dist.name, distribution_version=dist.version, module_file=str(module.file)
                 )
 
@@ -77,26 +77,26 @@ class DJCompRecRepo(ComputationRecordRepository):
 
     def _reconstitue_installed_dists(self, dj_comp_rec: DJComputationRecord) -> InstalledDistributions:
         return InstalledDistributions(
-            self._reconstitue_dist(d, self._filter_dj_modules(d, dj_comp_rec.modules, dj_comp_rec.module_affiliations))
+            self._reconstitue_dist(d, self._filter_dj_modules(d, dj_comp_rec.modules, dj_comp_rec.memberships))
             for d in dj_comp_rec.distributions
         )
 
     def _filter_dj_modules(
-        self, dj_dist: DJDistribution, dj_modules: Iterable[DJModule], dj_affiliations: Iterable[DJModuleAffiliation]
+        self, dj_dist: DJDistribution, dj_modules: Iterable[DJModule], dj_memberships: Iterable[DJMembership]
     ) -> Generator[DJModule, None, None]:
-        for dj_affiliation in self._filter_dj_affiliations(dj_dist, dj_affiliations):
+        for dj_membership in self._filter_dj_memberships(dj_dist, dj_memberships):
             try:
-                yield next(m for m in dj_modules if m.module_file == dj_affiliation.module_file)
+                yield next(m for m in dj_modules if m.module_file == dj_membership.module_file)
             except StopIteration as error:
-                raise ValueError(f"Module referenced in affiliation '{dj_affiliation}' does not exist!") from error
+                raise ValueError(f"Module referenced in membership '{dj_membership}' does not exist!") from error
 
     @staticmethod
-    def _filter_dj_affiliations(
-        dj_dist: DJDistribution, dj_affiliations: Iterable[DJModuleAffiliation]
-    ) -> Generator[DJModuleAffiliation, None, None]:
+    def _filter_dj_memberships(
+        dj_dist: DJDistribution, dj_memberships: Iterable[DJMembership]
+    ) -> Generator[DJMembership, None, None]:
         return (
             a
-            for a in dj_affiliations
+            for a in dj_memberships
             if a.distribution_name == dj_dist.distribution_name
             and a.distribution_version == dj_dist.distribution_version
         )

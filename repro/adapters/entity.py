@@ -45,10 +45,10 @@ DJDistribution = Distribution
 
 
 @dataclasses.dataclass(frozen=True)
-class ModuleAffiliation(PartEntity):
-    """DataJoint entity representing the affiliation of a given module to a distribution."""
+class Membership(PartEntity):
+    """DataJoint entity representing the membership of a given module in a distribution."""
 
-    master_attr = "module_affiliations"
+    master_attr = "memberships"
 
     definition = """
     -> master.Module
@@ -60,18 +60,18 @@ class ModuleAffiliation(PartEntity):
     distribution_version: str
 
 
-DJModuleAffiliation = ModuleAffiliation
+DJMembership = Membership
 
 
 @dataclasses.dataclass(frozen=True)
 class ComputationRecord(MasterEntity):
     """DataJoint entity representing a computation record."""
 
-    parts = [Module, Distribution, ModuleAffiliation]
+    parts = [Module, Distribution, Membership]
 
     modules: FrozenSet[Module]
     distributions: FrozenSet[Distribution]
-    module_affiliations: FrozenSet[ModuleAffiliation]
+    memberships: FrozenSet[Membership]
 
 
 DJComputationRecord = ComputationRecord
