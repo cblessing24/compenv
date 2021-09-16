@@ -3,8 +3,8 @@
     "__pypackages__"
   ]
   "typeCheckingMode": "off",
-  "pythonVersion": "3.9",
+  "pythonVersion": "3.8",
   "extraPaths": [
-    "__pypackages__/3.9/lib"
+    "__pypackages__/3.8/lib"
   ]
 }

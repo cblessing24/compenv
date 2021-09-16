@@ -8,7 +8,7 @@ authors = [
 dependencies = [
     "datajoint==0.12.9",
 ]
-requires-python = ">=3.9"
+requires-python = ">=3.8"
 dynamic = ["classifiers"]
 license = {text = "GPL-3.0-or-later"}
 
@@ -55,7 +55,7 @@ ignore-patterns = ["test_.*\\.py", "conftest\\.py"]
 enable = ["useless-suppression"]
 
 [tool.mypy]
-python_version = "3.9"
+python_version = "3.8"
 files = "repro/**/*.py"
 disallow_untyped_calls = true
 disallow_untyped_defs = true

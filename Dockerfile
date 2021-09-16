@@ -9,18 +9,18 @@ RUN apt-get update && apt-get install -y \
     curl \
     build-essential \
     git \
-    python3.9 \
-    python3.9-distutil \
-    python3.9-dev \
+    python3.8 \
+    python3.8-distutil \
+    python3.8-dev \
     && rm -rf /var/lib/apt/lists/*
 RUN useradd -m dev
 USER dev
 WORKDIR /home/dev
 RUN curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py \
-    && python3.9 get-pip.py \
+    && python3.8 get-pip.py \
     && rm get-pip.py \
-    && python3.9 -m pip install --upgrade pip
-RUN python3.9 -m pip install pdm==1.8.0
+    && python3.8 -m pip install --upgrade pip
+RUN python3.8 -m pip install pdm==1.8.0
 COPY --chown=dev . reproducibility
 WORKDIR reproducibility
 RUN pdm sync -v
