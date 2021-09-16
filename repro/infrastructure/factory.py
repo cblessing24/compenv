@@ -1,5 +1,5 @@
 """Contains code related to the dynamic creation of tables."""
-from functools import cache
+from functools import lru_cache
 from typing import Type
 
 from datajoint.autopopulate import AutoPopulate
@@ -19,7 +19,7 @@ class RecordTableFactory:
         self.parent = parent
         self()
 
-    @cache
+    @lru_cache(maxsize=None)
     def __call__(self) -> Table:
         """Produce a record table instance."""
         master_cls = type(self.parent.__name__ + "Record", (Lookup,), {"definition": "-> " + self.parent.__name__})

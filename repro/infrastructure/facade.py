@@ -43,7 +43,7 @@ class RecordTableFacade(AbstractTableFacade[DJComputationRecord]):
             raise ValueError(f"Computation record with primary key '{primary}' already exists!") from error
         for part in DJComputationRecord.parts:
             getattr(self.factory(), part.__name__)().insert(
-                [primary | dataclasses.asdict(e) for e in getattr(master_entity, part.master_attr)]
+                [{**primary, **dataclasses.asdict(e)} for e in getattr(master_entity, part.master_attr)]
             )
 
     @_check_primary

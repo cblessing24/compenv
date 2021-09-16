@@ -9,7 +9,6 @@ from repro.infrastructure.facade import RecordTableFacade
 
 class FakeTable:
     @classmethod
-    @property
     def _restricted_data(cls):
         if not cls._restriction:
             return cls._data
@@ -38,21 +37,21 @@ class FakeTable:
 
     @classmethod
     def delete_quick(cls):
-        for entity in cls._restricted_data:
+        for entity in cls._restricted_data():
             del cls._data[cls._data.index(entity)]
 
     @classmethod
     def fetch(cls, as_dict=False):
         if as_dict is not True:
             raise ValueError("'as_dict' must be set to 'True' when fetching!")
-        return cls._restricted_data
+        return cls._restricted_data()
 
     @classmethod
     def fetch1(cls):
-        if len(cls._restricted_data) != 1:
+        if len(cls._restricted_data()) != 1:
             raise RuntimeError("Can't fetch zero or more than one entity!")
 
-        return cls._restricted_data[0]
+        return cls._restricted_data()[0]
 
     @classmethod
     def __and__(cls, restriction):
@@ -62,7 +61,7 @@ class FakeTable:
 
     @classmethod
     def __contains__(cls, item):
-        return item in cls._restricted_data
+        return item in cls._restricted_data()
 
     @classmethod
     def __eq__(cls, other):
@@ -73,11 +72,11 @@ class FakeTable:
 
     @classmethod
     def __iter__(cls):
-        return iter(cls._restricted_data)
+        return iter(cls._restricted_data())
 
     @classmethod
     def __len__(cls):
-        return len(cls._restricted_data)
+        return len(cls._restricted_data())
 
     @classmethod
     def __repr__(cls):
@@ -145,7 +144,7 @@ class TestInsert:
     def test_inserts_part_entities_into_part_tables(facade, primary, dj_comp_rec, fake_tbl, part, attr):
         facade[primary] = dj_comp_rec
         assert getattr(fake_tbl, part).fetch(as_dict=True) == [
-            primary | dataclasses.asdict(m) for m in getattr(dj_comp_rec, attr)
+            {**primary, **dataclasses.asdict(m)} for m in getattr(dj_comp_rec, attr)
         ]
 
 
