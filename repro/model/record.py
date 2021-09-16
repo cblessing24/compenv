@@ -6,7 +6,7 @@ import textwrap
 from collections.abc import Callable, Iterable, Iterator, Set
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
-from typing import TypeVar
+from typing import FrozenSet, TypeVar
 
 get_active_modules: Callable[[], ActiveModules]
 get_installed_distributions: Callable[[], InstalledDistributions]
@@ -33,7 +33,7 @@ class Record:
         return "Record:\n" + "\n".join(sections)
 
 
-class Distributions(frozenset["Distribution"]):
+class Distributions(FrozenSet["Distribution"]):
     """Represents a set of distributions."""
 
     @property
@@ -69,7 +69,7 @@ class InstalledDistributions(Distributions):
         return "Installed Distributions:\n" + textwrap.indent(super().__str__(), " " * 4)
 
 
-class Modules(frozenset["Module"]):
+class Modules(FrozenSet["Module"]):
     """Represents a set of modules."""
 
     def __str__(self) -> str:
@@ -81,7 +81,7 @@ _T = TypeVar("_T")
 
 
 @dataclass(frozen=True, order=True)
-class Distribution(Set["Module"]):  # type: ignore[override]
+class Distribution(Set):  # type: ignore[override]
     """Represents a Python distribution."""
 
     name: str
