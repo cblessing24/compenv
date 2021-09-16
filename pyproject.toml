@@ -74,3 +74,9 @@ ignore_missing_imports = true
 [tool.coverage.run]
 branch = true
 source = ["repro"]
+
+[tool.pytest.ini_options]
+addopts = ["--cov", "-q"]
+testpaths = [
+    "tests",
+]
