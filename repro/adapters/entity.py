@@ -1,6 +1,8 @@
 """Contains DataJoint entities."""
+from __future__ import annotations
+
 import dataclasses
-from typing import FrozenSet, Literal
+from typing import Any, ClassVar, FrozenSet, List, Literal, Mapping, Type
 
 from .abstract import MasterEntity, PartEntity
 
@@ -21,6 +23,11 @@ class Module(PartEntity):
     module_file: str
     module_is_active: Literal["True", "False"]
 
+    @classmethod
+    def from_mapping(cls, mapping: Mapping[str, Any]) -> Module:
+        """Create a module from the given mapping."""
+        return cls(mapping["module_file"], mapping["module_is_active"])
+
 
 DJModule = Module
 
@@ -39,6 +46,11 @@ class Distribution(PartEntity):
 
     distribution_name: str
     distribution_version: str
+
+    @classmethod
+    def from_mapping(cls, mapping: Mapping[str, Any]) -> Distribution:
+        """Create a distribution from the given mapping."""
+        return cls(mapping["distribution_name"], mapping["distribution_version"])
 
 
 DJDistribution = Distribution
@@ -59,6 +71,11 @@ class Membership(PartEntity):
     distribution_name: str
     distribution_version: str
 
+    @classmethod
+    def from_mapping(cls, mapping: Mapping[str, Any]) -> Membership:
+        """Create a membership from the given mapping."""
+        return cls(mapping["module_file"], mapping["distribution_name"], mapping["distribution_version"])
+
 
 DJMembership = Membership
 
@@ -67,7 +84,7 @@ DJMembership = Membership
 class ComputationRecord(MasterEntity):
     """DataJoint entity representing a computation record."""
 
-    parts = [Module, Distribution, Membership]
+    parts: ClassVar[List[Type[PartEntity]]] = [Module, Distribution, Membership]
 
     modules: FrozenSet[Module]
     distributions: FrozenSet[Distribution]

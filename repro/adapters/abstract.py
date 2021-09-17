@@ -4,7 +4,7 @@ from __future__ import annotations
 import dataclasses
 from abc import ABC, abstractmethod
 from collections.abc import MutableMapping
-from typing import ClassVar, Generic, Iterator, Type, TypeVar
+from typing import Any, ClassVar, Generic, Iterator, Mapping, Type, TypeVar
 
 from .translator import PrimaryKey
 
@@ -16,7 +16,6 @@ class MasterEntity:
     parts: ClassVar[list[Type[PartEntity]]] = []
 
 
-@dataclasses.dataclass(frozen=True)
 class PartEntity:
     """Base class for all classes representing DataJoint entities in part tables."""
 
@@ -24,6 +23,11 @@ class PartEntity:
     master_attr: ClassVar[str]
 
     definition: ClassVar[str]
+
+    @classmethod
+    @abstractmethod
+    def from_mapping(cls, mapping: Mapping[str, Any]) -> PartEntity:
+        """Create an instance of the part entity from the given mapping."""
 
 
 _T = TypeVar("_T", bound=MasterEntity)
