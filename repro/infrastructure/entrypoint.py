@@ -1,6 +1,7 @@
 """Contains entrypoints to the application."""
 
 import functools
+import inspect
 from types import FrameType
 from typing import Callable, Optional, Type, TypeVar
 
@@ -17,10 +18,13 @@ from .hook import hook_into_make_method
 _T = TypeVar("_T", bound=AutoPopulate)
 
 
+DEFAULT_GET_CURRENT_FRAME = inspect.currentframe
+
+
 class EnvironmentRecorder:  # pylint: disable=too-few-public-methods
     """Records the environment."""
 
-    def __init__(self, get_current_frame: Callable[[], Optional[FrameType]]) -> None:
+    def __init__(self, get_current_frame: Callable[[], Optional[FrameType]] = DEFAULT_GET_CURRENT_FRAME) -> None:
         """Initialize the environment recorder."""
         self.get_current_frame = get_current_frame
 

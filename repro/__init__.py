@@ -9,4 +9,4 @@ from .model import record
 record.get_installed_distributions = InstalledDistributionConverter()
 record.get_active_modules = ActiveModuleConverter()
 
-record_environment = EnvironmentRecorder(get_current_frame=inspect.currentframe)
+record_environment = EnvironmentRecorder()
