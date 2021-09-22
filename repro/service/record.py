@@ -4,7 +4,7 @@ from typing import Callable
 
 from ..model.computation import Computation, Identifier
 from ..model.environment import Environment
-from .abstract import Request, Service
+from .abstract import Request, Response, Service
 
 
 @dataclasses.dataclass(frozen=True)
@@ -15,16 +15,23 @@ class RecordRequest(Request):
     trigger: Callable[[], None]
 
 
-class RecordService(Service[RecordRequest]):
+@dataclasses.dataclass(frozen=True)
+class RecordResponse(Response):
+    """Response of the record service."""
+
+
+class RecordService(Service[RecordRequest, RecordResponse]):  # pylint: disable=too-few-public-methods
     """A service used to record the environment."""
 
     _request_cls = RecordRequest
+    _response_cls = RecordResponse
 
-    def __call__(self, request: RecordRequest) -> None:
+    def _execute(self, request: RecordRequest) -> RecordResponse:
         """Record the environment."""
         computation = Computation(
             request.identifier,
             environment=Environment(),
-            trigger=request.trigger,  # type: ignore (https://github.com/python/mypy/issues/6910#)
+            trigger=request.trigger,  # type: ignore
         )
         self.repo[request.identifier] = computation.execute()
+        return self._response_cls()

@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from collections.abc import MutableMapping
-from typing import Generic, Iterator, Type, TypeVar
+from typing import Callable, Generic, Iterator, Type, TypeVar
 
 from ..model.computation import ComputationRecord, Identifier
 
@@ -12,25 +12,38 @@ class Request(ABC):  # pylint: disable=too-few-public-methods
     """Defines the interface for all requests."""
 
 
+class Response(ABC):  # pylint: disable=too-few-public-methods
+    """Defines the interface for all responses."""
+
+
 _T = TypeVar("_T", bound=Request)
+_V = TypeVar("_V", bound=Response)
 
 
-class Service(ABC, Generic[_T]):
+class Service(ABC, Generic[_T, _V]):
     """Defines the interface for all services."""
 
     _request_cls: Type[_T]
+    _response_cls: Type[_V]
 
-    def __init__(self, repo: ComputationRecordRepository) -> None:
+    def __init__(self, repo: ComputationRecordRepository, output_port: Callable[[_V], None]) -> None:
         """Initialize the service."""
         self.repo = repo
+        self.output_port = output_port
+
+    def __call__(self, request: _T) -> None:
+        """Pass the response of the executed service to the output port."""
+        response = self._execute(request)
+        self.output_port(response)
 
     @abstractmethod
-    def __call__(self, request: _T) -> None:
+    def _execute(self, request: _T) -> _V:
         """Execute the service with the given request."""
 
-    def create_request(self, *args, **kwargs) -> _T:
+    @property
+    def create_request(self) -> Type[_T]:
         """Create a new request from the given arguments."""
-        return self._request_cls(*args, **kwargs)
+        return self._request_cls
 
 
 class ComputationRecordRepository(ABC, MutableMapping):

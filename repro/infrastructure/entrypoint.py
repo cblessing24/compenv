@@ -57,7 +57,7 @@ class EnvironmentRecorder:  # pylint: disable=too-few-public-methods
 
             def hook(trigger: Callable[[PrimaryKey], None], table: _T, key: PrimaryKey) -> None:
                 identifier = translator.to_identifier(key)
-                service = self.services["record"](repo)
+                service = self.services["record"](repo, output_port=lambda x: None)
                 request = service.create_request(trigger=functools.partial(trigger, table, key), identifier=identifier)
                 service(request)
 
