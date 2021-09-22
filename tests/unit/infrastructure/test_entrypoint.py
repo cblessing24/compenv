@@ -32,23 +32,37 @@ def fake_get_current_frame(fake_current_frame):
 
 @pytest.fixture
 def record_environment(fake_get_current_frame):
-    return EnvironmentRecorder(fake_get_current_frame)
+    return EnvironmentRecorder(get_current_frame=fake_get_current_frame)
 
 
 @pytest.fixture
-def fake_schema():
+def fake_connection():
+    class FakeConnection:
+        def __init__(self):
+            self.in_transaction = None
+
+        def cancel_transaction(self):
+            self.in_transaction = False
+
+    return FakeConnection()
+
+
+@pytest.fixture
+def fake_schema(fake_connection):
     class FakeSchema:
-        def __init__(self, database):
-            self.database = database
+        def __init__(self, schema_name, connection):
+            self.database = schema_name
+            self.connection = connection
             self.context = None
 
         def __call__(self, table_cls, context=None):
             if context:
                 self.context = context
             table_cls.database = self.database
+            table_cls.connection = self.connection
             return table_cls
 
-    return FakeSchema("schema")
+    return FakeSchema("schema", fake_connection)
 
 
 @pytest.fixture
@@ -116,3 +130,12 @@ def test_table_factory_has_correct_schema(record_environment, fake_schema, fake_
 def test_table_factory_has_correct_parent(record_environment, fake_schema, fake_table_cls):
     fake_table_cls = record_environment(fake_schema)(fake_table_cls)
     assert fake_table_cls.records.parent == fake_table_cls
+
+
+# def test_transaction_is_cancelled_when_make_method_is_called(
+#     record_environment, fake_schema, fake_table_cls, fake_connection
+# ):
+#     fake_connection.in_transaction = True
+#     fake_table_cls = record_environment(fake_schema)(fake_table_cls)
+#     fake_table_cls().make({})
+#     assert fake_connection.in_transaction is False

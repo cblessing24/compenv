@@ -17,7 +17,9 @@ class TestRecord:
     @staticmethod
     @pytest.fixture(autouse=True)
     def record_environment(fake_repository, fake_trigger):
-        record.record(fake_repository, "identifier", fake_trigger)
+        service = record.RecordService(fake_repository)
+        request = service.create_request("identifier", fake_trigger)
+        service(request)
 
     @staticmethod
     def test_trigger_is_triggered(fake_trigger):
