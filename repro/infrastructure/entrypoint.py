@@ -42,9 +42,9 @@ class EnvironmentRecorder:  # pylint: disable=too-few-public-methods
             translator = DJTranslator(blake2b)
             repo = DJCompRecRepo(facade=RecordTableFacade(factory), translator=translator)
 
-            def hook(trigger: Callable[[PrimaryKey], None], table_cls: _T, key: PrimaryKey) -> None:
+            def hook(trigger: Callable[[PrimaryKey], None], table: _T, key: PrimaryKey) -> None:
                 identifier = translator.to_identifier(key)
-                record.record(repo, trigger=functools.partial(trigger, table_cls, key), identifier=identifier)
+                record.record(repo, trigger=functools.partial(trigger, table, key), identifier=identifier)
 
             table_cls = hook_into_make_method(hook)(table_cls)
             table_cls.records = factory
