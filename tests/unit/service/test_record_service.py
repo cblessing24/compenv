@@ -1,15 +1,6 @@
 import pytest
 
 from repro.service import record
-from repro.service.abstract import ComputationRecordRepository
-
-
-@pytest.fixture
-def fake_repository():
-    class FakeRespository(dict, ComputationRecordRepository):
-        pass
-
-    return FakeRespository()
 
 
 @pytest.mark.usefixtures("prepare_environment")

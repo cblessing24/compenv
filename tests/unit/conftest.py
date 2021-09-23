@@ -14,6 +14,7 @@ from repro.model.record import (
     Modules,
     Record,
 )
+from repro.service.abstract import ComputationRecordRepository
 
 
 @pytest.fixture
@@ -123,3 +124,38 @@ def fake_trigger():
             return f"{self.__class__.__name__}()"
 
     return FakeTrigger()
+
+
+@pytest.fixture
+def fake_repository():
+    class FakeRepository(dict, ComputationRecordRepository):
+        def __repr__(self):
+            return self.__class__.__name__ + "()"
+
+    return FakeRepository()
+
+
+@pytest.fixture
+def identifier():
+    return "identifier"
+
+
+@pytest.fixture
+def fake_translator(identifier, primary):
+    class FakeTranslator:
+        def __init__(self, identifier, primary):
+            self._identifier = identifier
+            self._primary = primary
+
+        def to_identifier(self, primary):
+            assert primary == self._primary
+            return self._identifier
+
+        def to_primary(self, identifier):
+            assert identifier == self._identifier
+            return self._primary
+
+        def __repr__(self):
+            return f"{self.__class__.__name__}()"
+
+    return FakeTranslator(identifier, primary)

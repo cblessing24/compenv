@@ -6,32 +6,6 @@ from repro.model.computation import ComputationRecord
 
 
 @pytest.fixture
-def identifier():
-    return "identifier"
-
-
-@pytest.fixture
-def fake_translator(identifier, primary):
-    class FakeTranslator:
-        def __init__(self, identifier, primary):
-            self._identifier = identifier
-            self._primary = primary
-
-        def to_identifier(self, primary):
-            assert primary == self._primary
-            return self._identifier
-
-        def to_primary(self, identifier):
-            assert identifier == self._identifier
-            return self._primary
-
-        def __repr__(self):
-            return f"{self.__class__.__name__}()"
-
-    return FakeTranslator(identifier, primary)
-
-
-@pytest.fixture
 def fake_facade():
     class FakeRecordTableFacade(AbstractTableFacade[DJComputationRecord]):
         def __init__(self):
