@@ -1,7 +1,6 @@
 import pytest
 
 from repro.adapters.translator import DJTranslator, blake2b
-from tests.unit.adapters.test_repository import identifier
 
 
 class TestDJTranslator:
