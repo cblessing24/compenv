@@ -3,15 +3,15 @@
 import functools
 import inspect
 from types import FrameType
-from typing import Callable, Mapping, Optional, Type, TypeVar
+from typing import Callable, Optional, Type, TypeVar
 
 from datajoint.autopopulate import AutoPopulate
 from datajoint.schemas import Schema
 
+from ..adapters.controller import DJController
+from ..adapters.presenter import DJPresenter
 from ..adapters.repository import DJCompRecRepo
 from ..adapters.translator import DJTranslator, PrimaryKey, blake2b
-from ..service import SERVICES
-from ..service.abstract import Service
 from .facade import RecordTableFacade
 from .factory import RecordTableFactory
 from .hook import hook_into_make_method
@@ -19,7 +19,6 @@ from .hook import hook_into_make_method
 _T = TypeVar("_T", bound=AutoPopulate)
 
 
-DEFAULT_SERVICES = SERVICES
 DEFAULT_GET_CURRENT_FRAME = inspect.currentframe
 
 
@@ -28,13 +27,9 @@ class EnvironmentRecorder:  # pylint: disable=too-few-public-methods
 
     def __init__(
         self,
-        services: Mapping[str, Type[Service]] = None,
         get_current_frame: Callable[[], Optional[FrameType]] = DEFAULT_GET_CURRENT_FRAME,
     ) -> None:
         """Initialize the environment recorder."""
-        if services is None:
-            services = DEFAULT_SERVICES
-        self.services = services
         self.get_current_frame = get_current_frame
 
     def __call__(self, schema: Schema) -> Callable[[Type[_T]], Type[_T]]:
@@ -54,12 +49,11 @@ class EnvironmentRecorder:  # pylint: disable=too-few-public-methods
             factory = RecordTableFactory(schema, parent=table_cls)
             translator = DJTranslator(blake2b)
             repo = DJCompRecRepo(facade=RecordTableFacade(factory), translator=translator)
+            presenter = DJPresenter()
+            controller = DJController(repo, translator=translator, presenter=presenter)
 
-            def hook(trigger: Callable[[PrimaryKey], None], table: _T, key: PrimaryKey) -> None:
-                identifier = translator.to_identifier(key)
-                service = self.services["record"](repo, output_port=lambda x: None)
-                request = service.create_request(trigger=functools.partial(trigger, table, key), identifier=identifier)
-                service(request)
+            def hook(make: Callable[[PrimaryKey], None], table: _T, key: PrimaryKey) -> None:
+                controller.record(key, functools.partial(make, table))
 
             table_cls = hook_into_make_method(hook)(table_cls)
             table_cls.records = factory
