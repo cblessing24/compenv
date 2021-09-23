@@ -1,5 +1,4 @@
 """Contains reproducibility tools."""
-import inspect
 
 from .adapters.distribution import InstalledDistributionConverter
 from .adapters.module import ActiveModuleConverter
