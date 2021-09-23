@@ -16,7 +16,7 @@ class MasterEntity:
     parts: ClassVar[list[Type[PartEntity]]] = []
 
 
-class PartEntity:
+class PartEntity:  # pylint: disable=too-few-public-methods
     """Base class for all classes representing DataJoint entities in part tables."""
 
     part_table: ClassVar[str]
