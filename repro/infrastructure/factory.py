@@ -17,7 +17,6 @@ class RecordTableFactory:
         """Initialize the factory."""
         self.schema = schema
         self.parent = parent
-        self()
 
     @lru_cache(maxsize=None)
     def __call__(self) -> Table:

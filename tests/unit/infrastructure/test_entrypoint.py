@@ -89,3 +89,8 @@ def test_table_factory_has_correct_schema(record_environment, fake_schema, fake_
 def test_table_factory_has_correct_parent(record_environment, fake_schema, fake_parent):
     fake_parent = record_environment(fake_schema)(fake_parent)
     assert fake_parent.records.parent == fake_parent.__name__
+
+
+def test_record_table_is_created(record_environment, fake_schema, fake_parent):
+    fake_parent = record_environment(fake_schema)(fake_parent)
+    assert fake_schema.table_cls.__name__ == "FakeParentRecord"

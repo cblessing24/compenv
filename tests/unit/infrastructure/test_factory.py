@@ -15,11 +15,6 @@ def produce_instance(factory):
     return factory()
 
 
-@pytest.mark.usefixtures("factory")
-def test_table_is_created_when_factory_is_initialized(fake_schema):
-    assert fake_schema.table_cls
-
-
 @pytest.mark.usefixtures("produce_instance")
 class TestMasterClass:
     @staticmethod
@@ -53,7 +48,7 @@ class TestPartClasses:
 
 def test_parent_is_added_to_context_when_schema_is_called(fake_schema, fake_parent):
     fake_schema.context = {"foo": "bar"}
-    _ = RecordTableFactory(fake_schema, parent=fake_parent.__name__)
+    _ = RecordTableFactory(fake_schema, parent=fake_parent.__name__)()
     assert fake_schema.context == {"foo": "bar", "FakeParent": fake_parent}
 
 

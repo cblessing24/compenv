@@ -3,7 +3,7 @@
 import functools
 import inspect
 from types import FrameType
-from typing import Callable, Optional, Type, TypeVar
+from typing import Callable, Optional, Tuple, Type, TypeVar
 
 from datajoint.autopopulate import AutoPopulate
 from datajoint.schemas import Schema
@@ -44,20 +44,35 @@ class EnvironmentRecorder:  # pylint: disable=too-few-public-methods
                 if not prev_frame:
                     raise RuntimeError("No previous stack frame found but needed to dynamically determine context!")
                 schema.context = prev_frame.f_locals
-            table_cls = schema(table_cls)
 
-            factory = RecordTableFactory(schema, parent=table_cls.__name__)
-            translator = DJTranslator(blake2b)
-            repo = DJCompRecRepo(facade=RecordTableFacade(factory), translator=translator)
-            presenter = DJPresenter()
-            controller = DJController(repo, translator=translator, presenter=presenter)
+            factory, controller = self._setup(schema, name=table_cls.__name__)
+            self._modify_table(schema, table_cls, factory, controller)
 
-            def hook(make: Callable[[PrimaryKey], None], table: _T, key: PrimaryKey) -> None:
-                controller.record(key, functools.partial(make, table))
-
-            table_cls = hook_into_make_method(hook)(table_cls)
-            table_cls.records = factory
+            # Create record table now while not in a transaction.
+            factory()
 
             return table_cls
 
         return _record_environment
+
+    @staticmethod
+    def _setup(schema: Schema, name: str) -> Tuple[RecordTableFactory, DJController]:
+        factory = RecordTableFactory(schema, parent=name)
+        translator = DJTranslator(blake2b)
+        controller = DJController(
+            DJCompRecRepo(facade=RecordTableFacade(factory), translator=translator),
+            translator=translator,
+            presenter=DJPresenter(),
+        )
+        return factory, controller
+
+    @staticmethod
+    def _modify_table(
+        schema: Schema, table_cls: Type[_T], factory: RecordTableFactory, controller: DJController
+    ) -> None:
+        def hook(make: Callable[[PrimaryKey], None], table: _T, key: PrimaryKey) -> None:
+            controller.record(key, functools.partial(make, table))
+
+        table_cls = schema(table_cls)
+        table_cls = hook_into_make_method(hook)(table_cls)
+        table_cls.records = factory
