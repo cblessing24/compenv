@@ -1,18 +1,15 @@
 """Contains entrypoints to the application."""
-
 import functools
 import inspect
 from types import FrameType
-from typing import Callable, Optional, Tuple, Type, TypeVar
+from typing import Callable, Optional, Type, TypeVar
 
 from datajoint.autopopulate import AutoPopulate
 from datajoint.schemas import Schema
 
-from repro.infrastructure import create_dj_infrastructure
-
-from ..adapters import create_dj_adapters
 from ..adapters.controller import DJController
 from ..adapters.translator import PrimaryKey
+from ..backend import create_dj_backend
 from .factory import RecordTableFactory
 from .hook import hook_into_make_method
 
@@ -45,21 +42,15 @@ class EnvironmentRecorder:  # pylint: disable=too-few-public-methods
                     raise RuntimeError("No previous stack frame found but needed to dynamically determine context!")
                 schema.context = prev_frame.f_locals
 
-            factory, controller = self._setup(schema, table_name=table_cls.__name__)
-            self._modify_table(schema, table_cls, factory, controller)
+            backend = create_dj_backend(schema, table_cls.__name__)
+            self._modify_table(schema, table_cls, backend.infra.factory, backend.adapters.controller)
 
             # Create record table now while not in a transaction.
-            factory()
+            backend.infra.factory()
 
             return table_cls
 
         return _record_environment
-
-    @staticmethod
-    def _setup(schema: Schema, table_name: str) -> Tuple[RecordTableFactory, DJController]:
-        infra = create_dj_infrastructure(schema, table_name=table_name)
-        controller = create_dj_adapters(infra.facade).controller
-        return infra.factory, controller
 
     @staticmethod
     def _modify_table(
