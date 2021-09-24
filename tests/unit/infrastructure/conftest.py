@@ -30,13 +30,13 @@ def fake_schema(fake_connection, fake_parent):
         def __init__(self, schema_name, connection):
             self.database = schema_name
             self.connection = connection
-            self.table_cls = None
+            self.decorated_tables = {}
             self.context = None
 
         def __call__(self, table_cls, context=None):
             if context:
                 self.context = context
-            self.table_cls = table_cls
+            self.decorated_tables[table_cls.__name__] = table_cls
             table_cls.database = self.database
             table_cls.connection = self.connection
             return table_cls
