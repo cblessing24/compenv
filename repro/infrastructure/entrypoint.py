@@ -8,10 +8,11 @@ from typing import Callable, Optional, Tuple, Type, TypeVar
 from datajoint.autopopulate import AutoPopulate
 from datajoint.schemas import Schema
 
+from repro.infrastructure import create_dj_infrastructure
+
 from ..adapters import create_dj_adapters
 from ..adapters.controller import DJController
 from ..adapters.translator import PrimaryKey
-from .facade import RecordTableFacade
 from .factory import RecordTableFactory
 from .hook import hook_into_make_method
 
@@ -56,10 +57,9 @@ class EnvironmentRecorder:  # pylint: disable=too-few-public-methods
 
     @staticmethod
     def _setup(schema: Schema, table_name: str) -> Tuple[RecordTableFactory, DJController]:
-        factory = RecordTableFactory(schema, parent=table_name)
-        facade = RecordTableFacade(factory)
-        controller = create_dj_adapters(facade).controller
-        return factory, controller
+        infra = create_dj_infrastructure(schema, table_name=table_name)
+        controller = create_dj_adapters(infra.facade).controller
+        return infra.factory, controller
 
     @staticmethod
     def _modify_table(
