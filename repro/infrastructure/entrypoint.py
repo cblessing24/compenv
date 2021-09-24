@@ -46,7 +46,7 @@ class EnvironmentRecorder:  # pylint: disable=too-few-public-methods
                 schema.context = prev_frame.f_locals
             table_cls = schema(table_cls)
 
-            factory = RecordTableFactory(schema, parent=table_cls)
+            factory = RecordTableFactory(schema, parent=table_cls.__name__)
             translator = DJTranslator(blake2b)
             repo = DJCompRecRepo(facade=RecordTableFacade(factory), translator=translator)
             presenter = DJPresenter()

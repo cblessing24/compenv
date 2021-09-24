@@ -6,34 +6,8 @@ from repro.infrastructure.factory import RecordTableFactory
 
 
 @pytest.fixture
-def fake_schema():
-    class FakeSchema:
-        def __init__(self):
-            self.table_cls = None
-            self.context = None
-
-        def __call__(self, cls, context=None):
-            self.table_cls = cls
-            self.context = context
-            return cls
-
-        def __repr__(self):
-            return "FakeSchema()"
-
-    return FakeSchema()
-
-
-@pytest.fixture
-def fake_parent():
-    class FakeParent:
-        pass
-
-    return FakeParent
-
-
-@pytest.fixture
 def factory(fake_schema, fake_parent):
-    return RecordTableFactory(fake_schema, parent=fake_parent)
+    return RecordTableFactory(fake_schema, parent=fake_parent.__name__)
 
 
 @pytest.fixture
@@ -79,7 +53,7 @@ class TestPartClasses:
 
 def test_parent_is_added_to_context_when_schema_is_called(fake_schema, fake_parent):
     fake_schema.context = {"foo": "bar"}
-    factory = RecordTableFactory(fake_schema, parent=fake_parent)
+    _ = RecordTableFactory(fake_schema, parent=fake_parent.__name__)
     assert fake_schema.context == {"foo": "bar", "FakeParent": fake_parent}
 
 
@@ -91,5 +65,5 @@ def test_instance_is_cached(factory):
     assert factory() is factory()
 
 
-def test_repr(factory, fake_parent):
-    assert repr(factory) == f"RecordTableFactory(schema=FakeSchema(), parent={repr(fake_parent)})"
+def test_repr(factory):
+    assert repr(factory) == f"RecordTableFactory(schema=FakeSchema(), parent='FakeParent')"
