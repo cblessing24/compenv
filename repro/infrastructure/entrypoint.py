@@ -8,10 +8,9 @@ from typing import Callable, Optional, Tuple, Type, TypeVar
 from datajoint.autopopulate import AutoPopulate
 from datajoint.schemas import Schema
 
+from ..adapters import create_dj_adapters
 from ..adapters.controller import DJController
-from ..adapters.presenter import DJPresenter
-from ..adapters.repository import DJCompRecRepo
-from ..adapters.translator import DJTranslator, PrimaryKey, blake2b
+from ..adapters.translator import PrimaryKey
 from .facade import RecordTableFacade
 from .factory import RecordTableFactory
 from .hook import hook_into_make_method
@@ -45,7 +44,7 @@ class EnvironmentRecorder:  # pylint: disable=too-few-public-methods
                     raise RuntimeError("No previous stack frame found but needed to dynamically determine context!")
                 schema.context = prev_frame.f_locals
 
-            factory, controller = self._setup(schema, name=table_cls.__name__)
+            factory, controller = self._setup(schema, table_name=table_cls.__name__)
             self._modify_table(schema, table_cls, factory, controller)
 
             # Create record table now while not in a transaction.
@@ -56,14 +55,10 @@ class EnvironmentRecorder:  # pylint: disable=too-few-public-methods
         return _record_environment
 
     @staticmethod
-    def _setup(schema: Schema, name: str) -> Tuple[RecordTableFactory, DJController]:
-        factory = RecordTableFactory(schema, parent=name)
-        translator = DJTranslator(blake2b)
-        controller = DJController(
-            DJCompRecRepo(facade=RecordTableFacade(factory), translator=translator),
-            translator=translator,
-            presenter=DJPresenter(),
-        )
+    def _setup(schema: Schema, table_name: str) -> Tuple[RecordTableFactory, DJController]:
+        factory = RecordTableFactory(schema, parent=table_name)
+        facade = RecordTableFacade(factory)
+        controller = create_dj_adapters(facade).controller
         return factory, controller
 
     @staticmethod
