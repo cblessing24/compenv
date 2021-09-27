@@ -4,13 +4,13 @@ from typing import Generator, Iterable, Iterator
 
 from ..model.computation import ComputationRecord, Identifier
 from ..model.record import ActiveModules, Distribution, InstalledDistributions, Module, Modules, Record
-from ..service.abstract import ComputationRecordRepository
+from ..service.abstract import Repository
 from .abstract import AbstractTableFacade
 from .entity import DJComputationRecord, DJDistribution, DJMembership, DJModule
 from .translator import DJTranslator
 
 
-class DJRepository(ComputationRecordRepository):
+class DJRepository(Repository):
     """Repository that uses DataJoint tables to persist computation records."""
 
     def __init__(self, translator: DJTranslator, facade: AbstractTableFacade[DJComputationRecord]) -> None:

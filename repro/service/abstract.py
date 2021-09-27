@@ -26,7 +26,7 @@ class Service(ABC, Generic[_T, _V]):
     _request_cls: Type[_T]
     _response_cls: Type[_V]
 
-    def __init__(self, repo: ComputationRecordRepository, output_port: Callable[[_V], None]) -> None:
+    def __init__(self, repo: Repository, output_port: Callable[[_V], None]) -> None:
         """Initialize the service."""
         self.repo = repo
         self.output_port = output_port
@@ -46,7 +46,7 @@ class Service(ABC, Generic[_T, _V]):
         return self._request_cls
 
 
-class ComputationRecordRepository(ABC, MutableMapping):
+class Repository(ABC, MutableMapping):
     """Defines the interface for the repository containing computation records."""
 
     @abstractmethod

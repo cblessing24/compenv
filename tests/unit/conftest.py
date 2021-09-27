@@ -14,7 +14,7 @@ from repro.model.record import (
     Modules,
     Record,
 )
-from repro.service.abstract import ComputationRecordRepository
+from repro.service.abstract import Repository
 
 
 @pytest.fixture
@@ -128,7 +128,7 @@ def fake_trigger():
 
 @pytest.fixture
 def fake_repository():
-    class FakeRepository(dict, ComputationRecordRepository):
+    class FakeRepository(dict, Repository):
         def __repr__(self):
             return self.__class__.__name__ + "()"
 
