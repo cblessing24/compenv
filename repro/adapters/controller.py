@@ -4,14 +4,14 @@ from typing import Callable
 
 from ..service.record import RecordService
 from .presenter import DJPresenter
-from .repository import DJCompRecRepo
+from .repository import DJRepository
 from .translator import DJTranslator, PrimaryKey
 
 
 class DJController:
     """Controls the execution of services."""
 
-    def __init__(self, repo: DJCompRecRepo, translator: DJTranslator, presenter: DJPresenter) -> None:
+    def __init__(self, repo: DJRepository, translator: DJTranslator, presenter: DJPresenter) -> None:
         """Initialize the controller."""
         self.repo = repo
         self.translator = translator

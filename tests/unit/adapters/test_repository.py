@@ -1,13 +1,13 @@
 import pytest
 
 from repro.adapters.entity import DJComputationRecord, DJModule
-from repro.adapters.repository import DJCompRecRepo
+from repro.adapters.repository import DJRepository
 from repro.model.computation import ComputationRecord
 
 
 @pytest.fixture
 def repo(fake_translator, fake_facade):
-    return DJCompRecRepo(fake_translator, fake_facade)
+    return DJRepository(fake_translator, fake_facade)
 
 
 @pytest.fixture
@@ -75,4 +75,4 @@ def test_length(repo, identifier, comp_rec):
 
 
 def test_repr(repo):
-    assert repr(repo) == "DJCompRecRepo(translator=FakeTranslator(), facade=FakeRecordTableFacade())"
+    assert repr(repo) == "DJRepository(translator=FakeTranslator(), facade=FakeRecordTableFacade())"

@@ -10,7 +10,7 @@ from .entity import DJComputationRecord, DJDistribution, DJMembership, DJModule
 from .translator import DJTranslator
 
 
-class DJCompRecRepo(ComputationRecordRepository):
+class DJRepository(ComputationRecordRepository):
     """Repository that uses DataJoint tables to persist computation records."""
 
     def __init__(self, translator: DJTranslator, facade: AbstractTableFacade[DJComputationRecord]) -> None:

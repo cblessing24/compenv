@@ -5,7 +5,7 @@ import pytest
 from repro.adapters import DJAdapters, create_dj_adapters
 from repro.adapters.controller import DJController
 from repro.adapters.presenter import DJPresenter
-from repro.adapters.repository import DJCompRecRepo
+from repro.adapters.repository import DJRepository
 from repro.adapters.translator import DJTranslator
 
 
@@ -31,7 +31,7 @@ def test_correct_presenter_is_used(dj_adapters):
 
 
 def test_correct_repository_is_used(dj_adapters):
-    assert isinstance(dj_adapters.repo, DJCompRecRepo)
+    assert isinstance(dj_adapters.repo, DJRepository)
 
 
 def test_repo_uses_correct_translator(dj_adapters):
