@@ -3,7 +3,7 @@ import dataclasses
 
 from datajoint import Schema
 
-from .facade import RecordTableFacade
+from .facade import DJTableFacade
 from .factory import RecordTableFactory
 
 
@@ -12,11 +12,11 @@ class DJInfrastructure:
     """A set of DataJoint infrastructure objects."""
 
     factory: RecordTableFactory
-    facade: RecordTableFacade
+    facade: DJTableFacade
 
 
 def create_dj_infrastructure(schema: Schema, table_name: str) -> DJInfrastructure:
     """Create a set of DataJoint infrastructure objects."""
     factory = RecordTableFactory(schema, parent=table_name)
-    facade = RecordTableFacade(factory=factory)
+    facade = DJTableFacade(factory=factory)
     return DJInfrastructure(factory=factory, facade=facade)

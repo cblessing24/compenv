@@ -13,10 +13,8 @@ from ..adapters.repository import AbstractTableFacade, DJComputationRecord
 from ..adapters.translator import PrimaryKey
 
 
-def _check_primary(
-    func: Callable[[RecordTableFacade, PrimaryKey], Any]
-) -> Callable[[RecordTableFacade, PrimaryKey], Any]:
-    def wrapper(self: RecordTableFacade, primary: PrimaryKey) -> Any:
+def _check_primary(func: Callable[[DJTableFacade, PrimaryKey], Any]) -> Callable[[DJTableFacade, PrimaryKey], Any]:
+    def wrapper(self: DJTableFacade, primary: PrimaryKey) -> Any:
         if primary not in self.factory():
             raise KeyError(f"Computation record with primary key '{primary}' does not exist!")
         return func(self, primary)
@@ -24,7 +22,7 @@ def _check_primary(
     return wrapper
 
 
-class RecordTableFacade(AbstractTableFacade[DJComputationRecord]):
+class DJTableFacade(AbstractTableFacade[DJComputationRecord]):
     """Facade around a DataJoint table that stores computation records."""
 
     def __init__(self, factory: RecordTableFactory) -> None:

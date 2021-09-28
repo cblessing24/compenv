@@ -4,7 +4,7 @@ import pytest
 from datajoint.errors import DuplicateError
 
 from repro.adapters.repository import DJComputationRecord
-from repro.infrastructure.facade import RecordTableFacade
+from repro.infrastructure.facade import DJTableFacade
 
 
 class FakeTable:
@@ -124,7 +124,7 @@ def fake_factory(fake_tbl):
 
 @pytest.fixture
 def facade(fake_factory):
-    return RecordTableFacade(fake_factory)
+    return DJTableFacade(fake_factory)
 
 
 class TestInsert:
@@ -185,4 +185,4 @@ def test_iteration(facade, primary, dj_comp_rec, fake_tbl):
 
 
 def test_repr(facade):
-    assert repr(facade) == "RecordTableFacade(factory=FakeFactory())"
+    assert repr(facade) == "DJTableFacade(factory=FakeFactory())"

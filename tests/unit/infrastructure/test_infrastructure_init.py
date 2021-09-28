@@ -3,7 +3,7 @@ from dataclasses import FrozenInstanceError, is_dataclass
 import pytest
 
 from repro.infrastructure import DJInfrastructure, create_dj_infrastructure
-from repro.infrastructure.facade import RecordTableFacade
+from repro.infrastructure.facade import DJTableFacade
 from repro.infrastructure.factory import RecordTableFactory
 
 
@@ -33,7 +33,7 @@ def test_factory_uses_correct_table_name(dj_infra, fake_parent):
 
 
 def test_correct_facade_is_used(dj_infra):
-    assert isinstance(dj_infra.facade, RecordTableFacade)
+    assert isinstance(dj_infra.facade, DJTableFacade)
 
 
 def test_facade_uses_correct_factory(dj_infra):
