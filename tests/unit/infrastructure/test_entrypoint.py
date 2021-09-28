@@ -1,7 +1,7 @@
 import pytest
 
 from repro.infrastructure.entrypoint import EnvironmentRecorder
-from repro.infrastructure.factory import RecordTableFactory
+from repro.infrastructure.factory import DJTableFactory
 
 
 class Frame:
@@ -78,7 +78,7 @@ def test_sets_records_attribute_on_table_class(record_environment, fake_schema, 
 
 def test_records_attribute_is_table_factory(record_environment, fake_schema, fake_parent):
     fake_parent = record_environment(fake_schema)(fake_parent)
-    assert isinstance(fake_parent.records, RecordTableFactory)
+    assert isinstance(fake_parent.records, DJTableFactory)
 
 
 def test_table_factory_has_correct_schema(record_environment, fake_schema, fake_parent):

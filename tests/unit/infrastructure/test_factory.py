@@ -2,12 +2,12 @@ import pytest
 from datajoint.user_tables import Lookup, Part
 
 from repro.adapters.abstract import PartEntity
-from repro.infrastructure.factory import RecordTableFactory
+from repro.infrastructure.factory import DJTableFactory
 
 
 @pytest.fixture
 def factory(fake_schema, fake_parent):
-    return RecordTableFactory(fake_schema, parent=fake_parent.__name__)
+    return DJTableFactory(fake_schema, parent=fake_parent.__name__)
 
 
 @pytest.fixture
@@ -48,7 +48,7 @@ class TestPartClasses:
 
 def test_parent_is_added_to_context_when_schema_is_called(fake_schema, fake_parent):
     fake_schema.context = {"foo": "bar"}
-    _ = RecordTableFactory(fake_schema, parent=fake_parent.__name__)()
+    _ = DJTableFactory(fake_schema, parent=fake_parent.__name__)()
     assert fake_schema.context == {"foo": "bar", "FakeParent": fake_parent}
 
 
@@ -61,4 +61,4 @@ def test_instance_is_cached(factory):
 
 
 def test_repr(factory):
-    assert repr(factory) == f"RecordTableFactory(schema=FakeSchema(), parent='FakeParent')"
+    assert repr(factory) == f"DJTableFactory(schema=FakeSchema(), parent='FakeParent')"

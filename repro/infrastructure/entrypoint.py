@@ -10,7 +10,7 @@ from datajoint.schemas import Schema
 from ..adapters.controller import DJController
 from ..adapters.translator import PrimaryKey
 from ..backend import create_dj_backend
-from .factory import RecordTableFactory
+from .factory import DJTableFactory
 from .hook import hook_into_make_method
 
 _T = TypeVar("_T", bound=AutoPopulate)
@@ -54,7 +54,7 @@ class EnvironmentRecorder:  # pylint: disable=too-few-public-methods
 
     @staticmethod
     def _modify_table(
-        schema: Schema, table_cls: Type[_T], factory: RecordTableFactory, controller: DJController
+        schema: Schema, table_cls: Type[_T], factory: DJTableFactory, controller: DJController
     ) -> None:
         def hook(make: Callable[[PrimaryKey], None], table: _T, key: PrimaryKey) -> None:
             controller.record(key, functools.partial(make, table))

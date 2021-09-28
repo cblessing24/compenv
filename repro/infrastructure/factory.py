@@ -10,7 +10,7 @@ from datajoint.user_tables import Lookup, Part
 from ..adapters.abstract import PartEntity
 
 
-class RecordTableFactory:
+class DJTableFactory:
     """Produces record table instances."""
 
     def __init__(self, schema: Schema, parent: str) -> None:

@@ -7,7 +7,7 @@ from typing import Any
 
 from datajoint.errors import DuplicateError
 
-from repro.infrastructure.factory import RecordTableFactory
+from repro.infrastructure.factory import DJTableFactory
 
 from ..adapters.repository import AbstractTableFacade, DJComputationRecord
 from ..adapters.translator import PrimaryKey
@@ -25,7 +25,7 @@ def _check_primary(func: Callable[[DJTableFacade, PrimaryKey], Any]) -> Callable
 class DJTableFacade(AbstractTableFacade[DJComputationRecord]):
     """Facade around a DataJoint table that stores computation records."""
 
-    def __init__(self, factory: RecordTableFactory) -> None:
+    def __init__(self, factory: DJTableFactory) -> None:
         """Initialize the record table facade."""
         self.factory = factory
 

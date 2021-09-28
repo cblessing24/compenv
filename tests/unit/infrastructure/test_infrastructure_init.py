@@ -4,7 +4,7 @@ import pytest
 
 from repro.infrastructure import DJInfrastructure, create_dj_infrastructure
 from repro.infrastructure.facade import DJTableFacade
-from repro.infrastructure.factory import RecordTableFactory
+from repro.infrastructure.factory import DJTableFactory
 
 
 @pytest.fixture
@@ -21,7 +21,7 @@ def test_infrastructure_is_dataclass(dj_infra):
 
 
 def test_correct_factory_is_used(dj_infra):
-    assert isinstance(dj_infra.factory, RecordTableFactory)
+    assert isinstance(dj_infra.factory, DJTableFactory)
 
 
 def test_factory_uses_correct_schema(dj_infra, fake_schema):
