@@ -2,8 +2,7 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from collections.abc import MutableMapping
-from typing import Callable, Generic, Iterator, Type, TypeVar
+from typing import Callable, Generic, Iterator, MutableMapping, Type, TypeVar
 
 from ..model.computation import ComputationRecord, Identifier
 
@@ -46,7 +45,7 @@ class Service(ABC, Generic[_T, _V]):
         return self._request_cls
 
 
-class Repository(ABC, MutableMapping):
+class Repository(ABC, MutableMapping[Identifier, ComputationRecord]):
     """Defines the interface for the repository containing computation records."""
 
     @abstractmethod
