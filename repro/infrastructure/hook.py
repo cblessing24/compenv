@@ -11,7 +11,7 @@ MakeFunction = Callable[[PrimaryKey], None]
 TableDecorator = Callable[[Type[_T]], Type[_T]]
 
 
-def hook_into_make_method(hook: Callable[[MakeFunction, _T, PrimaryKey], None]) -> TableDecorator:
+def hook_into_make_method(hook: Callable[[MakeFunction, _T, PrimaryKey], None]) -> TableDecorator[_T]:
     """Give control over the execution of a table's make method to a callable hook.
 
     This function is meant to be used as a decorator. It will modify the make method of the decorated table. Calling
