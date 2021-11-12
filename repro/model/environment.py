@@ -27,7 +27,7 @@ class Environment:
         return f"{self.__class__.__name__}()"
 
 
-class _ConsistencyCheck(ContextManager):
+class _ConsistencyCheck(ContextManager["_ConsistencyCheck"]):
     """Context manager used to check whether the environment stayed consistent during execution of the with block."""
 
     def __init__(self, environment: Environment) -> None:
