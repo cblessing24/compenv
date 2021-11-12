@@ -3,8 +3,7 @@ from __future__ import annotations
 
 import dataclasses
 from abc import ABC, abstractmethod
-from collections.abc import MutableMapping
-from typing import Any, ClassVar, Generic, Iterator, Mapping, Type, TypeVar
+from typing import Any, ClassVar, Generic, Iterator, Mapping, MutableMapping, Type, TypeVar
 
 from .translator import PrimaryKey
 
@@ -33,7 +32,7 @@ class PartEntity:  # pylint: disable=too-few-public-methods
 _T = TypeVar("_T", bound=MasterEntity)
 
 
-class AbstractTableFacade(ABC, MutableMapping, Generic[_T]):
+class AbstractTableFacade(ABC, MutableMapping[PrimaryKey, _T], Generic[_T]):
     """Defines the interface for all table facades."""
 
     @abstractmethod
