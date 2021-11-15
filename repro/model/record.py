@@ -3,10 +3,10 @@ from __future__ import annotations
 
 import itertools
 import textwrap
-from collections.abc import Callable, Iterable, Iterator, Set
+from collections.abc import Callable, Iterable, Iterator
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
-from typing import FrozenSet, TypeVar
+from typing import AbstractSet, FrozenSet, TypeVar
 
 get_active_modules: Callable[[], ActiveModules]
 get_installed_distributions: Callable[[], InstalledDistributions]
@@ -81,7 +81,7 @@ _T = TypeVar("_T")
 
 
 @dataclass(frozen=True, order=True)
-class Distribution(Set):  # type: ignore[override]
+class Distribution(AbstractSet["Module"]):  # type: ignore[override]
     """Represents a Python distribution."""
 
     name: str
