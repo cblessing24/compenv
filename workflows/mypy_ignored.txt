@@ -1,5 +1,5 @@
-repro/model/record.py: error: You may not have a custom __lt__ method when order=True
-repro/model/record.py: error: You may not have a custom __gt__ method when order=True
-repro/model/record.py: error: You may not have a custom __le__ method when order=True
-repro/model/record.py: error: You may not have a custom __ge__ method when order=True
+repro/model/record.py:([0-9]+:)? error: You may not have a custom __lt__ method when order=True
+repro/model/record.py:([0-9]+:)? error: You may not have a custom __gt__ method when order=True
+repro/model/record.py:([0-9]+:)? error: You may not have a custom __le__ method when order=True
+repro/model/record.py:([0-9]+:)? error: You may not have a custom __ge__ method when order=True
 
