@@ -1,6 +1,6 @@
 #!/bin/bash
 
-linters=('black --check --diff .' 'isort --check --diff .' 'flake8 .' 'mypy' 'pylint repro')
+linters=('black --check --diff .' 'isort --check --diff .' 'flake8 .' 'workflows/mypy_wrapper.sh' 'pylint repro')
 
 echo 'Building Docker image...'
 docker build -t reproducibility . || exit 1
