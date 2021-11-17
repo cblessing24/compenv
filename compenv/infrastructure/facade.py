@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import dataclasses
+import functools
 from collections.abc import Callable, Iterator
 from typing import Any
 
@@ -14,6 +15,7 @@ from .factory import DJTableFactory
 
 
 def _check_primary(func: Callable[[DJTableFacade, PrimaryKey], Any]) -> Callable[[DJTableFacade, PrimaryKey], Any]:
+    @functools.wraps(func)
     def wrapper(self: DJTableFacade, primary: PrimaryKey) -> Any:
         if primary not in self.factory():
             raise KeyError(f"Computation record with primary key '{primary}' does not exist!")
