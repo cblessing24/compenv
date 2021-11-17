@@ -2,11 +2,11 @@ from dataclasses import FrozenInstanceError, is_dataclass
 
 import pytest
 
-from repro.adapters import DJAdapters, create_dj_adapters
-from repro.adapters.controller import DJController
-from repro.adapters.presenter import DJPresenter
-from repro.adapters.repository import DJRepository
-from repro.adapters.translator import DJTranslator
+from compenv.adapters import DJAdapters, create_dj_adapters
+from compenv.adapters.controller import DJController
+from compenv.adapters.presenter import DJPresenter
+from compenv.adapters.repository import DJRepository
+from compenv.adapters.translator import DJTranslator
 
 
 @pytest.fixture

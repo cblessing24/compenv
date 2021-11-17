@@ -1,8 +1,8 @@
 import pytest
 
-from repro.adapters.entity import DJComputationRecord, DJModule
-from repro.adapters.repository import DJRepository
-from repro.model.computation import ComputationRecord
+from compenv.adapters.entity import DJComputationRecord, DJModule
+from compenv.adapters.repository import DJRepository
+from compenv.model.computation import ComputationRecord
 
 
 @pytest.fixture

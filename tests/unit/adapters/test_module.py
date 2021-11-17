@@ -2,8 +2,8 @@ from pathlib import Path
 
 import pytest
 
-from repro.adapters.module import ActiveModuleConverter
-from repro.model.record import Module
+from compenv.adapters.module import ActiveModuleConverter
+from compenv.model.record import Module
 
 
 class TestActiveModuleConverter:

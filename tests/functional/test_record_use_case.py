@@ -6,7 +6,7 @@ import docker
 import pytest
 from datajoint import Computed, Manual
 
-from repro import record_environment
+from compenv import record_environment
 
 HEALTH_CHECK_MAX_RETRIES = 60
 HEALTH_CHECK_INTERVAL = 1
@@ -17,7 +17,7 @@ DB_USER = "root"
 DB_PASSWORD = "simple"
 DB_PORT = "3306"
 
-SCHEMA_NAME = "repro"
+SCHEMA_NAME = "compenv"
 
 
 class ContainerRunner:

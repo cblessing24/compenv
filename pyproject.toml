@@ -1,7 +1,7 @@
 [project]
-name = "reproducibility"
+name = "compenv"
 version = "0.1.0"
-description = ""
+description = "Track information about the execution environment of computations"
 authors = [
     {name = "Christoph Blessing", email = "33834216+cblessing24@users.noreply.github.com"},
 ]
@@ -56,7 +56,7 @@ enable = ["useless-suppression"]
 
 [tool.mypy]
 python_version = "3.8"
-files = "repro/**/*.py"
+files = "compenv/**/*.py"
 strict = true
 
 [[tool.mypy.overrides]]
@@ -68,7 +68,7 @@ ignore_missing_imports = true
 
 [tool.coverage.run]
 branch = true
-source = ["repro"]
+source = ["compenv"]
 
 [tool.pytest.ini_options]
 addopts = ["--cov", "-q"]

@@ -1,7 +1,7 @@
 import pytest
 
-from repro.adapters.abstract import AbstractTableFacade
-from repro.adapters.entity import DJComputationRecord
+from compenv.adapters.abstract import AbstractTableFacade
+from compenv.adapters.entity import DJComputationRecord
 
 
 @pytest.fixture

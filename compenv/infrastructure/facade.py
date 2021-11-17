@@ -7,11 +7,10 @@ from typing import Any
 
 from datajoint.errors import DuplicateError
 
-from repro.infrastructure.factory import DJTableFactory
-
 from ..adapters.abstract import AbstractTableFacade
 from ..adapters.entity import DJComputationRecord
 from ..adapters.translator import PrimaryKey
+from .factory import DJTableFactory
 
 
 def _check_primary(func: Callable[[DJTableFacade, PrimaryKey], Any]) -> Callable[[DJTableFacade, PrimaryKey], Any]:

@@ -1,6 +1,6 @@
 import pytest
 
-from repro.adapters.translator import DJTranslator, blake2b
+from compenv.adapters.translator import DJTranslator, blake2b
 
 
 class TestDJTranslator:

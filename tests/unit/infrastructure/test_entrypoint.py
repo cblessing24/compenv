@@ -1,7 +1,7 @@
 import pytest
 
-from repro.infrastructure.entrypoint import EnvironmentRecorder
-from repro.infrastructure.factory import DJTableFactory
+from compenv.infrastructure.entrypoint import EnvironmentRecorder
+from compenv.infrastructure.factory import DJTableFactory
 
 
 class Frame:

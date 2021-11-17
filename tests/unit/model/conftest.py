@@ -1,4 +1,4 @@
 import pytest
 
-from repro.model import record as record_module
-from repro.model.environment import Environment
+from compenv.model import record as record_module
+from compenv.model.environment import Environment

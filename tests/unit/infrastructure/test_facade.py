@@ -3,8 +3,8 @@ import dataclasses
 import pytest
 from datajoint.errors import DuplicateError
 
-from repro.adapters.repository import DJComputationRecord
-from repro.infrastructure.facade import DJTableFacade
+from compenv.adapters.repository import DJComputationRecord
+from compenv.infrastructure.facade import DJTableFacade
 
 
 class FakeTable:

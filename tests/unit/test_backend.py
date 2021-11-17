@@ -2,9 +2,9 @@ from dataclasses import FrozenInstanceError, is_dataclass
 
 import pytest
 
-from repro.adapters import DJAdapters
-from repro.backend import DJBackend, create_dj_backend
-from repro.infrastructure import DJInfrastructure, create_dj_infrastructure
+from compenv.adapters import DJAdapters
+from compenv.backend import DJBackend, create_dj_backend
+from compenv.infrastructure import DJInfrastructure, create_dj_infrastructure
 
 
 @pytest.fixture

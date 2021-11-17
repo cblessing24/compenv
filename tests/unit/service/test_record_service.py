@@ -1,6 +1,6 @@
 import pytest
 
-from repro.service import record
+from compenv.service import record
 
 
 @pytest.mark.usefixtures("prepare_environment")

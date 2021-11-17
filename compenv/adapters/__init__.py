@@ -1,13 +1,12 @@
 """This package contains adapters adapting between external systems and the domain/service layers."""
 import dataclasses
 
-from repro.adapters.controller import DJController
-from repro.adapters.entity import DJComputationRecord
-from repro.adapters.presenter import DJPresenter
-from repro.adapters.repository import DJRepository
-from repro.adapters.translator import DJTranslator, blake2b
-
 from .abstract import AbstractTableFacade
+from .controller import DJController
+from .entity import DJComputationRecord
+from .presenter import DJPresenter
+from .repository import DJRepository
+from .translator import DJTranslator, blake2b
 
 
 @dataclasses.dataclass(frozen=True)

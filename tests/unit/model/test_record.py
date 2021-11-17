@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pytest
 
-from repro.model.record import Distribution, Distributions, InstalledDistributions, Module, Modules
+from compenv.model.record import Distribution, Distributions, InstalledDistributions, Module, Modules
 
 
 class TestRecord:

@@ -1,6 +1,6 @@
 import pytest
 
-from repro.adapters.controller import DJController
+from compenv.adapters.controller import DJController
 
 
 @pytest.fixture

@@ -1,6 +1,6 @@
 import pytest
 
-from repro.model.environment import Environment
+from compenv.model.environment import Environment
 
 
 @pytest.mark.usefixtures("prepare_environment")

@@ -1,4 +1,4 @@
-files: repro
+files: compenv
 repos:
   - repo: https://github.com/psf/black
     rev: 21.10b0

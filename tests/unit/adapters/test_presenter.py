@@ -1,4 +1,4 @@
-from repro.adapters.presenter import DJPresenter
+from compenv.adapters.presenter import DJPresenter
 
 
 def test_repr():

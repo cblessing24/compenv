@@ -2,7 +2,7 @@ import dataclasses
 
 import pytest
 
-from repro.service.abstract import Request, Response, Service
+from compenv.service.abstract import Request, Response, Service
 
 
 @dataclasses.dataclass(frozen=True)

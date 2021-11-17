@@ -1,8 +1,8 @@
 import pytest
 from datajoint.user_tables import Lookup, Part
 
-from repro.adapters.abstract import PartEntity
-from repro.infrastructure.factory import DJTableFactory
+from compenv.adapters.abstract import PartEntity
+from compenv.infrastructure.factory import DJTableFactory
 
 
 @pytest.fixture

@@ -2,8 +2,8 @@ import textwrap
 
 import pytest
 
-from repro.model.computation import Computation, ComputationRecord
-from repro.model.environment import Environment
+from compenv.model.computation import Computation, ComputationRecord
+from compenv.model.environment import Environment
 
 
 @pytest.mark.usefixtures("prepare_environment")

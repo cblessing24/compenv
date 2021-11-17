@@ -2,10 +2,10 @@ from pathlib import Path
 
 import pytest
 
-from repro.adapters.repository import DJComputationRecord, DJDistribution, DJMembership, DJModule
-from repro.model import record as record_module
-from repro.model.computation import ComputationRecord
-from repro.model.record import (
+from compenv.adapters.repository import DJComputationRecord, DJDistribution, DJMembership, DJModule
+from compenv.model import record as record_module
+from compenv.model.computation import ComputationRecord
+from compenv.model.record import (
     ActiveDistributions,
     ActiveModules,
     Distribution,
@@ -14,7 +14,7 @@ from repro.model.record import (
     Modules,
     Record,
 )
-from repro.service.abstract import Repository
+from compenv.service.abstract import Repository
 
 
 @pytest.fixture
