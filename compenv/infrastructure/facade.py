@@ -4,7 +4,7 @@ from __future__ import annotations
 import dataclasses
 import functools
 from collections.abc import Callable, Iterator
-from typing import Any
+from typing import TypeVar
 
 from datajoint.errors import DuplicateError
 
@@ -13,10 +13,12 @@ from ..adapters.entity import DJComputationRecord
 from ..adapters.translator import PrimaryKey
 from .factory import DJTableFactory
 
+_T = TypeVar("_T")
 
-def _check_primary(func: Callable[[DJTableFacade, PrimaryKey], Any]) -> Callable[[DJTableFacade, PrimaryKey], Any]:
+
+def _check_primary(func: Callable[[DJTableFacade, PrimaryKey], _T]) -> Callable[[DJTableFacade, PrimaryKey], _T]:
     @functools.wraps(func)
-    def wrapper(self: DJTableFacade, primary: PrimaryKey) -> Any:
+    def wrapper(self: DJTableFacade, primary: PrimaryKey) -> _T:
         if primary not in self.factory():
             raise KeyError(f"Computation record with primary key '{primary}' does not exist!")
         return func(self, primary)
