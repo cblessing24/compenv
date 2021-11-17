@@ -1,0 +1,22 @@
+name: Build
+
+on:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  build-and-publish:
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v2
+      - name: Build image
+        run: docker build -t compenv .
+      - name: Build distribution artifacts
+        run: docker run -v "$PWD/dist:/src/compenv/dist" --entrypoint pdm compenv build
+      - name: Upload distribution packages to PyPI
+        uses: pypa/gh-action-pypi-publish@master
+        with:
+          user: __token__
+          password: ${{ secrets.PYPI_PASSWORD }}
