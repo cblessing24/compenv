@@ -13,7 +13,7 @@ dynamic = ["classifiers"]
 license = {text = "GPL-3.0-or-later"}
 
 [project.urls]
-homepage = ""
+homepage = "https://github.com/sinzlab/compenv"
 
 
 [project.optional-dependencies]
