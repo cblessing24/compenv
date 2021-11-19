@@ -1,6 +1,7 @@
 {
   "exclude": [
-    "__pypackages__"
+    "__pypackages__",
+    "stubs"
   ]
   "typeCheckingMode": "off",
   "pythonVersion": "3.8",
