@@ -58,10 +58,10 @@ enable = ["useless-suppression"]
 python_version = "3.8"
 files = "compenv/**/*.py"
 strict = true
+mypy_path = "stubs"
 
 [[tool.mypy.overrides]]
 module = [
-    "datajoint.*", 
     "pytest.*",
 ]
 ignore_missing_imports = true
