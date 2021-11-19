@@ -4,7 +4,6 @@ from typing import Dict, Type
 
 from datajoint.autopopulate import AutoPopulate
 from datajoint.schemas import Schema
-from datajoint.table import Table
 from datajoint.user_tables import Lookup, Part
 
 from ..adapters.abstract import PartEntity
@@ -19,9 +18,9 @@ class DJTableFactory:
         self.parent = parent
 
     @lru_cache(maxsize=None)
-    def __call__(self) -> Table:
+    def __call__(self) -> Lookup:
         """Produce a record table instance."""
-        master_cls = type(self.parent + "Record", (Lookup,), {"definition": "-> " + self.parent})
+        master_cls: Type[Lookup] = type(self.parent + "Record", (Lookup,), {"definition": "-> " + self.parent})
         for part_cls in PartEntity.__subclasses__():
             setattr(
                 master_cls,
