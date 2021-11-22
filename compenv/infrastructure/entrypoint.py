@@ -1,19 +1,22 @@
 """Contains entrypoints to the application."""
+from __future__ import annotations
+
 import functools
 import inspect
 from types import FrameType
-from typing import Callable, Optional, Type, TypeVar
+from typing import TYPE_CHECKING, Callable, Optional, Type, TypeVar
 
-from datajoint.autopopulate import AutoPopulate
-from datajoint.schemas import Schema
+from datajoint import Schema
 
 from ..adapters.controller import DJController
-from ..adapters.translator import PrimaryKey
 from ..backend import create_dj_backend
 from .factory import DJTableFactory
 from .hook import hook_into_make_method
 
-_T = TypeVar("_T", bound=AutoPopulate)
+if TYPE_CHECKING:
+    from datajoint.table import AutoPopulatedTable, PrimaryKey
+
+    _T = TypeVar("_T", bound=AutoPopulatedTable)
 
 
 DEFAULT_GET_CURRENT_FRAME = inspect.currentframe
@@ -54,9 +57,9 @@ class EnvironmentRecorder:  # pylint: disable=too-few-public-methods
 
     @staticmethod
     def _modify_table(schema: Schema, table_cls: Type[_T], factory: DJTableFactory, controller: DJController) -> None:
-        def hook(make: Callable[[PrimaryKey], None], table: _T, key: PrimaryKey) -> None:
+        def hook(make: Callable[[_T, PrimaryKey], None], table: _T, key: PrimaryKey) -> None:
             controller.record(key, functools.partial(make, table))
 
         table_cls = schema(table_cls)
         table_cls = hook_into_make_method(hook)(table_cls)
-        table_cls.records = factory
+        setattr(table_cls, "records", factory)
