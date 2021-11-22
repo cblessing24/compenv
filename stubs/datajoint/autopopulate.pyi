@@ -1,5 +1,7 @@
-from .table import _PrimaryKey
+from typing import Protocol
+
+from .table import PrimaryKey
 
 
-class AutoPopulate:
-    def make(self, key: _PrimaryKey) -> None: ...
+class SupportsAutoPopulate(Protocol):
+    def make(self, key: PrimaryKey) -> None: ...

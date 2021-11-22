@@ -1,9 +1,9 @@
 from typing import Any, Dict, Optional, Type, TypeVar
 
-from .user_tables import UserTable
+from .table import Table
 
 _Context = Dict[str, Any]
-_V = TypeVar("_V", bound=UserTable)
+_V = TypeVar("_V", bound=Table)
 
 class Schema:
     context: Dict[str, Any]
