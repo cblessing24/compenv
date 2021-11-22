@@ -2,9 +2,9 @@
 from functools import lru_cache
 from typing import Dict, Type
 
-from datajoint.autopopulate import AutoPopulate
+from datajoint import Lookup, Part
 from datajoint.schemas import Schema
-from datajoint.user_tables import Lookup, Part
+from datajoint.table import Table
 
 from ..adapters.abstract import PartEntity
 
@@ -27,7 +27,7 @@ class DJTableFactory:
                 part_cls.__name__,
                 type(part_cls.__name__, (Part,), {"definition": part_cls.definition}),
             )
-        schema_tables: Dict[str, Type[AutoPopulate]] = {}
+        schema_tables: Dict[str, Type[Table]] = {}
         self.schema.spawn_missing_classes(schema_tables)
         context = {self.parent: schema_tables[self.parent]}
         if self.schema.context:
