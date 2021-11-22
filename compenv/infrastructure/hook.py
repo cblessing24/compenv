@@ -1,17 +1,20 @@
 """Contains code related to hooks."""
-from typing import Callable, Type, TypeVar
-
-from datajoint.autopopulate import AutoPopulate
+from typing import TYPE_CHECKING, Callable, Type, TypeVar
 
 from ..adapters.translator import PrimaryKey
 
-_T = TypeVar("_T", bound=AutoPopulate)
+if TYPE_CHECKING:
+    from datajoint.table import AutoPopulatedTable
 
-MakeFunction = Callable[[PrimaryKey], None]
-TableDecorator = Callable[[Type[_T]], Type[_T]]
+    _T = TypeVar("_T", bound=AutoPopulatedTable)
+
+    AutoPopulatedTableDecorator = Callable[[Type[_T]], Type[_T]]
+    MakeMethod = Callable[[_T, PrimaryKey], None]
 
 
-def hook_into_make_method(hook: Callable[[MakeFunction, _T, PrimaryKey], None]) -> TableDecorator[_T]:
+def hook_into_make_method(
+    hook: "Callable[[MakeMethod[_T], _T, PrimaryKey], None]",
+) -> "AutoPopulatedTableDecorator[_T]":
     """Give control over the execution of a table's make method to a callable hook.
 
     This function is meant to be used as a decorator. It will modify the make method of the decorated table. Calling
@@ -20,13 +23,13 @@ def hook_into_make_method(hook: Callable[[MakeFunction, _T, PrimaryKey], None]) 
     instance and the key. This allows the execution of arbitrary code before and after the original make method.
     """
 
-    def _hook_into_make_method(table_cls: Type[_T]) -> Type[_T]:
+    def _hook_into_make_method(table_cls: "Type[_T]") -> "Type[_T]":
         original_make_method = table_cls.make
 
-        def hooked_make_method(table: _T, key: PrimaryKey) -> None:
-            hook(original_make_method, table, key)
+        def hooked_make_method(self: "_T", key: "PrimaryKey") -> None:
+            hook(original_make_method, self, key)
 
-        table_cls.make = hooked_make_method
+        setattr(table_cls, "make", hooked_make_method)
         return table_cls
 
     return _hook_into_make_method
