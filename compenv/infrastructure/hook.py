@@ -1,10 +1,8 @@
 """Contains code related to hooks."""
 from typing import TYPE_CHECKING, Callable, Type, TypeVar
 
-from ..adapters.translator import PrimaryKey
-
 if TYPE_CHECKING:
-    from datajoint.table import AutoPopulatedTable
+    from datajoint.table import AutoPopulatedTable, PrimaryKey
 
     _T = TypeVar("_T", bound=AutoPopulatedTable)
 

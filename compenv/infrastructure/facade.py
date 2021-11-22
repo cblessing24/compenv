@@ -4,16 +4,18 @@ from __future__ import annotations
 import dataclasses
 import functools
 from collections.abc import Callable, Iterator
-from typing import TypeVar
+from typing import TYPE_CHECKING, TypeVar
 
 from datajoint.errors import DuplicateError
 
 from ..adapters.abstract import AbstractTableFacade
 from ..adapters.entity import DJComputationRecord
-from ..adapters.translator import PrimaryKey
 from .factory import DJTableFactory
 
-_T = TypeVar("_T")
+if TYPE_CHECKING:
+    from datajoint.table import PrimaryKey
+
+    _T = TypeVar("_T")
 
 
 def _check_primary(func: Callable[[DJTableFacade, PrimaryKey], _T]) -> Callable[[DJTableFacade, PrimaryKey], _T]:

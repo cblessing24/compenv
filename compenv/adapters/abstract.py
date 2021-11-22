@@ -3,9 +3,10 @@ from __future__ import annotations
 
 import dataclasses
 from abc import ABC, abstractmethod
-from typing import Any, ClassVar, Generic, Iterator, Mapping, MutableMapping, Type, TypeVar
+from typing import TYPE_CHECKING, Any, ClassVar, Generic, Iterator, Mapping, MutableMapping, Type, TypeVar
 
-from .translator import PrimaryKey
+if TYPE_CHECKING:
+    from datajoint.table import PrimaryKey
 
 
 @dataclasses.dataclass(frozen=True)
@@ -32,7 +33,7 @@ class PartEntity:  # pylint: disable=too-few-public-methods
 _T = TypeVar("_T", bound=MasterEntity)
 
 
-class AbstractTableFacade(ABC, MutableMapping[PrimaryKey, _T], Generic[_T]):
+class AbstractTableFacade(ABC, MutableMapping["PrimaryKey", _T], Generic[_T]):
     """Defines the interface for all table facades."""
 
     @abstractmethod

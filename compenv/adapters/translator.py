@@ -1,11 +1,14 @@
 """Contains code used for translation between external and internal data."""
+from __future__ import annotations
+
 import hashlib
 import json
-from typing import Callable, Dict, Union
+from typing import TYPE_CHECKING, Callable, Dict
 
 from ..model.computation import Identifier
 
-PrimaryKey = Dict[str, Union[int, str, float]]
+if TYPE_CHECKING:
+    from datajoint.table import PrimaryKey
 
 
 class DJTranslator:

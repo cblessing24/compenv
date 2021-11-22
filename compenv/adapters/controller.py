@@ -1,11 +1,16 @@
 """Contains the controller."""
+from __future__ import annotations
+
 import functools
-from typing import Callable
+from typing import TYPE_CHECKING, Callable
 
 from ..service.record import RecordService
 from .presenter import DJPresenter
 from .repository import DJRepository
-from .translator import DJTranslator, PrimaryKey
+from .translator import DJTranslator
+
+if TYPE_CHECKING:
+    from datajoint.table import PrimaryKey
 
 
 class DJController:
