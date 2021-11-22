@@ -70,6 +70,9 @@ ignore_missing_imports = true
 branch = true
 source = ["compenv"]
 
+[tool.coverage.report]
+exclude_lines = ["pragma: no cover", "if TYPE_CHECKING:"]
+
 [tool.pytest.ini_options]
 addopts = ["--cov", "-q"]
 testpaths = [
