@@ -20,7 +20,7 @@ RUN curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py \
     && python3.8 get-pip.py \
     && rm get-pip.py \
     && python3.8 -m pip install --upgrade pip
-RUN python3.8 -m pip install pdm==1.10.2
+RUN python3.8 -m pip install pdm==1.10.3
 COPY --chown=dev . compenv
 WORKDIR compenv
 RUN pdm sync -v
