@@ -9,7 +9,6 @@ dependencies = [
     "datajoint==0.12.9",
 ]
 requires-python = ">=3.8"
-dynamic = ["classifiers"]
 license = {text = "GPL-3.0-or-later"}
 
 [project.urls]
