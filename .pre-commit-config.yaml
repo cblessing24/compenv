@@ -8,11 +8,13 @@ repos:
     hooks:
       - id: pylint
         name: pylint
-        entry: pylint
+        entry: pdm
         language: system
         types: [python]
         args:
           [
+            "run",
+            "pylint",
             "-rn",
             "-sn",
           ]
