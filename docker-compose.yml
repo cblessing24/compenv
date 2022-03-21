@@ -20,7 +20,7 @@ services:
       - DOCKER=1
     networks:
       - test
-    command: "pytest"
+    entrypoint: ["pdm", "run", "pytest"]
   black:
     build: .
     volumes:
