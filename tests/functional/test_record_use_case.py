@@ -65,7 +65,7 @@ def start_database(docker_client):
         "detach": True,
         "auto_remove": True,
         "name": "dj-mysql",
-        "network": "test",
+        "network": "compenv_test",
         "environment": {"MYSQL_ROOT_PASSWORD": DB_PASSWORD},
         "ports": {DB_PORT: DB_PORT},
     }
