@@ -8,5 +8,13 @@ jobs:
     steps:
     - name: Check out code
       uses: actions/checkout@v2
-    - name: Lint code
-      run: ./workflows/lint.sh
+    - name: Lint code with black
+      run: docker-compose run black
+    - name: Lint code with isort
+      run: docker-compose run isort
+    - name: Lint code with mypy
+      run: docker-compose run mypy
+    - name: Lint code with flake8
+      run: docker-compose run flake8
+    - name: Lint code with pylint
+      run: docker-compose run pylint
