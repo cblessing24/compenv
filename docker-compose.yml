@@ -5,7 +5,7 @@ services:
     build:
       context: .
       args:
-        - base=cblessing24/docker-dev:426adac9c4705963829e17e862082052fa885169
+        - base=cblessing24/blessed-nvim:git-ef53d5a9e795f721acae73c6a23933c2004a08ff
     volumes:
       - .:/src
     command: "nvim"
