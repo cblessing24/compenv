@@ -8,5 +8,53 @@ services:
         - base=cblessing24/blessed-nvim:git-ef53d5a9e795f721acae73c6a23933c2004a08ff
     volumes:
       - .:/src
+      - pypackages:/src/__pypackages__
     command: "nvim"
+  pytest:
+    build: .
+    volumes:
+      - .:/src
+      - pypackages:/src/__pypackages__
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      - DOCKER=1
+    networks:
+      - test
+    command: "pytest"
+  black:
+    build: .
+    volumes:
+      - .:/src
+    entrypoint: ["pdm", "run", "black"]
+    command: ["--check", "--diff", "."]
+  isort:
+    build: .
+    volumes:
+      - .:/src
+    entrypoint: ["pdm", "run", "isort"]
+    command: ["--check-only", "--diff", "."]
+  mypy:
+    build: .
+    volumes:
+      - .:/src
+      - mypy-cache:/src/.mypy_cache
+    entrypoint: ["pdm", "run", "mypy"]
+  flake8:
+    build: .
+    volumes:
+      - .:/src
+    entrypoint: ["pdm", "run", "flake8"]
+    command: "."
+  pylint:
+    build: .
+    volumes:
+      - .:/src
+    entrypoint: ["pdm", "run", "pylint"]
+    command: "compenv"
 
+volumes:
+  pypackages:
+  mypy-cache:
+
+networks:
+  test:
