@@ -11,6 +11,10 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Run tests and generate coverage report
-      run: ./workflows/test.sh
-      env:
-        CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+      run: docker-compose run pytest --cov --cov-report=xml:/src/reports/coverage.xml
+    - name: Upload coverage to codecov
+      uses: codecov/codecov-action@v2
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+        files: /src/reports/coverage.xml
+        verbose: true
