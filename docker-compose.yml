@@ -10,6 +10,12 @@ services:
       - .:/src
       - pypackages:/src/__pypackages__
     command: "nvim"
+  build:
+    build: .
+    volumes:
+      - .:/src
+    entrypoint: ["pdm"]
+    command: "build"
   pytest:
     build: .
     volumes:
