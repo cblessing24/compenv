@@ -37,6 +37,7 @@ services:
     command: ["--check-only", "--diff", "."]
   mypy:
     build: .
+    volumes:
       - mypy-cache:/src/.mypy_cache
     entrypoint: ["pdm", "run", "mypy"]
   flake8:
