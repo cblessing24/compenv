@@ -3,18 +3,38 @@ name: Lint
 on: [push, pull_request]
 
 jobs:
-  lint:
+  black:
     runs-on: ubuntu-20.04
     steps:
     - name: Check out code
       uses: actions/checkout@v2
     - name: Lint code with black
       run: docker-compose run black
+  isort:
+    runs-on: ubuntu-20.04
+    steps:
+    - name: Check out code
+      uses: actions/checkout@v2
     - name: Lint code with isort
       run: docker-compose run isort
+  mypy:
+    runs-on: ubuntu-20.04
+    steps:
+    - name: Check out code
+      uses: actions/checkout@v2
     - name: Lint code with mypy
       run: docker-compose run mypy
+  flake8:
+    runs-on: ubuntu-20.04
+    steps:
+    - name: Check out code
+      uses: actions/checkout@v2
     - name: Lint code with flake8
       run: docker-compose run flake8
+  pylint:
+    runs-on: ubuntu-20.04
+    steps:
+    - name: Check out code
+      uses: actions/checkout@v2
     - name: Lint code with pylint
       run: docker-compose run pylint
