@@ -47,7 +47,7 @@ services:
       - .:/src
       - pypackages:/src/__pypackages__
       - mypy-cache:/src/.mypy_cache
-    entrypoint: ["pdm", "run", "mypy"]
+    entrypoint: ["pdm", "run", "scripts/mypy_wrapper.sh"]
   flake8:
     build: .
     volumes:
