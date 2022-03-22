@@ -1,8 +1,9 @@
 # compenv
 
-![Test](https://github.com/cblessing24/compenv/workflows/Test/badge.svg)
-![Lint](https://github.com/cblessing24/compenv/workflows/Lint/badge.svg)
-![Build](https://github.com/cblessing24/compenv/workflows/Build/badge.svg)
+[![Test](https://github.com/cblessing24/compenv/actions/workflows/test.yml/badge.svg)](https://github.com/cblessing24/compenv/actions/workflows/test.yml)
+[![Lint](https://github.com/cblessing24/compenv/actions/workflows/lint.yml/badge.svg)](https://github.com/cblessing24/compenv/actions/workflows/lint.yml)
+[![Build](https://github.com/cblessing24/compenv/actions/workflows/build.yml/badge.svg)](https://github.com/cblessing24/compenv/actions/workflows/build.yml)
+[![Docker](https://github.com/cblessing24/compenv/actions/workflows/docker.yml/badge.svg)](https://github.com/cblessing24/compenv/actions/workflows/docker.yml)
 
 Track information about the execution environment of computations.
 
