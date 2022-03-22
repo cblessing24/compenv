@@ -29,32 +29,22 @@ services:
     entrypoint: ["pdm", "run", "pytest"]
   black:
     build: .
-    volumes:
-      - .:/src
     entrypoint: ["pdm", "run", "black"]
     command: ["--check", "--diff", "."]
   isort:
     build: .
-    volumes:
-      - .:/src
     entrypoint: ["pdm", "run", "isort"]
     command: ["--check-only", "--diff", "."]
   mypy:
     build: .
-    volumes:
-      - .:/src
       - mypy-cache:/src/.mypy_cache
     entrypoint: ["pdm", "run", "mypy"]
   flake8:
     build: .
-    volumes:
-      - .:/src
     entrypoint: ["pdm", "run", "flake8"]
     command: "."
   pylint:
     build: .
-    volumes:
-      - .:/src
     entrypoint: ["pdm", "run", "pylint"]
     command: "compenv"
 
