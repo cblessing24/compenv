@@ -20,4 +20,5 @@ RUN curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py \
 WORKDIR src
 COPY . .
 RUN pdm install --dev --no-lock
-ENTRYPOINT ["pdm", "run"]
+COPY docker_entrypoint.sh /opt/docker/entrypoint.sh
+ENTRYPOINT ["/opt/docker/entrypoint.sh"]
