@@ -59,8 +59,11 @@ RUN pip3 install --no-cache-dir thefuck neovim pre-commit
 RUN npm install -g fd-find neovim
 
 ARG DOTFILES_DIR=/opt/dotfiles
-RUN git clone --depth 1 https://github.com/cblessing24/dotfiles $DOTFILES_DIR &&\
-    stow --dir $DOTFILES_DIR/dotfiles --target /root zshenv zsh starship nvim git
+ARG DOTFILES_REF=HEAD
+RUN git clone https://github.com/cblessing24/dotfiles $DOTFILES_DIR &&\
+    cd $DOTFILES_DIR &&\
+    git checkout $DOTFILES_REF &&\
+    stow --dir dotfiles --target /root zshenv zsh starship nvim git
 
 ENV SHELL=/usr/bin/zsh
 ENV USER=root
