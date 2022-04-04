@@ -79,4 +79,5 @@ ENV LC_ALL=en_US.UTF-8
 RUN nvim --headless -c 'autocmd User PackerComplete quitall'
 
 ENV ENTRYPOINT_DIR=$DOTFILES_DIR/entrypoint
+COPY docker_entrypoint.sh $ENTRYPOINT_DIR/entrypoint.sh
 ENTRYPOINT ["sh", "-c", "exec ${ENTRYPOINT_DIR}/entrypoint.sh \"${@}\"", "--"]
