@@ -1,11 +1,9 @@
 version: "3.9"
 
 services:
-  nvim:
-    build:
-      context: .
-      args:
-        - base=cblessing24/blessed-nvim:git-ef53d5a9e795f721acae73c6a23933c2004a08ff
+  dev:
+    image: compenv_dev
+    env_file: .env
     volumes:
       - .:/src
       - pypackages:/src/__pypackages__
@@ -26,42 +24,38 @@ services:
       - DOCKER=1
     networks:
       - test
-    entrypoint: ["pdm", "run", "pytest"]
+    command: ["pytest"]
   black:
     build: .
     volumes:
       - .:/src
       - pypackages:/src/__pypackages__
-    entrypoint: ["pdm", "run", "black"]
-    command: ["--check", "--diff", "."]
+    command: ["black", "--check", "--diff", "."]
   isort:
     build: .
     volumes:
       - .:/src
       - pypackages:/src/__pypackages__
-    entrypoint: ["pdm", "run", "isort"]
-    command: ["--check-only", "--diff", "."]
+    command: ["isort", "--check-only", "--diff", "."]
   mypy:
     build: .
     volumes:
       - .:/src
       - pypackages:/src/__pypackages__
       - mypy-cache:/src/.mypy_cache
-    entrypoint: ["pdm", "run", "scripts/mypy_wrapper.sh"]
+    command: ["scripts/mypy_wrapper.sh"]
   flake8:
     build: .
     volumes:
       - .:/src
       - pypackages:/src/__pypackages__
-    entrypoint: ["pdm", "run", "flake8"]
-    command: "."
+    command: ["flake8", "."]
   pylint:
     build: .
     volumes:
       - .:/src
       - pypackages:/src/__pypackages__
-    entrypoint: ["pdm", "run", "pylint"]
-    command: "compenv"
+    command: ["pylint", "compenv"]
 
 volumes:
   pypackages:
