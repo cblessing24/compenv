@@ -59,7 +59,8 @@ RUN pip3 install --no-cache-dir thefuck neovim pre-commit
 RUN npm install -g fd-find neovim
 
 ARG DOTFILES_DIR=/opt/dotfiles
-ARG DOTFILES_REF=HEAD
+ARG DOTFILES_REF
+LABEL dotfiles.ref=$DOTFILES_REF
 RUN git clone https://github.com/cblessing24/dotfiles $DOTFILES_DIR &&\
     cd $DOTFILES_DIR &&\
     git checkout $DOTFILES_REF &&\
