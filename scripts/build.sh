@@ -2,7 +2,7 @@
 
 build_base_image() {
     ref=$(git rev-parse HEAD)
-    docker build --build-arg COMPENV_REF="$ref" -t compenv .
+    docker build --build-arg COMPENV_REF="$ref" -t cblessing24/compenv:latest .
 }
 
 build_dev_image() {
@@ -10,7 +10,7 @@ build_dev_image() {
     docker build \
         --build-arg UID="$(id -u)" \
         --build-arg GID="$(id -g)" \
-        --build-arg BASE=compenv \
+        --build-arg BASE=cblessing24/compenv:latest \
         --build-arg DOTFILES_REF="$ref" \
         -f Dockerfile.dev \
         -t compenv_dev .
