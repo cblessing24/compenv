@@ -25,6 +25,15 @@ services:
     networks:
       - test
     command: ["pytest"]
+  pytest_github:
+    build: .
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      - DOCKER=1
+    networks:
+      - test
+    command: ["pytest", "--cov", "--cov-report=xml:/src/reports/coverage.xml"]
   black:
     build: .
     volumes:

@@ -11,7 +11,7 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Run tests and generate coverage report
-      run: touch .env && docker-compose run pytest --cov --cov-report=xml:/src/reports/coverage.xml
+      run: touch .env && docker-compose run pytest_github
     - name: Upload coverage to codecov
       uses: codecov/codecov-action@v2
       with:
