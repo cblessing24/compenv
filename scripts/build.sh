@@ -7,7 +7,13 @@ build_base_image() {
 
 build_dev_image() {
     ref=$(git ls-remote https://github.com/cblessing24/dotfiles main | cut -d '	' -f 1)
-    docker build --build-arg BASE=compenv --build-arg DOTFILES_REF="$ref" -f Dockerfile.dev -t compenv_dev .
+    docker build \
+        --build-arg UID="$(id -u)" \
+        --build-arg GID="$(id -g)" \
+        --build-arg BASE=compenv \
+        --build-arg DOTFILES_REF="$ref" \
+        -f Dockerfile.dev \
+        -t compenv_dev .
 }
 
 case "$1" in
