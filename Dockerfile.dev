@@ -58,23 +58,29 @@ RUN pip3 install --no-cache-dir thefuck neovim pre-commit
 
 RUN npm install -g fd-find neovim
 
-ARG DOTFILES_DIR=/opt/dotfiles
-ARG DOTFILES_REF
-LABEL dotfiles.ref=$DOTFILES_REF
-RUN git clone https://github.com/cblessing24/dotfiles $DOTFILES_DIR &&\
-    cd $DOTFILES_DIR &&\
-    git checkout $DOTFILES_REF &&\
-    stow --dir dotfiles --target /root zshenv zsh starship nvim git
-
-ENV SHELL=/usr/bin/zsh
-ENV USER=root
-
-RUN zsh -c 'echo allow-preset-passphrase > $GNUPGHOME/gpg-agent.conf'
-
 RUN sed -i '/en_US.UTF-8/s/^# //g' /etc/locale.gen &&\
     locale-gen
 ENV LANG=en_US.UTF-8
 ENV LC_ALL=en_US.UTF-8
+
+ARG USERNAME=dev
+ARG UID=1000
+ARG GID=1000
+RUN groupadd -g $GID -o $USERNAME
+RUN useradd -u $UID -g $GID -o -m -s /usr/bin/zsh $USERNAME
+USER $USERNAME
+ENV USER=$USERNAME
+ENV SHELL=/usr/bin/zsh
+
+ARG DOTFILES_REF
+LABEL dotfiles.ref=$DOTFILES_REF
+ENV DOTFILES_DIR=/home/$USERNAME/dotfiles
+RUN git clone https://github.com/cblessing24/dotfiles $DOTFILES_DIR &&\
+    cd $DOTFILES_DIR &&\
+    git checkout $DOTFILES_REF &&\
+    stow --dir $DOTFILES_DIR/dotfiles --target $HOME zshenv zsh starship nvim git
+
+RUN zsh -c 'echo allow-preset-passphrase > $GNUPGHOME/gpg-agent.conf'
 
 RUN nvim --headless -c 'autocmd User PackerComplete quitall'
 
