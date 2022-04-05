@@ -54,6 +54,8 @@ jobs:
         run: | 
           docker image load -i /tmp/image.tar -q &&\
             docker tag ${{ needs.build_image.outputs.imageid }} cblessing24/compenv:latest
+      - name: Check out code
+        uses: actions/checkout@v2
       - name: Test code
         run: touch .env && docker-compose run pytest_github
       - name: Upload coverage to codecov
