@@ -1,6 +1,5 @@
 [project]
 name = "compenv"
-version = "0.1.0"
 description = "Track information about the execution environment of computations"
 authors = [
     {name = "Christoph Blessing", email = "33834216+cblessing24@users.noreply.github.com"},
@@ -10,10 +9,10 @@ dependencies = [
 ]
 requires-python = ">=3.8"
 license = {text = "GPL-3.0-or-later"}
+dynamic = ["version"]
 
 [project.urls]
 homepage = "https://github.com/sinzlab/compenv"
-
 
 [project.optional-dependencies]
 [build-system]
@@ -22,6 +21,7 @@ build-backend = "pdm.pep517.api"
 
 [tool]
 [tool.pdm]
+version = {use_scm = true}
 
 [tool.pdm.dev-dependencies]
 dev = [
