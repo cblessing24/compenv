@@ -1,6 +1,7 @@
 [project]
 name = "compenv"
 description = "Track information about the execution environment of computations"
+readme = "README.md"
 authors = [
     {name = "Christoph Blessing", email = "33834216+cblessing24@users.noreply.github.com"},
 ]
