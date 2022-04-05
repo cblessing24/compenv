@@ -33,7 +33,7 @@ jobs:
       - name: Load image
         run: | 
           docker image load -i /tmp/image.tar -q &&\
-            docker tag ${{ needs.build_image.outputs.ImageID }} cblessing24/compenv:latest
+            docker tag ${{ needs.build_image.outputs.imageid }} cblessing24/compenv:latest
       - name: Check out code
         uses: actions/checkout@v2
       - name: Lint code
@@ -50,7 +50,7 @@ jobs:
       - name: Load image
         run: | 
           docker image load -i /tmp/image.tar -q &&\
-            docker tag ${{ needs.build_image.outputs.ImageID }} cblessing24/compenv:latest
+            docker tag ${{ needs.build_image.outputs.imageid }} cblessing24/compenv:latest
       - name: Test code
         run: touch .env && docker-compose run pytest_github
       - name: Upload coverage to codecov
@@ -71,7 +71,7 @@ jobs:
       - name: Load image
         run: | 
           docker image load -i /tmp/image.tar -q &&\
-            docker tag ${{ needs.build_image.outputs.ImageID }} cblessing24/compenv:latest
+            docker tag ${{ needs.build_image.outputs.imageid }} cblessing24/compenv:latest
       - name: Login to DockerHub
         uses: docker/login-action@v1 
         with:
@@ -92,7 +92,7 @@ jobs:
       - name: Load image
         run: | 
           docker image load -i /tmp/image.tar -q &&\
-            docker tag ${{ needs.build_image.outputs.ImageID }} cblessing24/compenv:latest
+            docker tag ${{ needs.build_image.outputs.imageid }} cblessing24/compenv:latest
       - name: Check out code
         uses: actions/checkout@v2
       - name: Build distribution artifacts
