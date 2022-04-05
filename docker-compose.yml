@@ -9,13 +9,13 @@ services:
       - pypackages:/src/__pypackages__
     command: "nvim"
   build:
-    build: .
+    image: cblessing24/compenv:latest
     volumes:
       - .:/src
     entrypoint: ["pdm"]
     command: "build"
   pytest:
-    build: .
+    image: cblessing24/compenv:latest
     volumes:
       - .:/src
       - pypackages:/src/__pypackages__
@@ -26,7 +26,7 @@ services:
       - test
     command: ["pytest"]
   pytest_github:
-    build: .
+    image: cblessing24/compenv:latest
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     environment:
@@ -35,32 +35,32 @@ services:
       - test
     command: ["pytest", "--cov", "--cov-report=xml:/src/reports/coverage.xml"]
   black:
-    build: .
+    image: cblessing24/compenv:latest
     volumes:
       - .:/src
       - pypackages:/src/__pypackages__
     command: ["black", "--check", "--diff", "."]
   isort:
-    build: .
+    image: cblessing24/compenv:latest
     volumes:
       - .:/src
       - pypackages:/src/__pypackages__
     command: ["isort", "--check-only", "--diff", "."]
   mypy:
-    build: .
+    image: cblessing24/compenv:latest
     volumes:
       - .:/src
       - pypackages:/src/__pypackages__
       - mypy-cache:/src/.mypy_cache
     command: ["scripts/mypy_wrapper.sh"]
   flake8:
-    build: .
+    image: cblessing24/compenv:latest
     volumes:
       - .:/src
       - pypackages:/src/__pypackages__
     command: ["flake8", "."]
   pylint:
-    build: .
+    image: cblessing24/compenv:latest
     volumes:
       - .:/src
       - pypackages:/src/__pypackages__
