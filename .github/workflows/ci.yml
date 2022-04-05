@@ -29,7 +29,7 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: image
-          path: /tmp/image.tar
+          path: /tmp
       - name: Load image
         run: docker image load -i /tmp/image.tar -q
       - name: Check out code
@@ -44,7 +44,7 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: image
-          path: /tmp/image.tar
+          path: /tmp
       - name: Load image
         run: docker image load -i /tmp/image.tar -q
       - name: Test code
@@ -63,7 +63,7 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: image
-          path: /tmp/image.tar
+          path: /tmp
       - name: Load image
         run: docker image load -i /tmp/image.tar -q
       - name: Login to DockerHub
@@ -82,7 +82,7 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: image
-          path: /tmp/image.tar
+          path: /tmp
       - name: Load image
         run: docker image load -i /tmp/image.tar -q
       - name: Check out code
