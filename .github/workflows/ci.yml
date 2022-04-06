@@ -74,7 +74,10 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       - name: Push image
-        run: docker push cblessing24/compenv:latest
+        run: |
+          docker tag cblessing24/compenv:latest cblessing24/compenv:${{ github.sha }}
+          docker push cblessing24/compenv:latest
+          docker push cblessing24/compenv:${{ github.sha }}
   publish_package:
     if: startsWith(github.ref, 'refs/tags/v')
     needs: [build_image, lint, test]
