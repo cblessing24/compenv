@@ -1,0 +1,11 @@
+{
+  "exclude": [
+    "__pypackages__",
+    "stubs"
+  ]
+  "typeCheckingMode": "off",
+  "pythonVersion": "3.8",
+  "extraPaths": [
+    "__pypackages__/3.8/lib"
+  ]
+}

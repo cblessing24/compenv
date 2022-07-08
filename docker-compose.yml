@@ -1,0 +1,74 @@
+version: "3.9"
+
+services:
+  dev:
+    image: compenv_dev
+    env_file: .env
+    volumes:
+      - .:/src
+      - pypackages:/src/__pypackages__
+    command: "nvim"
+  build:
+    image: cblessing24/compenv:latest
+    volumes:
+      - .:/src
+    entrypoint: ["pdm"]
+    command: "build"
+  pytest:
+    image: cblessing24/compenv:latest
+    volumes:
+      - .:/src
+      - pypackages:/src/__pypackages__
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      - DOCKER=1
+    networks:
+      - test
+    command: ["pytest"]
+  pytest_github:
+    image: cblessing24/compenv:latest
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      - DOCKER=1
+    networks:
+      - test
+    command: ["pytest", "--cov", "--cov-report=xml:/src/reports/coverage.xml"]
+  black:
+    image: cblessing24/compenv:latest
+    volumes:
+      - .:/src
+      - pypackages:/src/__pypackages__
+    command: ["black", "--check", "--diff", "."]
+  isort:
+    image: cblessing24/compenv:latest
+    volumes:
+      - .:/src
+      - pypackages:/src/__pypackages__
+    command: ["isort", "--check-only", "--diff", "."]
+  mypy:
+    image: cblessing24/compenv:latest
+    volumes:
+      - .:/src
+      - pypackages:/src/__pypackages__
+      - mypy-cache:/src/.mypy_cache
+    command: ["scripts/mypy_wrapper.sh"]
+  flake8:
+    image: cblessing24/compenv:latest
+    volumes:
+      - .:/src
+      - pypackages:/src/__pypackages__
+    command: ["flake8", "."]
+  pylint:
+    image: cblessing24/compenv:latest
+    volumes:
+      - .:/src
+      - pypackages:/src/__pypackages__
+    command: ["pylint", "compenv"]
+
+volumes:
+  pypackages:
+  mypy-cache:
+
+networks:
+  test:

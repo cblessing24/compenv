@@ -127,3 +127,12 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# Python Development Master
+.pdm.toml
+
+# Temporary files
+temp/
+
+# Coverage reports directory
+reports/

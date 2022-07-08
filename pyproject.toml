@@ -1,0 +1,80 @@
+[project]
+name = "compenv"
+description = "Track information about the execution environment of computations"
+readme = "README.md"
+authors = [
+    {name = "Christoph Blessing", email = "33834216+cblessing24@users.noreply.github.com"},
+]
+dependencies = [
+    "datajoint==0.12.9",
+]
+requires-python = ">=3.8"
+license = {text = "GPL-3.0-or-later"}
+dynamic = ["version"]
+
+[project.urls]
+homepage = "https://github.com/sinzlab/compenv"
+
+[project.optional-dependencies]
+[build-system]
+requires = ["pdm-pep517"]
+build-backend = "pdm.pep517.api"
+
+[tool]
+[tool.pdm]
+version = {use_scm = true}
+
+[tool.pdm.dev-dependencies]
+dev = [
+    "pytest~=6.2",
+    "black~=21.5b0",
+    "pylint~=2.8",
+    "flake8~=3.9",
+    "isort~=5.8",
+    "mypy~=0.812",
+    "flake8-docstrings~=1.6",
+    "pytest-cov~=2.11",
+    "docker~=5.0",
+    "pymysql~=1.0",
+]
+
+[tool.black]
+line-length = 120
+
+[tool.isort]
+profile = "black"
+multi_line_output = 3
+line_length = 120
+skip_gitignore = true
+
+[tool.pylint.master]
+max-line-length = 120
+ignore-patterns = ["test_.*\\.py", "conftest\\.py", ".*.pyi"]
+
+[tool.pylint.messages_control]
+enable = ["useless-suppression"]
+
+[tool.mypy]
+python_version = "3.8"
+files = "compenv/**/*.py"
+strict = true
+mypy_path = "stubs"
+
+[[tool.mypy.overrides]]
+module = [
+    "pytest.*",
+]
+ignore_missing_imports = true
+
+[tool.coverage.run]
+branch = true
+source = ["compenv"]
+
+[tool.coverage.report]
+exclude_lines = ["pragma: no cover", "if TYPE_CHECKING:"]
+
+[tool.pytest.ini_options]
+addopts = ["--cov", "-q"]
+testpaths = [
+    "tests",
+]

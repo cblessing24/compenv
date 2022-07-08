@@ -1,0 +1,6 @@
+# Python development master
+.pdm.toml
+__pypackages__/
+
+# Temporary files
+temp/
