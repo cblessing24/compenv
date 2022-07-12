@@ -29,6 +29,7 @@ services:
     image: cblessing24/compenv:latest
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
+      - ./reports:/src/reports
     environment:
       - DOCKER=1
     networks:
