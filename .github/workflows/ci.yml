@@ -79,7 +79,7 @@ jobs:
           docker push cblessing24/compenv:latest
           docker push cblessing24/compenv:${{ github.sha }}
   publish_package:
-    if: startsWith(github.ref, 'refs/tags/v')
+    if: startsWith(github.ref, 'refs/tags/v') && github.repository_owner == 'sinzlab'
     needs: [build_image, lint, test]
     runs-on: ubuntu-20.04
     steps:
