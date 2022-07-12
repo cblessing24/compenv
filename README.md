@@ -1,8 +1,8 @@
 # compenv
 
 <p align="center">
-<a href="https://github.com/cblessing24/compenv/actions/workflows/ci.yml"><img alt="Actions Status" src="https://github.com/cblessing24/compenv/actions/workflows/ci.yml/badge.svg"></a>
-<a href="https://codecov.io/gh/cblessing24/compenv"><img src="https://codecov.io/gh/cblessing24/compenv/branch/main/graph/badge.svg?token=r1gr933Slt"/></a>
+<a href="https://github.com/sinzlab/compenv/actions/workflows/ci.yml"><img alt="Actions Status" src="https://github.com/sinzlab/compenv/actions/workflows/ci.yml/badge.svg"></a>
+<a href="https://codecov.io/gh/sinzlab/compenv"><img src="https://codecov.io/gh/sinzlab/compenv/branch/main/graph/badge.svg?token=r1gr933Slt"/></a>
 <a href="https://pypi.org/project/compenv/"><img alt="PyPI" src="https://img.shields.io/pypi/v/compenv"></a>
 <a href="https://github.com/psf/black"><img alt="Code style: black" src="https://img.shields.io/badge/code%20style-black-000000.svg"></a>
 </p>
