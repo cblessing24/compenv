@@ -2,12 +2,15 @@ version: "3.9"
 
 services:
   dev:
-    image: compenv_dev
+    build:
+      context: .
+      args:
+        BASE: cblessing24/docker-dev:latest
     env_file: .env
     volumes:
-      - .:/src
-      - pypackages:/src/__pypackages__
-    command: "nvim"
+      - /var/run/docker.sock:/var/run/docker.sock
+      - compenv:/src
+    command: "zsh"
   build:
     image: cblessing24/compenv:latest
     volumes:
@@ -68,6 +71,7 @@ services:
     command: ["pylint", "compenv"]
 
 volumes:
+  compenv:
   pypackages:
   mypy-cache:
 
