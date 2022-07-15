@@ -1,4 +1,5 @@
-FROM ubuntu:22.04
+ARG BASE=ubuntu:22.04
+FROM $BASE
 # Fix for https://github.com/actions/virtual-environments/issues/2803
 ENV LD_PRELOAD=/lib/x86_64-linux-gnu/libgcc_s.so.1
 ENV DEBIAN_FRONTEND noninteractive
