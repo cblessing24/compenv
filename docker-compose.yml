@@ -5,7 +5,7 @@ services:
     build:
       context: .
       args:
-        BASE: cblessing24/docker-dev:latest
+        BASE: cblessing24/python3.8:latest
     env_file: .env
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
