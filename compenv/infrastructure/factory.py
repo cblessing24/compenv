@@ -17,7 +17,7 @@ class DJTableFactory:
         self.schema = schema
         self.parent = parent
 
-    @lru_cache(maxsize=None)
+    @lru_cache
     def __call__(self) -> Lookup:
         """Produce a record table instance."""
         master_cls: Type[Lookup] = type(self.parent + "Record", (Lookup,), {"definition": "-> " + self.parent})

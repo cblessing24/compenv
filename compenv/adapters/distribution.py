@@ -15,7 +15,7 @@ class InstalledDistributionConverter:
     _path_cls = Path
     _get_active_modules_func = ActiveModuleConverter()
 
-    @lru_cache(maxsize=None)
+    @lru_cache
     def __call__(self) -> InstalledDistributions:
         """Return a dictionary containing all installed distributions."""
         conv_dists: Set[Distribution] = set()
