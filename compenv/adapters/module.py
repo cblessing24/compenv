@@ -3,7 +3,7 @@ import sys
 from functools import lru_cache
 from pathlib import Path
 from types import ModuleType
-from typing import Iterator, Mapping
+from typing import Mapping
 
 from ..model.record import ActiveModules, Module
 
@@ -13,22 +13,14 @@ class ActiveModuleConverter:
 
     _active_modules: Mapping[str, ModuleType] = sys.modules
 
-    @lru_cache(maxsize=None)
+    @lru_cache
     def __call__(self) -> ActiveModules:
         """Return a dictionary containing all active modules that are neither built-in nor namespaces."""
-        return ActiveModules(Module(Path(nbm.__file__), is_active=True) for nbm in self._non_namespace_modules)
-
-    @property
-    def _non_builtin_modules(self) -> Iterator[ModuleType]:
+        modules = []
         for module in self._active_modules.values():
-            if hasattr(module, "__file__"):
-                yield module
-
-    @property
-    def _non_namespace_modules(self) -> Iterator[ModuleType]:
-        for module in self._non_builtin_modules:
-            if module.__file__ is not None:
-                yield module
+            if file := getattr(module, "__file__", None):
+                modules.append(Module(Path(file), is_active=True))
+        return ActiveModules(modules)
 
     def __repr__(self) -> str:
         """Return a string representation of the converter."""
