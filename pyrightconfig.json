@@ -1,6 +1,7 @@
 {
   "exclude": [
-    "stubs"
+    "stubs/",
+    ".venv/",
   ]
   "typeCheckingMode": "off",
   "pythonVersion": "3.8",
