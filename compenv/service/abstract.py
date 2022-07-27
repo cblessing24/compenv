@@ -57,6 +57,10 @@ class Repository(ABC):
         """Remove the computation record matching the given identifier from the repository if it exists."""
 
     @abstractmethod
+    def get(self, identifier: Identifier) -> ComputationRecord:
+        """Get the computation record matching the given identifier from the repository if it exists."""
+
+    @abstractmethod
     def __getitem__(self, identifier: Identifier) -> ComputationRecord:
         """Get the computation record matching the given identifier from the repository if it exists."""
 

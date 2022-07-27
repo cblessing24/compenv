@@ -58,6 +58,23 @@ class DJRepository(Repository):
         except KeyError as error:
             raise KeyError(f"Record with identifier '{identifier}' does not exist!") from error
 
+    def get(self, identifier: Identifier) -> ComputationRecord:
+        """Get the computation record matching the given identifier from the repository if it exists."""
+        primary = self.translator.to_primary(identifier)
+
+        try:
+            dj_comp_rec = self.facade[primary]
+        except KeyError as error:
+            raise KeyError(f"Record with identifier '{identifier}' does not exist!") from error
+
+        return ComputationRecord(
+            identifier=identifier,
+            record=Record(
+                installed_distributions=self._reconstitue_installed_dists(dj_comp_rec),
+                active_modules=self._reconstitute_active_modules(dj_comp_rec.modules),
+            ),
+        )
+
     def __getitem__(self, identifier: Identifier) -> ComputationRecord:
         """Get the computation record matching the given identifier from the repository if it exists."""
         primary = self.translator.to_primary(identifier)

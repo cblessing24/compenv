@@ -138,6 +138,9 @@ def fake_repository():
         def __delitem__(self, identifier):
             del self.comp_recs[identifier]
 
+        def get(self, identifier):
+            return self.comp_recs[identifier]
+
         def __getitem__(self, identifier):
             return self.comp_recs[identifier]
 
