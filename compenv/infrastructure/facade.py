@@ -51,17 +51,6 @@ class DJTableFacade(AbstractTableFacade[DJComputationRecord]):
             )
 
     @_check_primary
-    def __delitem__(self, primary: PrimaryKey) -> None:
-        """Delete the record matching the given primary key from the record table and its parts.
-
-        Raises:
-            KeyError: No record matching the given primary key exists.
-        """
-        for part in DJComputationRecord.parts:
-            (getattr(self.factory(), part.__name__)() & primary).delete_quick()
-        (self.factory() & primary).delete_quick()
-
-    @_check_primary
     def __getitem__(self, primary: PrimaryKey) -> DJComputationRecord:
         """Fetch the record matching the given primary key from the record table and its parts.
 

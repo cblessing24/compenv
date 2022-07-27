@@ -148,25 +148,9 @@ class TestInsert:
         ]
 
 
-@pytest.mark.parametrize("method", ["__delitem__", "__getitem__"])
-def test_raises_error_if_record_does_not_exist(facade, primary, method):
+def test_raises_error_if_record_does_not_exist(facade, primary):
     with pytest.raises(KeyError, match="does not exist!"):
-        getattr(facade, method)(primary)
-
-
-class TestDelete:
-    @staticmethod
-    @pytest.mark.parametrize("part", list(DJComputationRecord.parts))
-    def test_deletes_part_entities_from_part_tables(facade, primary, dj_comp_rec, fake_tbl, part):
-        facade.add(primary, dj_comp_rec)
-        del facade[primary]
-        assert len(getattr(fake_tbl, part.__name__)()) == 0
-
-    @staticmethod
-    def test_deletes_master_entity_from_master_table(facade, primary, dj_comp_rec, fake_tbl):
-        facade.add(primary, dj_comp_rec)
-        del facade[primary]
-        assert len(fake_tbl) == 0
+        _ = facade[primary]
 
 
 def test_fetches_dj_computation_record(facade, primary, dj_comp_rec):
