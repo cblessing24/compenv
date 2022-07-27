@@ -128,7 +128,25 @@ def fake_trigger():
 
 @pytest.fixture
 def fake_repository():
-    class FakeRepository(dict, Repository):
+    class FakeRepository(Repository):
+        def __init__(self) -> None:
+            self.comp_recs = {}
+
+        def __setitem__(self, identifier, comp_rec):
+            self.comp_recs[identifier] = comp_rec
+
+        def __delitem__(self, identifier):
+            del self.comp_recs[identifier]
+
+        def __getitem__(self, identifier):
+            return self.comp_recs[identifier]
+
+        def __iter__(self):
+            return iter(self.comp_recs)
+
+        def __len__(self):
+            return len(self.comp_recs)
+
         def __repr__(self):
             return self.__class__.__name__ + "()"
 
