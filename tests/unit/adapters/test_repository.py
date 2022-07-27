@@ -29,7 +29,7 @@ class TestAdd:
 
     @staticmethod
     def test_inserts_dj_computation_record(fake_facade, primary, dj_comp_rec):
-        assert fake_facade[primary] == dj_comp_rec
+        assert fake_facade.get(primary) == dj_comp_rec
 
 
 def test_raises_error_if_not_existing(repo, identifier):

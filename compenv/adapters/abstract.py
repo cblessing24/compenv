@@ -53,14 +53,6 @@ class AbstractTableFacade(ABC, Generic[_T]):
         """
 
     @abstractmethod
-    def __getitem__(self, primary: PrimaryKey) -> _T:
-        """Fetch the entity matching the given primary key from the table if it exists.
-
-        Raises:
-            KeyError: No entity matching the given key exists.
-        """
-
-    @abstractmethod
     def __iter__(self) -> Iterator[PrimaryKey]:
         """Iterate over the primary keys of all entities in the table."""
 

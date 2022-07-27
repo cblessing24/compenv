@@ -21,12 +21,6 @@ def fake_facade():
             except StopIteration as error:
                 raise KeyError from error
 
-        def __getitem__(self, primary):
-            try:
-                return next(r for (p, r) in self.dj_comp_recs if p == primary)
-            except StopIteration as error:
-                raise KeyError from error
-
         def __iter__(self):
             return (p for (p, _) in self.dj_comp_recs)
 

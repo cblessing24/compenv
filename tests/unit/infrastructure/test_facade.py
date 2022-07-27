@@ -150,12 +150,12 @@ class TestInsert:
 
 def test_raises_error_if_record_does_not_exist(facade, primary):
     with pytest.raises(KeyError, match="does not exist!"):
-        _ = facade[primary]
+        _ = facade.get(primary)
 
 
 def test_fetches_dj_computation_record(facade, primary, dj_comp_rec):
     facade.add(primary, dj_comp_rec)
-    assert facade[primary] == dj_comp_rec
+    assert facade.get(primary) == dj_comp_rec
 
 
 def test_length(facade, primary, dj_comp_rec):

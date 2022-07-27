@@ -57,7 +57,7 @@ class DJRepository(Repository):
         primary = self.translator.to_primary(identifier)
 
         try:
-            dj_comp_rec = self.facade[primary]
+            dj_comp_rec = self.facade.get(primary)
         except KeyError as error:
             raise KeyError(f"Record with identifier '{identifier}' does not exist!") from error
 
