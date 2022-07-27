@@ -53,10 +53,6 @@ class Repository(ABC):
         """Add the given computation record to the repository if it does not already exist."""
 
     @abstractmethod
-    def __delitem__(self, identifier: Identifier) -> None:
-        """Remove the computation record matching the given identifier from the repository if it exists."""
-
-    @abstractmethod
     def get(self, identifier: Identifier) -> ComputationRecord:
         """Get the computation record matching the given identifier from the repository if it exists."""
 

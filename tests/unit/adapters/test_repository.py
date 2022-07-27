@@ -32,17 +32,9 @@ class TestAdd:
         assert fake_facade[primary] == dj_comp_rec
 
 
-@pytest.mark.parametrize("method", ["__delitem__", "__getitem__"])
-def test_raises_error_if_not_existing(repo, identifier, method):
+def test_raises_error_if_not_existing(repo, identifier):
     with pytest.raises(KeyError, match="does not exist!"):
-        getattr(repo, method)(identifier)
-
-
-def test_removes_computation_record(repo, identifier, comp_rec, fake_facade, primary):
-    repo.add(identifier, comp_rec)
-    del repo[identifier]
-    with pytest.raises(KeyError):
-        fake_facade[primary]
+        _ = repo[identifier]
 
 
 class TestGet:

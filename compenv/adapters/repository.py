@@ -49,15 +49,6 @@ class DJRepository(Repository):
                     distribution_name=dist.name, distribution_version=dist.version, module_file=str(module.file)
                 )
 
-    def __delitem__(self, identifier: Identifier) -> None:
-        """Remove the computation record matching the given identifier from the repository if it exists."""
-        primary = self.translator.to_primary(identifier)
-
-        try:
-            del self.facade[primary]
-        except KeyError as error:
-            raise KeyError(f"Record with identifier '{identifier}' does not exist!") from error
-
     def get(self, identifier: Identifier) -> ComputationRecord:
         """Get the computation record matching the given identifier from the repository if it exists."""
         primary = self.translator.to_primary(identifier)
