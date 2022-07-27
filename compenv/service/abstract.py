@@ -49,7 +49,7 @@ class Repository(ABC):
     """Defines the interface for the repository containing computation records."""
 
     @abstractmethod
-    def add(self, identifier: Identifier, comp_rec: ComputationRecord) -> None:
+    def add(self, comp_rec: ComputationRecord) -> None:
         """Add the given computation record to the repository if it does not already exist."""
 
     @abstractmethod

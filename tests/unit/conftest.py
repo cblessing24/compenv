@@ -132,8 +132,8 @@ def fake_repository():
         def __init__(self) -> None:
             self.comp_recs = {}
 
-        def add(self, identifier, comp_rec):
-            self.comp_recs[identifier] = comp_rec
+        def add(self, comp_rec):
+            self.comp_recs[comp_rec.identifier] = comp_rec
 
         def get(self, identifier):
             return self.comp_recs[identifier]

@@ -18,9 +18,9 @@ class DJRepository(Repository):
         self.translator = translator
         self.facade = facade
 
-    def add(self, identifier: Identifier, comp_rec: ComputationRecord) -> None:
+    def add(self, comp_rec: ComputationRecord) -> None:
         """Add the given computation record to the repository if it does not already exist."""
-        primary = self.translator.to_primary(identifier)
+        primary = self.translator.to_primary(comp_rec.identifier)
 
         try:
             self.facade.add(
@@ -32,7 +32,7 @@ class DJRepository(Repository):
                 ),
             )
         except ValueError as error:
-            raise ValueError(f"Record with identifier '{identifier}' already exists!") from error
+            raise ValueError(f"Record with identifier '{comp_rec.identifier}' already exists!") from error
 
     @staticmethod
     def _persist_modules(modules: Iterable[Module]) -> Generator[DJModule, None, None]:

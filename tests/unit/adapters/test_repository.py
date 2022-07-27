@@ -16,16 +16,16 @@ def comp_rec(identifier, record):
 
 
 @pytest.fixture
-def add_computation_record(repo, identifier, comp_rec):
-    repo.add(identifier, comp_rec)
+def add_computation_record(repo, comp_rec):
+    repo.add(comp_rec)
 
 
 @pytest.mark.usefixtures("add_computation_record")
 class TestAdd:
     @staticmethod
-    def test_raises_error_if_already_existing(repo, identifier, comp_rec):
+    def test_raises_error_if_already_existing(repo, comp_rec):
         with pytest.raises(ValueError, match="already exists!"):
-            repo.add(identifier, comp_rec)
+            repo.add(comp_rec)
 
     @staticmethod
     def test_inserts_dj_computation_record(fake_facade, primary, dj_comp_rec):
@@ -59,13 +59,13 @@ class TestGet:
             repo.get(identifier)
 
 
-def test_iteration(repo, identifier, comp_rec):
-    repo.add(identifier, comp_rec)
-    assert list(iter(repo)) == [identifier]
+def test_iteration(repo, comp_rec):
+    repo.add(comp_rec)
+    assert list(iter(repo)) == [comp_rec.identifier]
 
 
-def test_length(repo, identifier, comp_rec):
-    repo.add(identifier, comp_rec)
+def test_length(repo, comp_rec):
+    repo.add(comp_rec)
     assert len(repo) == 1
 
 
