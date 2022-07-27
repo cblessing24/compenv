@@ -31,19 +31,6 @@ class DJRepository(Repository):
         except ValueError as error:
             raise ValueError(f"Record with identifier '{identifier}' already exists!") from error
 
-    def __setitem__(self, identifier: Identifier, comp_rec: ComputationRecord) -> None:
-        """Add the given computation record to the repository if it does not already exist."""
-        primary = self.translator.to_primary(identifier)
-
-        try:
-            self.facade[primary] = DJComputationRecord(
-                modules=frozenset(self._persist_modules(comp_rec.record.modules)),
-                distributions=frozenset(self._persist_dists(comp_rec.record.installed_distributions)),
-                memberships=frozenset(self._get_memberships(comp_rec.record.installed_distributions)),
-            )
-        except ValueError as error:
-            raise ValueError(f"Record with identifier '{identifier}' already exists!") from error
-
     @staticmethod
     def _persist_modules(modules: Iterable[Module]) -> Generator[DJModule, None, None]:
         for module in modules:

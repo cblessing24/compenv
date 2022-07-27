@@ -44,7 +44,7 @@ def test_calling_record_inserts_record_with_appropriate_identifier(
     controller, primary, fake_make, fake_repository, identifier
 ):
     controller.record(primary, fake_make)
-    assert [cr.identifier for cr in fake_repository.values()] == [identifier]
+    assert list(fake_repository) == [identifier]
 
 
 def test_repr(controller):

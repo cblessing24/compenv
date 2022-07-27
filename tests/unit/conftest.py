@@ -135,9 +135,6 @@ def fake_repository():
         def add(self, identifier, comp_rec):
             self.comp_recs[identifier] = comp_rec
 
-        def __setitem__(self, identifier, comp_rec):
-            self.comp_recs[identifier] = comp_rec
-
         def __delitem__(self, identifier):
             del self.comp_recs[identifier]
 
