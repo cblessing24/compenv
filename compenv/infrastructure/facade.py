@@ -63,7 +63,7 @@ class DJTableFacade(AbstractTableFacade[DJComputationRecord]):
             part_entities = [dict(e.items() - primary.items()) for e in part_entities]
             part_entities = [part.from_mapping(e) for e in part_entities]
             entities[part.master_attr] = frozenset(part_entities)
-        return DJComputationRecord(**entities)
+        return DJComputationRecord(primary=primary, **entities)
 
     def __iter__(self) -> Iterator[PrimaryKey]:
         """Iterate over the primary keys of all the records in the table."""

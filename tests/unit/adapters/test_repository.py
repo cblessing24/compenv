@@ -50,6 +50,7 @@ class TestGet:
         fake_facade.add(
             primary,
             DJComputationRecord(
+                primary=primary,
                 modules=frozenset([DJModule(module_file="module1.py", module_is_active="False")]),
                 distributions=dj_dists,
                 memberships=dj_memberships,

@@ -99,8 +99,8 @@ def dj_memberships():
 
 
 @pytest.fixture
-def dj_comp_rec(dj_modules, dj_dists, dj_memberships):
-    return DJComputationRecord(modules=dj_modules, distributions=dj_dists, memberships=dj_memberships)
+def dj_comp_rec(primary, dj_modules, dj_dists, dj_memberships):
+    return DJComputationRecord(primary=primary, modules=dj_modules, distributions=dj_dists, memberships=dj_memberships)
 
 
 @pytest.fixture

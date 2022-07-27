@@ -26,6 +26,7 @@ class DJRepository(Repository):
             self.facade.add(
                 primary,
                 DJComputationRecord(
+                    primary=primary,
                     modules=frozenset(self._persist_modules(comp_rec.record.modules)),
                     distributions=frozenset(self._persist_dists(comp_rec.record.installed_distributions)),
                     memberships=frozenset(self._get_memberships(comp_rec.record.installed_distributions)),
