@@ -10,6 +10,11 @@ def fake_facade():
         def __init__(self):
             self.dj_comp_recs = []
 
+        def add(self, primary, entity):
+            if (primary, entity) in self.dj_comp_recs:
+                raise ValueError
+            self.dj_comp_recs.append((primary, entity))
+
         def __setitem__(self, primary, entity):
             if (primary, entity) in self.dj_comp_recs:
                 raise ValueError
