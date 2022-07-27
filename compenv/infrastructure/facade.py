@@ -51,6 +51,21 @@ class DJTableFacade(AbstractTableFacade[DJComputationRecord]):
             )
 
     @_check_primary
+    def get(self, primary: PrimaryKey) -> DJComputationRecord:
+        """Fetch the record matching the given primary key from the record table and its parts.
+
+        Raises:
+            KeyError: No record matching the given primary key exists.
+        """
+        entities = {}
+        for part in DJComputationRecord.parts:
+            part_entities = (getattr(self.factory(), part.__name__)() & primary).fetch(as_dict=True)
+            part_entities = [dict(e.items() - primary.items()) for e in part_entities]
+            part_entities = [part.from_mapping(e) for e in part_entities]
+            entities[part.master_attr] = frozenset(part_entities)
+        return DJComputationRecord(**entities)
+
+    @_check_primary
     def __getitem__(self, primary: PrimaryKey) -> DJComputationRecord:
         """Fetch the record matching the given primary key from the record table and its parts.
 
