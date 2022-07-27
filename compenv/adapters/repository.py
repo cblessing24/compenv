@@ -23,10 +23,13 @@ class DJRepository(Repository):
         primary = self.translator.to_primary(identifier)
 
         try:
-            self.facade[primary] = DJComputationRecord(
-                modules=frozenset(self._persist_modules(comp_rec.record.modules)),
-                distributions=frozenset(self._persist_dists(comp_rec.record.installed_distributions)),
-                memberships=frozenset(self._get_memberships(comp_rec.record.installed_distributions)),
+            self.facade.add(
+                primary,
+                DJComputationRecord(
+                    modules=frozenset(self._persist_modules(comp_rec.record.modules)),
+                    distributions=frozenset(self._persist_dists(comp_rec.record.installed_distributions)),
+                    memberships=frozenset(self._get_memberships(comp_rec.record.installed_distributions)),
+                ),
             )
         except ValueError as error:
             raise ValueError(f"Record with identifier '{identifier}' already exists!") from error

@@ -15,11 +15,6 @@ def fake_facade():
                 raise ValueError
             self.dj_comp_recs.append((primary, entity))
 
-        def __setitem__(self, primary, entity):
-            if (primary, entity) in self.dj_comp_recs:
-                raise ValueError
-            self.dj_comp_recs.append((primary, entity))
-
         def __delitem__(self, primary):
             try:
                 del self.dj_comp_recs[next(i for i, (p, _) in enumerate(self.dj_comp_recs) if p == primary)]

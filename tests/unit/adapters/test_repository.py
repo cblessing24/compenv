@@ -47,10 +47,13 @@ class TestGet:
     def test_raises_error_if_missing_module_referenced_in_membership(
         primary, repo, identifier, fake_facade, dj_dists, dj_memberships
     ):
-        fake_facade[primary] = DJComputationRecord(
-            modules=frozenset([DJModule(module_file="module1.py", module_is_active="False")]),
-            distributions=dj_dists,
-            memberships=dj_memberships,
+        fake_facade.add(
+            primary,
+            DJComputationRecord(
+                modules=frozenset([DJModule(module_file="module1.py", module_is_active="False")]),
+                distributions=dj_dists,
+                memberships=dj_memberships,
+            ),
         )
         with pytest.raises(ValueError, match="Module referenced in membership"):
             repo.get(identifier)

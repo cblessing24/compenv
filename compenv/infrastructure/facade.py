@@ -50,21 +50,6 @@ class DJTableFacade(AbstractTableFacade[DJComputationRecord]):
                 [{**primary, **dataclasses.asdict(e)} for e in getattr(master_entity, part.master_attr)]
             )
 
-    def __setitem__(self, primary: PrimaryKey, master_entity: DJComputationRecord) -> None:
-        """Insert the record into the record table and its parts.
-
-        Raises:
-            ValueError: Record already exists.
-        """
-        try:
-            self.factory().insert1(primary)
-        except DuplicateError as error:
-            raise ValueError(f"Computation record with primary key '{primary}' already exists!") from error
-        for part in DJComputationRecord.parts:
-            getattr(self.factory(), part.__name__)().insert(
-                [{**primary, **dataclasses.asdict(e)} for e in getattr(master_entity, part.master_attr)]
-            )
-
     @_check_primary
     def __delitem__(self, primary: PrimaryKey) -> None:
         """Delete the record matching the given primary key from the record table and its parts.

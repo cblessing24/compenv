@@ -130,19 +130,19 @@ def facade(fake_factory):
 class TestInsert:
     @staticmethod
     def test_raises_error_if_record_already_exists(facade, primary, dj_comp_rec):
-        facade[primary] = dj_comp_rec
+        facade.add(primary, dj_comp_rec)
         with pytest.raises(ValueError, match="already exists!"):
-            facade[primary] = dj_comp_rec
+            facade.add(primary, dj_comp_rec)
 
     @staticmethod
     def test_inserts_master_entity_into_master_table(facade, primary, dj_comp_rec, fake_tbl):
-        facade[primary] = dj_comp_rec
+        facade.add(primary, dj_comp_rec)
         assert fake_tbl.fetch1() == primary
 
     @staticmethod
     @pytest.mark.parametrize("part,attr", list((p.__name__, p.master_attr) for p in DJComputationRecord.parts))
     def test_inserts_part_entities_into_part_tables(facade, primary, dj_comp_rec, fake_tbl, part, attr):
-        facade[primary] = dj_comp_rec
+        facade.add(primary, dj_comp_rec)
         assert getattr(fake_tbl, part).fetch(as_dict=True) == [
             {**primary, **dataclasses.asdict(m)} for m in getattr(dj_comp_rec, attr)
         ]
@@ -158,29 +158,29 @@ class TestDelete:
     @staticmethod
     @pytest.mark.parametrize("part", list(DJComputationRecord.parts))
     def test_deletes_part_entities_from_part_tables(facade, primary, dj_comp_rec, fake_tbl, part):
-        facade[primary] = dj_comp_rec
+        facade.add(primary, dj_comp_rec)
         del facade[primary]
         assert len(getattr(fake_tbl, part.__name__)()) == 0
 
     @staticmethod
     def test_deletes_master_entity_from_master_table(facade, primary, dj_comp_rec, fake_tbl):
-        facade[primary] = dj_comp_rec
+        facade.add(primary, dj_comp_rec)
         del facade[primary]
         assert len(fake_tbl) == 0
 
 
 def test_fetches_dj_computation_record(facade, primary, dj_comp_rec):
-    facade[primary] = dj_comp_rec
+    facade.add(primary, dj_comp_rec)
     assert facade[primary] == dj_comp_rec
 
 
 def test_length(facade, primary, dj_comp_rec):
-    facade[primary] = dj_comp_rec
+    facade.add(primary, dj_comp_rec)
     assert len(facade) == 1
 
 
 def test_iteration(facade, primary, dj_comp_rec, fake_tbl):
-    facade[primary] = dj_comp_rec
+    facade.add(primary, dj_comp_rec)
     assert list(iter(facade)) == list(iter(fake_tbl))
 
 
