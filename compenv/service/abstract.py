@@ -57,10 +57,6 @@ class Repository(ABC):
         """Get the computation record matching the given identifier from the repository if it exists."""
 
     @abstractmethod
-    def __getitem__(self, identifier: Identifier) -> ComputationRecord:
-        """Get the computation record matching the given identifier from the repository if it exists."""
-
-    @abstractmethod
     def __iter__(self) -> Iterator[Identifier]:
         """Iterate over the identifiers of all computation records."""
 

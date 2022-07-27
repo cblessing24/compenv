@@ -18,7 +18,7 @@ class TestRecord:
 
     @staticmethod
     def test_computation_record_is_added_to_repository(fake_repository, computation_record):
-        assert fake_repository["identifier"] == computation_record
+        assert fake_repository.get("identifier") == computation_record
 
     @staticmethod
     def test_response_is_created(fake_output_port):

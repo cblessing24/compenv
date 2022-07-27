@@ -34,14 +34,14 @@ class TestAdd:
 
 def test_raises_error_if_not_existing(repo, identifier):
     with pytest.raises(KeyError, match="does not exist!"):
-        _ = repo[identifier]
+        _ = repo.get(identifier)
 
 
 class TestGet:
     @staticmethod
     @pytest.mark.usefixtures("add_computation_record")
     def test_gets_computation_record_if_existing(repo, comp_rec, identifier):
-        assert repo[identifier] == comp_rec
+        assert repo.get(identifier) == comp_rec
 
     @staticmethod
     def test_raises_error_if_missing_module_referenced_in_membership(
@@ -53,7 +53,7 @@ class TestGet:
             memberships=dj_memberships,
         )
         with pytest.raises(ValueError, match="Module referenced in membership"):
-            repo[identifier]
+            repo.get(identifier)
 
 
 def test_iteration(repo, identifier, comp_rec):
