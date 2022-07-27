@@ -8,6 +8,8 @@ from datajoint import Computed, Manual
 
 from compenv import record_environment
 
+pytestmark = pytest.mark.slow
+
 HEALTH_CHECK_MAX_RETRIES = 60
 HEALTH_CHECK_INTERVAL = 1
 
