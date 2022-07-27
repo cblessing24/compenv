@@ -10,10 +10,10 @@ def fake_facade():
         def __init__(self):
             self.dj_comp_recs = []
 
-        def add(self, primary, entity):
-            if (primary, entity) in self.dj_comp_recs:
+        def add(self, master_entity):
+            if (master_entity.primary, master_entity) in self.dj_comp_recs:
                 raise ValueError
-            self.dj_comp_recs.append((primary, entity))
+            self.dj_comp_recs.append((master_entity.primary, master_entity))
 
         def get(self, primary):
             try:

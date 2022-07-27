@@ -39,8 +39,8 @@ class AbstractTableFacade(ABC, Generic[_T]):
     """Defines the interface for all table facades."""
 
     @abstractmethod
-    def add(self, primary: PrimaryKey, master_entity: _T) -> None:
-        """Insert the given entity into the table under the given primary key if it does not already exist.
+    def add(self, master_entity: _T) -> None:
+        """Insert the given entity into the table if it does not already exist.
 
         Raises:
             ValueError: The primary key already exists.

@@ -24,7 +24,6 @@ class DJRepository(Repository):
 
         try:
             self.facade.add(
-                primary,
                 DJComputationRecord(
                     primary=primary,
                     modules=frozenset(self._persist_modules(comp_rec.record.modules)),
