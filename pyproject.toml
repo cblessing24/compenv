@@ -74,7 +74,7 @@ source = ["compenv"]
 exclude_lines = ["pragma: no cover", "if TYPE_CHECKING:"]
 
 [tool.pytest.ini_options]
-addopts = ["--cov", "--quiet", "--strict-markers"]
+addopts = ["--quiet", "--strict-markers"]
 testpaths = [
     "tests",
 ]
