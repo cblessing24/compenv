@@ -27,3 +27,18 @@ repos:
     rev: 4.0.1
     hooks:
       - id: flake8
+  - repo: local
+    hooks:
+      - id: pytest
+        name: pytest
+        entry: pdm
+        language: system
+        types: [python]
+        args:
+          [
+            "run",
+            "pytest",
+            "-m",
+            "not slow",
+        ]
+        pass_filenames: false
