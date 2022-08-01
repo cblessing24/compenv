@@ -57,7 +57,10 @@ enable = ["useless-suppression"]
 
 [tool.mypy]
 python_version = "3.8"
-files = "compenv"
+files = [
+    "compenv",
+    "tests/unit/service",
+]
 strict = true
 mypy_path = "stubs"
 

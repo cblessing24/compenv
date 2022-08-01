@@ -103,49 +103,52 @@ def dj_comp_rec(primary, dj_modules, dj_dists, dj_memberships):
     return DJComputationRecord(primary=primary, modules=dj_modules, distributions=dj_dists, memberships=dj_memberships)
 
 
+class FakeTrigger:
+    triggered = False
+    change_environment = False
+
+    def __call__(self):
+        if self.change_environment:
+            self._change_environment()
+        self.triggered = True
+
+    def _change_environment(self):
+        def fake_get_active_modules():
+            return iter(frozenset())
+
+        record_module.get_active_modules = fake_get_active_modules
+
+    def __repr__(self):
+        return f"{self.__class__.__name__}()"
+
+
 @pytest.fixture
 def fake_trigger():
-    class FakeTrigger:
-        triggered = False
-        change_environment = False
-
-        def __call__(self):
-            if self.change_environment:
-                self._change_environment()
-            self.triggered = True
-
-        def _change_environment(self):
-            def fake_get_active_modules():
-                return iter(frozenset())
-
-            record_module.get_active_modules = fake_get_active_modules
-
-        def __repr__(self):
-            return f"{self.__class__.__name__}()"
-
     return FakeTrigger()
+
+
+class FakeRepository(Repository):
+    def __init__(self) -> None:
+        self.comp_recs = {}
+
+    def add(self, comp_rec):
+        self.comp_recs[comp_rec.identifier] = comp_rec
+
+    def get(self, identifier):
+        return self.comp_recs[identifier]
+
+    def __iter__(self):
+        return iter(self.comp_recs)
+
+    def __len__(self):
+        return len(self.comp_recs)
+
+    def __repr__(self):
+        return self.__class__.__name__ + "()"
 
 
 @pytest.fixture
 def fake_repository():
-    class FakeRepository(Repository):
-        def __init__(self) -> None:
-            self.comp_recs = {}
-
-        def add(self, comp_rec):
-            self.comp_recs[comp_rec.identifier] = comp_rec
-
-        def get(self, identifier):
-            return self.comp_recs[identifier]
-
-        def __iter__(self):
-            return iter(self.comp_recs)
-
-        def __len__(self):
-            return len(self.comp_recs)
-
-        def __repr__(self):
-            return self.__class__.__name__ + "()"
 
     return FakeRepository()
 
