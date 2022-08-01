@@ -61,12 +61,6 @@ files = "compenv/**/*.py"
 strict = true
 mypy_path = "stubs"
 
-[[tool.mypy.overrides]]
-module = [
-    "pytest.*",
-]
-ignore_missing_imports = true
-
 [tool.coverage.run]
 branch = true
 source = ["compenv"]
