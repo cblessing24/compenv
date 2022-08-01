@@ -60,6 +60,7 @@ python_version = "3.8"
 files = [
     "compenv",
     "tests/unit/service",
+    "tests/unit/conftest.py",
 ]
 strict = true
 mypy_path = "stubs"

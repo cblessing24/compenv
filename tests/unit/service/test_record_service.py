@@ -26,7 +26,7 @@ class TestRecord:
     def test_computation_record_is_added_to_repository(
         fake_repository: FakeRepository, computation_record: ComputationRecord
     ) -> None:
-        assert fake_repository.get("identifier") == computation_record  # type: ignore[no-untyped-call]
+        assert fake_repository.get(Identifier("identifier")) == computation_record
 
     @staticmethod
     def test_response_is_created(fake_output_port: FakeOutputPort) -> None:
