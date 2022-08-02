@@ -1,26 +1,31 @@
 """Contains the DataJoint implementation of the computation record repository."""
+from __future__ import annotations
+
 from pathlib import Path
-from typing import Generator, Iterable, Iterator
+from typing import TYPE_CHECKING, Generator, Iterable, Iterator
 
 from ..model.computation import ComputationRecord, Identifier
 from ..model.record import ActiveModules, Distribution, InstalledDistributions, Module, Modules, Record
 from ..service.abstract import Repository
 from .abstract import AbstractTableFacade
 from .entity import DJComputationRecord, DJDistribution, DJMembership, DJModule
-from .translator import DJTranslator
+from .translator import Translator
+
+if TYPE_CHECKING:
+    from datajoint.table import PrimaryKey
 
 
 class DJRepository(Repository):
     """Repository that uses DataJoint tables to persist computation records."""
 
-    def __init__(self, translator: DJTranslator, facade: AbstractTableFacade[DJComputationRecord]) -> None:
+    def __init__(self, translator: Translator[PrimaryKey], facade: AbstractTableFacade[DJComputationRecord]) -> None:
         """Initialize the computation record repository."""
         self.translator = translator
         self.facade = facade
 
     def add(self, comp_rec: ComputationRecord) -> None:
         """Add the given computation record to the repository if it does not already exist."""
-        primary = self.translator.to_primary(comp_rec.identifier)
+        primary = self.translator.to_external(comp_rec.identifier)
 
         try:
             self.facade.add(
@@ -54,7 +59,7 @@ class DJRepository(Repository):
 
     def get(self, identifier: Identifier) -> ComputationRecord:
         """Get the computation record matching the given identifier from the repository if it exists."""
-        primary = self.translator.to_primary(identifier)
+        primary = self.translator.to_external(identifier)
 
         try:
             dj_comp_rec = self.facade.get(primary)
@@ -114,7 +119,7 @@ class DJRepository(Repository):
 
     def __iter__(self) -> Iterator[Identifier]:
         """Iterate over the identifiers of all computation records."""
-        return (self.translator.to_identifier(p) for p in self.facade)
+        return (self.translator.to_internal(p) for p in self.facade)
 
     def __len__(self) -> int:
         """Return the number of computation records in the repository."""

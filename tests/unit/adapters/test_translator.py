@@ -14,19 +14,19 @@ class TestDJTranslator:
 
     @staticmethod
     def test_translation_to_identifier(translator, primary):
-        assert translator.to_identifier(primary) == "identifier"
+        assert translator.to_internal(primary) == "identifier"
 
     @staticmethod
     def test_translation_to_primary_key(translator, primary):
-        identifier = translator.to_identifier(primary)
-        assert translator.to_primary(identifier) == primary
+        identifier = translator.to_internal(primary)
+        assert translator.to_external(identifier) == primary
 
     @staticmethod
     def test_primary_key_cant_be_modified(translator, primary):
         orig_primary = primary.copy()
-        identifier = translator.to_identifier(primary)
+        identifier = translator.to_internal(primary)
         primary["c"] = 10
-        assert translator.to_primary(identifier) == orig_primary
+        assert translator.to_external(identifier) == orig_primary
 
 
 class TestBlake2b:

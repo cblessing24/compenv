@@ -24,7 +24,7 @@ class DJController:
 
     def record(self, key: PrimaryKey, make: Callable[[PrimaryKey], None]) -> None:
         """Execute the record service."""
-        ident = self.translator.to_identifier(key)
+        ident = self.translator.to_internal(key)
         service = RecordService(self.repo, output_port=self.presenter.record)
         trigger = functools.partial(make, key)
         request = service.create_request(ident, trigger=trigger)

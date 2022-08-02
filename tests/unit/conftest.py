@@ -162,11 +162,11 @@ def fake_translator(identifier, primary):
             self._identifier = identifier
             self._primary = primary
 
-        def to_identifier(self, primary):
+        def to_internal(self, primary):
             assert primary == self._primary
             return self._identifier
 
-        def to_primary(self, identifier):
+        def to_external(self, identifier):
             assert identifier == self._identifier
             return self._primary
 
