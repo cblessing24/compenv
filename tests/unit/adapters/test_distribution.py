@@ -1,51 +1,85 @@
+from __future__ import annotations
+
+import os
+from typing import Callable, Dict, Iterable, Iterator, List, Literal, Optional, Set, Union
+
 import pytest
 
 from compenv.adapters.distribution import InstalledDistributionConverter
-from compenv.model.record import Distribution, Module, Modules
+from compenv.model.record import ActiveModules, Distribution, InstalledDistributions, Module, Modules
 
 
 class FakePackagePath:
-    def __init__(self, path):
-        self.path = path
+    def __init__(self, path: Union[str, os.PathLike[str]]) -> None:
+        """Fake version of importlib.metadata.PackagePath."""
+
+        self.path = os.fspath(path)
         self.suffix = "." + self.path.split(".")[-1]
 
-    def locate(self):
+    def locate(self) -> FakePackagePath:
+        return self
+
+    def __fspath__(self) -> str:
         return self.path
 
+    def __repr__(self) -> str:
+        return f"{self.__class__.__name__}({self.path})"
 
-class FakePathlibPath(FakePackagePath):
+
+class FakePath(FakePackagePath):
+    """Fake version of pathlib.Path."""
+
     _not_existing_paths = {"/dist1/tests/module1.py", "/dist2/tests/module1.py"}
 
-    def __init__(self, path):
-        self.path = path
-
-    def exists(self):
+    def exists(self) -> bool:
         return self.path not in self._not_existing_paths
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, FakePackagePath):
+            raise TypeError()
         return self.path == other.path
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         return hash(self.path)
 
 
-class FakeImportlibMetadataDistribution:
-    def __init__(self, metadata, files):
-        self.metadata = metadata
-        self.files = files
+class FakeMetadata:
+    """Fake version of importlib.metadata.Distribution.metadata."""
+
+    def __init__(self, name: str, version: str) -> None:
+        self._metadata = {"Name": name, "Version": version}
+
+    def __getitem__(self, item: Literal["Name", "Version"]) -> str:
+        return self._metadata[item]
+
+
+class FakeDistribution:
+    """Fake version of importlib.metadata.Distribution."""
+
+    def __init__(self, metadata: FakeMetadata, files: Optional[List[FakePackagePath]]) -> None:
+        self._metadata = metadata
+        self._files = files
+
+    @property
+    def metadata(self) -> FakeMetadata:
+        return self._metadata
+
+    @property
+    def files(self) -> Optional[List[FakePackagePath]]:
+        return self._files
 
 
 @pytest.fixture
-def fake_distribution_metadata():
+def fake_metadata() -> Dict[str, FakeMetadata]:
     return {
-        "dist1": {"Name": "dist1", "Version": "0.1.0"},
-        "dist2": {"Name": "dist2", "Version": "0.1.2"},
-        "dist3": {"Name": "dist3", "Version": "1.2.3"},
+        "dist1": FakeMetadata("dist1", "0.1.0"),
+        "dist2": FakeMetadata("dist2", "0.1.2"),
+        "dist3": FakeMetadata("dist3", "1.2.3"),
     }
 
 
 @pytest.fixture
-def fake_distribution_files():
+def fake_distribution_files() -> Dict[str, Optional[List[FakePackagePath]]]:
     return {
         "dist1": [
             FakePackagePath("/dist1/package1/module1.py"),
@@ -64,64 +98,69 @@ def fake_distribution_files():
 
 
 @pytest.fixture
-def fake_distributions(fake_distribution_metadata, fake_distribution_files):
-    return [
-        FakeImportlibMetadataDistribution(m, fake_distribution_files[n]) for n, m in fake_distribution_metadata.items()
-    ]
+def fake_distributions(
+    fake_metadata: Dict[str, FakeMetadata],
+    fake_distribution_files: Dict[str, Optional[List[FakePackagePath]]],
+) -> List[FakeDistribution]:
+    return [FakeDistribution(m, fake_distribution_files[n]) for n, m in fake_metadata.items()]
 
 
 @pytest.fixture
-def fake_get_installed_distributions_func(fake_distributions):
-    def _fake_get_installed_distributions_func():
+def fake_get_installed_distributions(
+    fake_distributions: List[FakeDistribution],
+) -> Callable[[], Iterator[FakeDistribution]]:
+    def _fake_get_installed_distributions() -> Iterator[FakeDistribution]:
         return iter(fake_distributions)
 
-    return _fake_get_installed_distributions_func
+    return _fake_get_installed_distributions
 
 
 @pytest.fixture
-def active_modules():
-    return {Module(FakePathlibPath("/dist1/package1/__init__.py"), is_active=True)}
+def active_modules() -> Set[Module]:
+    return {Module(FakePath("/dist1/package1/__init__.py"), is_active=True)}
 
 
 @pytest.fixture
-def fake_get_active_modules_func(active_modules):
-    def _fake_get_active_modules_func():
+def fake_get_active_modules(active_modules: ActiveModules) -> Callable[[], ActiveModules]:
+    def _fake_get_active_modules() -> ActiveModules:
         return active_modules
 
-    return _fake_get_active_modules_func
+    return _fake_get_active_modules
 
 
 @pytest.fixture
-def converter(fake_get_installed_distributions_func, fake_get_active_modules_func):
-    InstalledDistributionConverter._get_installed_distributions_func = staticmethod(
-        fake_get_installed_distributions_func
+def converter(
+    fake_get_installed_distributions: Callable[[], Iterable[FakeDistribution]],
+    fake_get_active_modules: Callable[[], ActiveModules],
+) -> InstalledDistributionConverter:
+    return InstalledDistributionConverter(
+        path_cls=FakePath,
+        get_installed_distributions=fake_get_installed_distributions,
+        get_active_modules=fake_get_active_modules,
     )
-    InstalledDistributionConverter._path_cls = FakePathlibPath
-    InstalledDistributionConverter._get_active_modules_func = staticmethod(fake_get_active_modules_func)
-    return InstalledDistributionConverter()
 
 
-def test_correct_distributions_returned(converter):
-    expected_distributions = frozenset(
+def test_correct_distributions_returned(converter: InstalledDistributionConverter) -> None:
+    expected_distributions = InstalledDistributions(
         {
             Distribution(
                 "dist1",
                 "0.1.0",
                 Modules(
-                    [
-                        Module(FakePathlibPath("/dist1/package1/__init__.py"), is_active=True),
-                        Module(FakePathlibPath("/dist1/package1/module1.py"), is_active=False),
-                    ]
+                    {
+                        Module(FakePath("/dist1/package1/__init__.py"), is_active=True),
+                        Module(FakePath("/dist1/package1/module1.py"), is_active=False),
+                    }
                 ),
             ),
             Distribution(
                 "dist2",
                 "0.1.2",
                 Modules(
-                    [
-                        Module(FakePathlibPath("/dist2/package1/__init__.py"), is_active=False),
-                        Module(FakePathlibPath("/dist2/package1/module1.py"), is_active=False),
-                    ]
+                    {
+                        Module(FakePath("/dist2/package1/__init__.py"), is_active=False),
+                        Module(FakePath("/dist2/package1/module1.py"), is_active=False),
+                    }
                 ),
             ),
             Distribution("dist3", "1.2.3", Modules()),
@@ -131,5 +170,5 @@ def test_correct_distributions_returned(converter):
     assert actual_distributions == expected_distributions
 
 
-def test_repr(converter):
+def test_repr(converter: InstalledDistributionConverter) -> None:
     assert repr(converter) == "InstalledDistributionConverter()"

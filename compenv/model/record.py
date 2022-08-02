@@ -5,7 +5,7 @@ import itertools
 import textwrap
 from collections.abc import Callable, Iterable, Iterator
 from dataclasses import asdict, dataclass, field
-from pathlib import Path
+from os import PathLike
 from typing import AbstractSet, FrozenSet, TypeVar
 
 get_active_modules: Callable[[], ActiveModules]
@@ -139,5 +139,5 @@ class ActiveModules(Modules):
 class Module:
     """Represents a Python module."""
 
-    file: Path
+    file: PathLike[str]
     is_active: bool

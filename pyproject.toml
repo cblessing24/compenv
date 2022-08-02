@@ -62,6 +62,7 @@ files = [
     "tests/unit/service",
     "tests/unit/conftest.py",
     "tests/unit/model",
+    "tests/unit/adapters",
 ]
 strict = true
 mypy_path = "stubs"

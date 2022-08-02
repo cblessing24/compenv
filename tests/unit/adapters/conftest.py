@@ -1,33 +1,38 @@
+from typing import Iterator, List, Tuple
+
 import pytest
 
 from compenv.adapters.abstract import AbstractTableFacade
 from compenv.adapters.entity import DJComputationRecord
 
+from ..conftest import Primary
+
+
+class FakeRecordTableFacade(AbstractTableFacade[DJComputationRecord]):
+    def __init__(self) -> None:
+        self.dj_comp_recs: List[Tuple[Primary, DJComputationRecord]] = []
+
+    def add(self, dj_comp_rec: DJComputationRecord) -> None:
+        if (dj_comp_rec.primary, dj_comp_rec) in self.dj_comp_recs:
+            raise ValueError
+        self.dj_comp_recs.append((dj_comp_rec.primary, dj_comp_rec))
+
+    def get(self, primary: Primary) -> DJComputationRecord:
+        try:
+            return next(r for (p, r) in self.dj_comp_recs if p == primary)
+        except StopIteration as error:
+            raise KeyError from error
+
+    def __iter__(self) -> Iterator[Primary]:
+        return (p for (p, _) in self.dj_comp_recs)
+
+    def __len__(self) -> int:
+        return len(self.dj_comp_recs)
+
+    def __repr__(self) -> str:
+        return self.__class__.__name__ + "()"
+
 
 @pytest.fixture
-def fake_facade():
-    class FakeRecordTableFacade(AbstractTableFacade[DJComputationRecord]):
-        def __init__(self):
-            self.dj_comp_recs = []
-
-        def add(self, master_entity):
-            if (master_entity.primary, master_entity) in self.dj_comp_recs:
-                raise ValueError
-            self.dj_comp_recs.append((master_entity.primary, master_entity))
-
-        def get(self, primary):
-            try:
-                return next(r for (p, r) in self.dj_comp_recs if p == primary)
-            except StopIteration as error:
-                raise KeyError from error
-
-        def __iter__(self):
-            return (p for (p, _) in self.dj_comp_recs)
-
-        def __len__(self):
-            return len(self.dj_comp_recs)
-
-        def __repr__(self):
-            return self.__class__.__name__ + "()"
-
+def fake_facade() -> FakeRecordTableFacade:
     return FakeRecordTableFacade()

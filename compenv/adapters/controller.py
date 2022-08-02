@@ -4,10 +4,11 @@ from __future__ import annotations
 import functools
 from typing import TYPE_CHECKING, Callable
 
+from compenv.service.abstract import Repository
+
 from ..service.record import RecordService
-from .presenter import DJPresenter
-from .repository import DJRepository
-from .translator import DJTranslator
+from .presenter import Presenter
+from .translator import Translator
 
 if TYPE_CHECKING:
     from datajoint.table import PrimaryKey
@@ -16,7 +17,7 @@ if TYPE_CHECKING:
 class DJController:
     """Controls the execution of services."""
 
-    def __init__(self, repo: DJRepository, translator: DJTranslator, presenter: DJPresenter) -> None:
+    def __init__(self, repo: Repository, translator: Translator[PrimaryKey], presenter: Presenter) -> None:
         """Initialize the controller."""
         self.repo = repo
         self.translator = translator
