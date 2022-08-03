@@ -31,6 +31,16 @@ repos:
             "not slow",
         ]
         pass_filenames: false
+      - id: mypy
+        name: mypy
+        entry: pdm
+        language: system
+        types: [python]
+        args:
+          [
+            "run",
+            "./scripts/mypy_wrapper.sh",
+        ]
   - repo: https://github.com/pycqa/isort
     rev: 5.10.1
     hooks:
