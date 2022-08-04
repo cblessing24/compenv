@@ -1,9 +1,27 @@
+from __future__ import annotations
+
 from pathlib import Path
-from typing import Any, Dict, FrozenSet, Iterator, MutableMapping, Optional, Protocol, Type, TypeVar, Union
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    ClassVar,
+    Dict,
+    FrozenSet,
+    Iterator,
+    Mapping,
+    MutableMapping,
+    Optional,
+    Type,
+    TypeVar,
+    Union,
+    cast,
+)
 
 import pytest
+from datajoint.errors import DuplicateError
 
 from compenv.adapters.entity import DJComputationRecord, DJDistribution, DJMembership, DJModule
+from compenv.infrastructure.types import Connection, Table
 from compenv.model import record as record_module
 from compenv.model.computation import ComputationRecord, Identifier
 from compenv.model.record import (
@@ -16,8 +34,10 @@ from compenv.model.record import (
     Record,
 )
 from compenv.service.abstract import Repository
+from compenv.types import PrimaryKey
 
-Primary = Dict[str, Union[int, float, str]]
+if TYPE_CHECKING:
+    from datajoint.table import Entity
 
 
 @pytest.fixture
@@ -103,7 +123,7 @@ def dj_memberships() -> FrozenSet[DJMembership]:
 
 @pytest.fixture
 def dj_comp_rec(
-    primary: Primary,
+    primary: PrimaryKey,
     dj_modules: FrozenSet[DJModule],
     dj_dists: FrozenSet[DJDistribution],
     dj_memberships: FrozenSet[DJMembership],
@@ -166,15 +186,15 @@ def identifier() -> Identifier:
 
 
 class FakeTranslator:
-    def __init__(self, identifier: Identifier, primary: Primary) -> None:
+    def __init__(self, identifier: Identifier, primary: PrimaryKey) -> None:
         self._identifier = identifier
         self._primary = primary
 
-    def to_internal(self, primary: Primary) -> Identifier:
+    def to_internal(self, primary: PrimaryKey) -> Identifier:
         assert primary == self._primary
         return self._identifier
 
-    def to_external(self, identifier: Identifier) -> Primary:
+    def to_external(self, identifier: Identifier) -> PrimaryKey:
         assert identifier == self._identifier
         return self._primary
 
@@ -183,7 +203,7 @@ class FakeTranslator:
 
 
 @pytest.fixture
-def fake_translator(identifier: Identifier, primary: Primary) -> FakeTranslator:
+def fake_translator(identifier: Identifier, primary: PrimaryKey) -> FakeTranslator:
     return FakeTranslator(identifier, primary)
 
 
@@ -201,19 +221,116 @@ def fake_connection() -> FakeConnection:
     return FakeConnection()
 
 
-class FakeParent:
-    def make(self, key: Any) -> None:
-        pass
+class FakeTable:
+    attrs: ClassVar[Mapping[str, Union[Type[int], Type[str]]]]
+    connection: Connection
+    database: str
+    definition: str
+    _data: ClassVar[list[Entity]]
+    _restriction: ClassVar[Entity]
+
+    @classmethod
+    def _restricted_data(cls) -> list[Entity]:
+        if not cls._restriction:
+            return cls._data
+        return [d for d in cls._data if all(i in d.items() for i in cls._restriction.items())]
+
+    @classmethod
+    def insert(cls, entities: Iterator[Entity]) -> None:
+        for entity in entities:
+            cls.insert1(entity)
+
+    @classmethod
+    def insert1(cls, entity: Entity) -> None:
+        cls._check_attr_names(entity)
+
+        for attr_name, attr_value in entity.items():
+            if not isinstance(attr_value, cls.attrs[attr_name]):
+                raise ValueError(
+                    f"Expected instance of type '{cls.attrs[attr_name]}' "
+                    f"for attribute with name {attr_name}, got '{type(attr_value)}'!"
+                )
+
+        if entity in cls._data:
+            raise DuplicateError
+
+        cls._data.append(dict(entity))
+
+    @classmethod
+    def delete_quick(cls) -> None:
+        for entity in cls._restricted_data():
+            del cls._data[cls._data.index(entity)]
+
+    @classmethod
+    def fetch(cls, as_dict: bool = False) -> list[Entity]:
+        if as_dict is not True:
+            raise ValueError("'as_dict' must be set to 'True' when fetching!")
+        return cls._restricted_data()
+
+    @classmethod
+    def fetch1(cls) -> Entity:
+        if len(cls._restricted_data()) != 1:
+            raise RuntimeError("Can't fetch zero or more than one entity!")
+
+        return cls._restricted_data()[0]
+
+    @classmethod
+    def __and__(cls, restriction: Entity) -> Type[FakeTable]:
+        cls._check_attr_names(restriction)
+        cls._restriction = dict(restriction)
+        return cls
+
+    @classmethod
+    def __contains__(cls, item: object) -> bool:
+        return item in cls._restricted_data()
+
+    @classmethod
+    def __eq__(cls, other: object) -> bool:
+        if not isinstance(other, list):
+            raise TypeError(f"Expected other to be of type dict, got {type(other)}!")
+
+        return all(e in cls._data for e in other)
+
+    @classmethod
+    def __iter__(cls) -> Iterator[Entity]:
+        return iter(cls._restricted_data())
+
+    @classmethod
+    def __len__(cls) -> int:
+        return len(cls._restricted_data())
+
+    @classmethod
+    def __repr__(cls) -> str:
+        return f"{cls.__name__}()"
+
+    def __init_subclass__(cls) -> None:
+        cls._data = []
+        cls._restriction = {}
+
+    @classmethod
+    def _check_attr_names(cls, attr_names: Mapping[str, Any]) -> None:
+        for attr_name in attr_names:
+            if attr_name not in cls.attrs:
+                raise ValueError(f"Table doesn't have attribute with name '{attr_name}'!")
 
 
 @pytest.fixture
-def fake_parent() -> Type[FakeParent]:
-    return FakeParent
+def fake_table() -> Type[FakeTable]:
+    return cast(Type[FakeTable], type(FakeTable.__name__, (FakeTable,), {}))
 
 
-class Table(Protocol):
-    database: str
-    connection: FakeConnection
+class FakeAutopopulatedTable(FakeTable):
+    def __init__(self) -> None:
+        super().__init__()
+        self.key: Optional[Entity] = None
+
+    def make(self, key: Entity) -> None:
+        self.key = key
+
+
+@pytest.fixture
+def fake_autopopulated_table() -> Type[FakeAutopopulatedTable]:
+    return cast(Type[FakeAutopopulatedTable], type(FakeTable.__name__, (FakeAutopopulatedTable,), {}))
 
 
 T = TypeVar("T", bound=Table)
@@ -226,15 +343,15 @@ class FakeSchema:
         self.database = schema_name
         self.connection = connection
         self.decorated_tables: Dict[str, Type[Table]] = {}
-        self.context: Optional[Dict[str, Type[FakeParent]]] = None
+        self.context: Dict[str, Type[Table]] = {}
 
-    def __call__(self, table_cls: Type[T], context: Optional[Dict[str, Type[FakeParent]]] = None) -> Type[T]:
+    def __call__(self, cls: Type[T], *, context: Optional[Mapping[str, Type[Table]]] = None) -> Type[T]:
         if context:
-            self.context = context
-        self.decorated_tables[table_cls.__name__] = table_cls
-        table_cls.database = self.database
-        table_cls.connection = self.connection
-        return table_cls
+            self.context = dict(context)
+        self.decorated_tables[cls.__name__] = cls
+        cls.database = self.database
+        cls.connection = self.connection
+        return cls
 
     def spawn_missing_classes(self, context: MutableMapping[str, Type[Table]]) -> None:
         context.update(self.schema_tables)
@@ -244,7 +361,7 @@ class FakeSchema:
 
 
 @pytest.fixture
-def fake_schema(fake_connection: FakeConnection, fake_parent: Type[Table]) -> FakeSchema:
-    FakeSchema.schema_tables[fake_parent.__name__] = fake_parent
+def fake_schema(fake_connection: FakeConnection, fake_table: Type[Table]) -> FakeSchema:
+    FakeSchema.schema_tables[fake_table.__name__] = fake_table
 
     return FakeSchema("schema", fake_connection)

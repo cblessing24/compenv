@@ -5,9 +5,8 @@ import pytest
 from compenv.adapters.controller import DJController
 from compenv.model.computation import Identifier
 from compenv.service.abstract import Response
+from compenv.types import PrimaryKey
 from tests.unit.conftest import FakeRepository, FakeTranslator
-
-from ..conftest import Primary
 
 
 class FakePresenter:
@@ -47,7 +46,7 @@ def fake_make() -> FakeMake:
 
 
 def test_calling_record_calls_make_method_with_appropriate_key(
-    controller: DJController, primary: Primary, fake_make: FakeMake
+    controller: DJController, primary: PrimaryKey, fake_make: FakeMake
 ) -> None:
     controller.record(primary, fake_make)
     assert fake_make.calls == [primary]
@@ -55,7 +54,7 @@ def test_calling_record_calls_make_method_with_appropriate_key(
 
 def test_calling_record_inserts_record_with_appropriate_identifier(
     controller: DJController,
-    primary: Primary,
+    primary: PrimaryKey,
     fake_make: FakeMake,
     fake_repository: FakeRepository,
     identifier: Identifier,

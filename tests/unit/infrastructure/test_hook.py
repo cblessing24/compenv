@@ -1,36 +1,25 @@
-import pytest
+from __future__ import annotations
+
+from typing import Callable
 
 from compenv.infrastructure.hook import hook_into_make_method
+from compenv.infrastructure.types import Entity
+
+from ..conftest import FakeAutopopulatedTable
 
 
-@pytest.fixture
-def hook():
-    class Hook:
-        def __init__(self):
-            self.args = None
-
-        def __call__(self, *args):
-            self.args = args
-
-    return Hook()
+class Hook:
+    def __call__(
+        self,
+        original_make_method: Callable[[FakeAutopopulatedTable, Entity], None],
+        table: FakeAutopopulatedTable,
+        key: Entity,
+    ) -> None:
+        original_make_method(table, key)
 
 
-@pytest.fixture
-def original_make_method():
-    def make(self, key):
-        pass
-
-    return make
-
-
-@pytest.fixture
-def table(hook, original_make_method):
-
-    Table = type("Table", tuple(), {"make": original_make_method})
-    table = hook_into_make_method(hook)(Table)
-    return table()
-
-
-def test_if_hook_gets_called_with_correct_arguments(table, hook, original_make_method):
-    table.make("key")
-    assert hook.args == (original_make_method, table, "key")
+def test_if_hook_gets_called_with_correct_arguments() -> None:
+    table_cls = hook_into_make_method(Hook())(FakeAutopopulatedTable)
+    table = table_cls()
+    table.make({"a": 1})
+    assert table.key == {"a": 1}

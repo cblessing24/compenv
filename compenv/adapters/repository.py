@@ -12,7 +12,7 @@ from .entity import DJComputationRecord, DJDistribution, DJMembership, DJModule
 from .translator import Translator
 
 if TYPE_CHECKING:
-    from datajoint.table import PrimaryKey
+    from ..types import PrimaryKey
 
 
 class DJRepository(Repository):

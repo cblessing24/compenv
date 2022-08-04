@@ -1,10 +1,9 @@
 """Contains setup code for the backend."""
 import dataclasses
 
-from datajoint import Schema
-
 from .adapters import DJAdapters, create_dj_adapters
 from .infrastructure import DJInfrastructure, create_dj_infrastructure
+from .infrastructure.types import Schema
 
 
 @dataclasses.dataclass(frozen=True)

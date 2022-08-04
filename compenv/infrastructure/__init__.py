@@ -1,10 +1,9 @@
 """This package contains the infrastructure layer."""
 import dataclasses
 
-from datajoint import Schema
-
 from .facade import DJTableFacade
 from .factory import DJTableFactory
+from .types import Schema
 
 
 @dataclasses.dataclass(frozen=True)

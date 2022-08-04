@@ -4,19 +4,15 @@ from __future__ import annotations
 import functools
 import inspect
 from types import FrameType
-from typing import TYPE_CHECKING, Callable, Optional, Type, TypeVar
-
-from datajoint import Schema
+from typing import Callable, Optional, Type, TypeVar
 
 from ..adapters.controller import DJController
 from ..backend import create_dj_backend
 from .factory import DJTableFactory
 from .hook import hook_into_make_method
+from .types import AutopopulatedTable, Entity, Schema
 
-if TYPE_CHECKING:
-    from datajoint.table import AutoPopulatedTable, PrimaryKey
-
-    _T = TypeVar("_T", bound=AutoPopulatedTable)
+_T = TypeVar("_T", bound=AutopopulatedTable)
 
 
 DEFAULT_GET_CURRENT_FRAME = inspect.currentframe
@@ -57,7 +53,7 @@ class EnvironmentRecorder:  # pylint: disable=too-few-public-methods
 
     @staticmethod
     def _modify_table(schema: Schema, table_cls: Type[_T], factory: DJTableFactory, controller: DJController) -> None:
-        def hook(make: Callable[[_T, PrimaryKey], None], table: _T, key: PrimaryKey) -> None:
+        def hook(make: Callable[[_T, Entity], None], table: _T, key: Entity) -> None:
             controller.record(key, functools.partial(make, table))
 
         table_cls = schema(table_cls)

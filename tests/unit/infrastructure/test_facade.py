@@ -1,100 +1,21 @@
+from __future__ import annotations
+
 import dataclasses
+from typing import TYPE_CHECKING
 
 import pytest
-from datajoint.errors import DuplicateError
 
-from compenv.adapters.repository import DJComputationRecord
+from compenv.adapters.entity import DJComputationRecord
 from compenv.infrastructure.facade import DJTableFacade
 
+from ..conftest import FakeTable
 
-class FakeTable:
-    @classmethod
-    def _restricted_data(cls):
-        if not cls._restriction:
-            return cls._data
-        return [d for d in cls._data if all(i in d.items() for i in cls._restriction.items())]
-
-    @classmethod
-    def insert(cls, entities):
-        for entity in entities:
-            cls.insert1(entity)
-
-    @classmethod
-    def insert1(cls, entity):
-        cls._check_attr_names(entity)
-
-        for attr_name, attr_value in entity.items():
-            if not isinstance(attr_value, cls.attrs[attr_name]):
-                raise ValueError(
-                    f"Expected instance of type '{cls.attrs[attr_name]}' "
-                    f"for attribute with name {attr_name}, got '{type(attr_value)}'!"
-                )
-
-        if entity in cls._data:
-            raise DuplicateError
-
-        cls._data.append(entity)
-
-    @classmethod
-    def delete_quick(cls):
-        for entity in cls._restricted_data():
-            del cls._data[cls._data.index(entity)]
-
-    @classmethod
-    def fetch(cls, as_dict=False):
-        if as_dict is not True:
-            raise ValueError("'as_dict' must be set to 'True' when fetching!")
-        return cls._restricted_data()
-
-    @classmethod
-    def fetch1(cls):
-        if len(cls._restricted_data()) != 1:
-            raise RuntimeError("Can't fetch zero or more than one entity!")
-
-        return cls._restricted_data()[0]
-
-    @classmethod
-    def __and__(cls, restriction):
-        cls._check_attr_names(restriction)
-        cls._restriction = restriction
-        return cls
-
-    @classmethod
-    def __contains__(cls, item):
-        return item in cls._restricted_data()
-
-    @classmethod
-    def __eq__(cls, other):
-        if not isinstance(other, list):
-            raise TypeError(f"Expected other to be of type dict, got {type(other)}!")
-
-        return all(e in cls._data for e in other)
-
-    @classmethod
-    def __iter__(cls):
-        return iter(cls._restricted_data())
-
-    @classmethod
-    def __len__(cls):
-        return len(cls._restricted_data())
-
-    @classmethod
-    def __repr__(cls):
-        return f"{cls.__name__}()"
-
-    def __init_subclass__(cls):
-        cls._data = []
-        cls._restriction = {}
-
-    @classmethod
-    def _check_attr_names(cls, attr_names):
-        for attr_name in attr_names:
-            if attr_name not in cls.attrs:
-                raise ValueError(f"Table doesn't have attribute with name '{attr_name}'!")
+if TYPE_CHECKING:
+    from datajoint.table import Entity
 
 
 @pytest.fixture
-def fake_tbl():
+def fake_tbl() -> FakeTable:
     class FakeRecordTable(FakeTable):
         attrs = {"a": int, "b": int}
 
@@ -110,63 +31,76 @@ def fake_tbl():
     return FakeRecordTable()
 
 
+class FakeFactory:
+    def __init__(self, table: FakeTable) -> None:
+        self.table = table
+
+    def __call__(self) -> FakeTable:
+        return self.table
+
+    def __repr__(self) -> str:
+        return self.__class__.__name__ + "()"
+
+
 @pytest.fixture
-def fake_factory(fake_tbl):
-    class FakeFactory:
-        def __call__(self):
-            return fake_tbl
-
-        def __repr__(self):
-            return self.__class__.__name__ + "()"
-
-    return FakeFactory()
+def fake_factory(fake_tbl: FakeTable) -> FakeFactory:
+    return FakeFactory(fake_tbl)
 
 
 @pytest.fixture
-def facade(fake_factory):
+def facade(fake_factory: FakeFactory) -> DJTableFacade:
     return DJTableFacade(fake_factory)
 
 
 class TestInsert:
     @staticmethod
-    def test_raises_error_if_record_already_exists(facade, dj_comp_rec):
+    def test_raises_error_if_record_already_exists(facade: DJTableFacade, dj_comp_rec: DJComputationRecord) -> None:
         facade.add(dj_comp_rec)
         with pytest.raises(ValueError, match="already exists!"):
             facade.add(dj_comp_rec)
 
     @staticmethod
-    def test_inserts_master_entity_into_master_table(facade, dj_comp_rec, fake_tbl):
+    def test_inserts_master_entity_into_master_table(
+        facade: DJTableFacade, dj_comp_rec: DJComputationRecord, fake_tbl: FakeTable
+    ) -> None:
         facade.add(dj_comp_rec)
         assert fake_tbl.fetch1() == dj_comp_rec.primary
 
     @staticmethod
     @pytest.mark.parametrize("part,attr", list((p.__name__, p.master_attr) for p in DJComputationRecord.parts))
-    def test_inserts_part_entities_into_part_tables(facade, primary, dj_comp_rec, fake_tbl, part, attr):
+    def test_inserts_part_entities_into_part_tables(
+        facade: DJTableFacade,
+        primary: Entity,
+        dj_comp_rec: DJComputationRecord,
+        fake_tbl: FakeTable,
+        part: str,
+        attr: str,
+    ) -> None:
         facade.add(dj_comp_rec)
         assert getattr(fake_tbl, part).fetch(as_dict=True) == [
             {**primary, **dataclasses.asdict(m)} for m in getattr(dj_comp_rec, attr)
         ]
 
 
-def test_raises_error_if_record_does_not_exist(facade, primary):
+def test_raises_error_if_record_does_not_exist(facade: DJTableFacade, primary: Entity) -> None:
     with pytest.raises(KeyError, match="does not exist!"):
         _ = facade.get(primary)
 
 
-def test_fetches_dj_computation_record(facade, dj_comp_rec):
+def test_fetches_dj_computation_record(facade: DJTableFacade, dj_comp_rec: DJComputationRecord) -> None:
     facade.add(dj_comp_rec)
     assert facade.get(dj_comp_rec.primary) == dj_comp_rec
 
 
-def test_length(facade, dj_comp_rec):
+def test_length(facade: DJTableFacade, dj_comp_rec: DJComputationRecord) -> None:
     facade.add(dj_comp_rec)
     assert len(facade) == 1
 
 
-def test_iteration(facade, dj_comp_rec, fake_tbl):
+def test_iteration(facade: DJTableFacade, dj_comp_rec: DJComputationRecord, fake_tbl: FakeTable) -> None:
     facade.add(dj_comp_rec)
     assert list(iter(facade)) == list(iter(fake_tbl))
 
 
-def test_repr(facade):
+def test_repr(facade: DJTableFacade) -> None:
     assert repr(facade) == "DJTableFacade(factory=FakeFactory())"

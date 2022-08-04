@@ -1,17 +1,18 @@
 """Contains code related to hooks."""
 from typing import TYPE_CHECKING, Callable, Type, TypeVar
 
+from .types import AutopopulatedTable
+
 if TYPE_CHECKING:
-    from datajoint.table import AutoPopulatedTable, PrimaryKey
+    from datajoint.table import Entity
 
-    _T = TypeVar("_T", bound=AutoPopulatedTable)
-
+    _T = TypeVar("_T", bound=AutopopulatedTable)
     AutoPopulatedTableDecorator = Callable[[Type[_T]], Type[_T]]
-    MakeMethod = Callable[[_T, PrimaryKey], None]
+    MakeMethod = Callable[[_T, Entity], None]
 
 
 def hook_into_make_method(
-    hook: "Callable[[MakeMethod[_T], _T, PrimaryKey], None]",
+    hook: "Callable[[MakeMethod[_T], _T, Entity], None]",
 ) -> "AutoPopulatedTableDecorator[_T]":
     """Give control over the execution of a table's make method to a callable hook.
 
@@ -24,7 +25,7 @@ def hook_into_make_method(
     def _hook_into_make_method(table_cls: "Type[_T]") -> "Type[_T]":
         original_make_method = table_cls.make
 
-        def hooked_make_method(self: "_T", key: "PrimaryKey") -> None:
+        def hooked_make_method(self: "_T", key: "Entity") -> None:
             hook(original_make_method, self, key)
 
         setattr(table_cls, "make", hooked_make_method)

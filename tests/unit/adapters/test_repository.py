@@ -6,8 +6,9 @@ from compenv.adapters.entity import DJComputationRecord, DJDistribution, DJMembe
 from compenv.adapters.repository import DJRepository
 from compenv.model.computation import ComputationRecord, Identifier
 from compenv.model.record import Record
+from compenv.types import PrimaryKey
 
-from ..conftest import FakeTranslator, Primary
+from ..conftest import FakeTranslator
 from .conftest import FakeRecordTableFacade
 
 
@@ -35,7 +36,7 @@ class TestAdd:
 
     @staticmethod
     def test_inserts_dj_computation_record(
-        fake_facade: FakeRecordTableFacade, primary: Primary, dj_comp_rec: DJComputationRecord
+        fake_facade: FakeRecordTableFacade, primary: PrimaryKey, dj_comp_rec: DJComputationRecord
     ) -> None:
         assert fake_facade.get(primary) == dj_comp_rec
 
@@ -55,7 +56,7 @@ class TestGet:
 
     @staticmethod
     def test_raises_error_if_missing_module_referenced_in_membership(
-        primary: Primary,
+        primary: PrimaryKey,
         repo: DJRepository,
         identifier: Identifier,
         fake_facade: FakeRecordTableFacade,

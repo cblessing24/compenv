@@ -11,7 +11,9 @@ from .presenter import Presenter
 from .translator import Translator
 
 if TYPE_CHECKING:
-    from datajoint.table import PrimaryKey
+    from datajoint.table import Entity
+
+    from ..types import PrimaryKey
 
 
 class DJController:
@@ -23,7 +25,7 @@ class DJController:
         self.translator = translator
         self.presenter = presenter
 
-    def record(self, key: PrimaryKey, make: Callable[[PrimaryKey], None]) -> None:
+    def record(self, key: PrimaryKey, make: Callable[[Entity], None]) -> None:
         """Execute the record service."""
         ident = self.translator.to_internal(key)
         service = RecordService(self.repo, output_port=self.presenter.record)

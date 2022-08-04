@@ -59,10 +59,7 @@ enable = ["useless-suppression"]
 python_version = "3.8"
 files = [
     "compenv",
-    "tests/unit/service",
-    "tests/unit/conftest.py",
-    "tests/unit/model",
-    "tests/unit/adapters",
+    "tests/unit",
 ]
 strict = true
 mypy_path = "stubs"

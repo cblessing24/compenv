@@ -4,18 +4,16 @@ from __future__ import annotations
 import dataclasses
 import functools
 from collections.abc import Callable, Iterator
-from typing import TYPE_CHECKING, TypeVar
+from typing import TypeVar
 
 from datajoint.errors import DuplicateError
 
 from ..adapters.abstract import AbstractTableFacade
 from ..adapters.entity import DJComputationRecord
-from .factory import DJTableFactory
+from ..types import PrimaryKey
+from .types import Factory
 
-if TYPE_CHECKING:
-    from datajoint.table import PrimaryKey
-
-    _T = TypeVar("_T")
+_T = TypeVar("_T")
 
 
 def _check_primary(func: Callable[[DJTableFacade, PrimaryKey], _T]) -> Callable[[DJTableFacade, PrimaryKey], _T]:
@@ -31,7 +29,7 @@ def _check_primary(func: Callable[[DJTableFacade, PrimaryKey], _T]) -> Callable[
 class DJTableFacade(AbstractTableFacade[DJComputationRecord]):
     """Facade around a DataJoint table that stores computation records."""
 
-    def __init__(self, factory: DJTableFactory) -> None:
+    def __init__(self, factory: Factory) -> None:
         """Initialize the record table facade."""
         self.factory = factory
 

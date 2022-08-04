@@ -1,12 +1,13 @@
 """Contains code related to the dynamic creation of tables."""
+from __future__ import annotations
+
 from functools import lru_cache
 from typing import Dict, Type
 
 from datajoint import Lookup, Part
-from datajoint.schemas import Schema
-from datajoint.table import Table
 
 from ..adapters.abstract import PartEntity
+from .types import Schema, Table
 
 
 class DJTableFactory:

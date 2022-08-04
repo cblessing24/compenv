@@ -1,33 +1,31 @@
-from dataclasses import FrozenInstanceError, is_dataclass
+from dataclasses import is_dataclass
+from typing import Type
 
 import pytest
 
 from compenv.adapters import DJAdapters
 from compenv.backend import DJBackend, create_dj_backend
-from compenv.infrastructure import DJInfrastructure, create_dj_infrastructure
+from compenv.infrastructure import DJInfrastructure
+
+from .conftest import FakeSchema, FakeTable
 
 
 @pytest.fixture
-def dj_backend(fake_schema, fake_parent):
-    return create_dj_backend(fake_schema, fake_parent.__name__)
+def dj_backend(fake_schema: FakeSchema, fake_table: Type[FakeTable]) -> DJBackend:
+    return create_dj_backend(fake_schema, fake_table.__name__)
 
 
-def test_backend_is_created(dj_backend):
+def test_backend_is_created(dj_backend: DJBackend) -> None:
     assert isinstance(dj_backend, DJBackend)
 
 
-def test_backend_is_dataclass(dj_backend):
+def test_backend_is_dataclass(dj_backend: DJBackend) -> None:
     assert is_dataclass(dj_backend)
 
 
-def test_uses_correct_infrastructure(dj_backend):
+def test_uses_correct_infrastructure(dj_backend: DJBackend) -> None:
     assert isinstance(dj_backend.infra, DJInfrastructure)
 
 
-def test_uses_correct_adapters(dj_backend):
+def test_uses_correct_adapters(dj_backend: DJBackend) -> None:
     assert isinstance(dj_backend.adapters, DJAdapters)
-
-
-def test_backend_is_frozen(dj_backend):
-    with pytest.raises(FrozenInstanceError):
-        dj_backend.adapters = "not adapters"

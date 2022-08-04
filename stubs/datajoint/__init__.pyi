@@ -1,5 +1,6 @@
 from .schemas import Schema
-from .table import Lookup, Part, Table
+from .table import Table
+from .user_tables import Lookup, Part
 
 schema = Schema
 

@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING, Callable, Dict, Protocol, TypeVar
 from ..model.computation import Identifier
 
 if TYPE_CHECKING:
-    from datajoint.table import PrimaryKey
+    from ..types import PrimaryKey
 
 
 _T = TypeVar("_T")
@@ -39,7 +39,7 @@ class DJTranslator:
     def to_internal(self, primary: PrimaryKey) -> Identifier:
         """Translate the identifier to its corresponding primary key."""
         identifier = self._to_identifier(primary)
-        self._reverse_translations[identifier] = primary.copy()
+        self._reverse_translations[identifier] = dict(primary).copy()
         return identifier
 
     def to_external(self, identifier: Identifier) -> PrimaryKey:

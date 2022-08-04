@@ -6,7 +6,7 @@ from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, Any, ClassVar, Generic, Iterator, Mapping, Type, TypeVar
 
 if TYPE_CHECKING:
-    from datajoint.table import PrimaryKey
+    from ..types import PrimaryKey
 
 
 @dataclasses.dataclass(frozen=True)
