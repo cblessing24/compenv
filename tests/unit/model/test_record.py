@@ -2,12 +2,12 @@ import textwrap
 
 import pytest
 
-from compenv.model.record import Distribution, InstalledDistributions, Record
+from compenv.model.record import Distribution, Distributions, Record
 
 
 class TestRecord:
     @staticmethod
-    @pytest.mark.parametrize("attr", ["installed_distributions"])
+    @pytest.mark.parametrize("attr", ["distributions"])
     def test_attributes_are_read_only(record: Record, attr: str) -> None:
         with pytest.raises(AttributeError):
             setattr(record, attr, "something")
@@ -17,7 +17,7 @@ class TestRecord:
         expected = textwrap.dedent(
             """
             Record:
-                Installed Distributions:
+                Distributions:
                     dist1 (0.1.0)
                     dist2 (0.1.1)
             """
@@ -25,17 +25,17 @@ class TestRecord:
         assert str(record) == expected
 
 
-class TestInstalledDistributions:
+class TestDistributions:
     @staticmethod
-    def test_str(installed_distributions: InstalledDistributions) -> None:
+    def test_str(distributions: Distributions) -> None:
         expected = textwrap.dedent(
             """
-            Installed Distributions:
+            Distributions:
                 dist1 (0.1.0)
                 dist2 (0.1.1)
             """
         ).strip()
-        assert str(installed_distributions) == expected
+        assert str(distributions) == expected
 
 
 class TestDistribution:

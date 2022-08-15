@@ -23,7 +23,7 @@ from compenv.adapters.entity import DJComputationRecord, DJDistribution
 from compenv.infrastructure.types import Connection, Table
 from compenv.model import record as record_module
 from compenv.model.computation import ComputationRecord, Identifier
-from compenv.model.record import Distribution, InstalledDistributions, Record
+from compenv.model.record import Distribution, Distributions, Record
 from compenv.service.abstract import Repository
 from compenv.types import PrimaryKey
 
@@ -32,23 +32,21 @@ if TYPE_CHECKING:
 
 
 @pytest.fixture
-def installed_distributions() -> InstalledDistributions:
-    return InstalledDistributions({Distribution("dist1", "0.1.0"), Distribution("dist2", "0.1.1")})
+def distributions() -> Distributions:
+    return Distributions({Distribution("dist1", "0.1.0"), Distribution("dist2", "0.1.1")})
 
 
 @pytest.fixture
-def prepare_environment(installed_distributions: InstalledDistributions) -> None:
-    def fake_get_installed_distributions() -> InstalledDistributions:
-        return installed_distributions
+def prepare_environment(distributions: Distributions) -> None:
+    def fake_get_distributions() -> Distributions:
+        return distributions
 
-    record_module.get_installed_distributions = fake_get_installed_distributions
+    record_module.get_distributions = fake_get_distributions
 
 
 @pytest.fixture
-def record(installed_distributions: InstalledDistributions) -> Record:
-    return Record(
-        installed_distributions=installed_distributions,
-    )
+def record(distributions: Distributions) -> Record:
+    return Record(distributions=distributions)
 
 
 @pytest.fixture
@@ -89,10 +87,10 @@ class FakeTrigger:
         self.triggered = True
 
     def _change_environment(self) -> None:
-        def fake_get_installed_distributions() -> InstalledDistributions:
-            return InstalledDistributions()
+        def fake_get_distributions() -> Distributions:
+            return Distributions()
 
-        record_module.get_installed_distributions = fake_get_installed_distributions
+        record_module.get_distributions = fake_get_distributions
 
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}()"

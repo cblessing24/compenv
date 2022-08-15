@@ -5,8 +5,8 @@ from typing import Callable, Dict, Iterable, Iterator, List, Literal, Optional, 
 
 import pytest
 
-from compenv.adapters.distribution import InstalledDistributionConverter
-from compenv.model.record import Distribution, InstalledDistributions
+from compenv.adapters.distribution import DistributionConverter
+from compenv.model.record import Distribution, Distributions
 
 
 class FakePackagePath:
@@ -106,32 +106,32 @@ def fake_distributions(
 
 
 @pytest.fixture
-def fake_get_installed_distributions(
+def fake_get_distributions(
     fake_distributions: List[FakeDistribution],
 ) -> Callable[[], Iterator[FakeDistribution]]:
-    def _fake_get_installed_distributions() -> Iterator[FakeDistribution]:
+    def _fake_get_distributions() -> Iterator[FakeDistribution]:
         return iter(fake_distributions)
 
-    return _fake_get_installed_distributions
+    return _fake_get_distributions
 
 
 @pytest.fixture
 def converter(
-    fake_get_installed_distributions: Callable[[], Iterable[FakeDistribution]],
-) -> InstalledDistributionConverter:
-    return InstalledDistributionConverter(
+    fake_get_distributions: Callable[[], Iterable[FakeDistribution]],
+) -> DistributionConverter:
+    return DistributionConverter(
         path_cls=FakePath,
-        get_installed_distributions=fake_get_installed_distributions,
+        get_distributions=fake_get_distributions,
     )
 
 
-def test_correct_distributions_returned(converter: InstalledDistributionConverter) -> None:
-    expected_distributions = InstalledDistributions(
+def test_correct_distributions_returned(converter: DistributionConverter) -> None:
+    expected_distributions = Distributions(
         {Distribution("dist1", "0.1.0"), Distribution("dist2", "0.1.2"), Distribution("dist3", "1.2.3")}
     )
     actual_distributions = converter()
     assert actual_distributions == expected_distributions
 
 
-def test_repr(converter: InstalledDistributionConverter) -> None:
-    assert repr(converter) == "InstalledDistributionConverter()"
+def test_repr(converter: DistributionConverter) -> None:
+    assert repr(converter) == "DistributionConverter()"

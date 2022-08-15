@@ -7,7 +7,7 @@ from os import PathLike
 from pathlib import Path
 from typing import Callable, Iterable, Literal, Optional, Protocol, Set, Type
 
-from ..model.record import Distribution, InstalledDistributions
+from ..model.record import Distribution, Distributions
 
 
 class _ExistenceCheckablePath(Protocol):
@@ -53,25 +53,25 @@ class _MetadataDistribution(Protocol):
         """Return the distribution's metadata."""
 
 
-class InstalledDistributionConverter:
-    """Converts installed distribution objects into distribution objects from the model."""
+class DistributionConverter:
+    """Converts distribution objects into distribution objects from the model."""
 
     def __init__(
         self,
         path_cls: Type[_ExistenceCheckablePath] = Path,
-        get_installed_distributions: Callable[[], Iterable[_MetadataDistribution]] = metadata.distributions,
+        get_distributions: Callable[[], Iterable[_MetadataDistribution]] = metadata.distributions,
     ) -> None:
-        """Initialize the installed distribution converter."""
+        """Initialize the distribution converter."""
         self._path_cls = path_cls
-        self._get_installed_distributions = get_installed_distributions
+        self._get_distributions = get_distributions
 
     @lru_cache
-    def __call__(self) -> InstalledDistributions:
-        """Return a dictionary containing all installed distributions."""
+    def __call__(self) -> Distributions:
+        """Return a dictionary containing all distributions."""
         conv_dists: Set[Distribution] = set()
-        for orig_dist in self._get_installed_distributions():
+        for orig_dist in self._get_distributions():
             conv_dists.add(self._convert_distribution(orig_dist))
-        return InstalledDistributions(conv_dists)
+        return Distributions(conv_dists)
 
     def _convert_distribution(self, orig_dist: _MetadataDistribution) -> Distribution:
         return Distribution(orig_dist.metadata["Name"], orig_dist.metadata["Version"])

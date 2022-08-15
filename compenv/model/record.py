@@ -6,14 +6,14 @@ from collections.abc import Callable
 from dataclasses import asdict, dataclass
 from typing import FrozenSet
 
-get_installed_distributions: Callable[[], InstalledDistributions]
+get_distributions: Callable[[], Distributions]
 
 
 @dataclass(frozen=True)
 class Record:
     """Represents a record of the environment."""
 
-    installed_distributions: InstalledDistributions
+    distributions: Distributions
 
     def __str__(self) -> str:
         """Return a human-readable representation of the record."""
@@ -31,15 +31,7 @@ class Distributions(FrozenSet["Distribution"]):
         """Return a human-readable representation of the set of distributions."""
         max_name_length = max(len(d.name) for d in self)
         lines = [f"{d.name:<{max_name_length}} ({d.version})" for d in self]
-        return "\n".join(sorted(lines))
-
-
-class InstalledDistributions(Distributions):
-    """Represents the set of all installed distributions."""
-
-    def __str__(self) -> str:
-        """Return a human-readable representation of the set of installed distributions."""
-        return "Installed Distributions:\n" + textwrap.indent(super().__str__(), " " * 4)
+        return "Distributions:" + "\n" + textwrap.indent("\n".join(sorted(lines)), " " * 4)
 
 
 @dataclass(frozen=True)

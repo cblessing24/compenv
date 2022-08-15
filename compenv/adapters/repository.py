@@ -4,7 +4,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Generator, Iterable, Iterator
 
 from ..model.computation import ComputationRecord, Identifier
-from ..model.record import Distribution, InstalledDistributions, Record
+from ..model.record import Distribution, Distributions, Record
 from ..service.abstract import Repository
 from .abstract import AbstractTableFacade
 from .entity import DJComputationRecord, DJDistribution
@@ -30,7 +30,7 @@ class DJRepository(Repository):
             self.facade.add(
                 DJComputationRecord(
                     primary=primary,
-                    distributions=frozenset(self._persist_dists(comp_rec.record.installed_distributions)),
+                    distributions=frozenset(self._persist_dists(comp_rec.record.distributions)),
                 ),
             )
         except ValueError as error:
@@ -53,12 +53,12 @@ class DJRepository(Repository):
         return ComputationRecord(
             identifier=identifier,
             record=Record(
-                installed_distributions=self._reconstitue_installed_dists(dj_comp_rec),
+                distributions=self._reconstitue_distributions(dj_comp_rec),
             ),
         )
 
-    def _reconstitue_installed_dists(self, dj_comp_rec: DJComputationRecord) -> InstalledDistributions:
-        return InstalledDistributions(self._reconstitue_dist(d) for d in dj_comp_rec.distributions)
+    def _reconstitue_distributions(self, dj_comp_rec: DJComputationRecord) -> Distributions:
+        return Distributions(self._reconstitue_dist(d) for d in dj_comp_rec.distributions)
 
     def _reconstitue_dist(self, dj_dist: DJDistribution) -> Distribution:
         return Distribution(

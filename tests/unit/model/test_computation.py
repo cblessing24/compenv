@@ -98,7 +98,7 @@ class TestComputationRecord:
             Computation Record:
                 Identifier: identifier
                 Record:
-                    Installed Distributions:
+                    Distributions:
                         dist1 (0.1.0)
                         dist2 (0.1.1)
             """
