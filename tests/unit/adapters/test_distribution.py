@@ -1,12 +1,12 @@
 from __future__ import annotations
 
 import os
-from typing import Callable, Dict, Iterable, Iterator, List, Literal, Optional, Set, Union
+from typing import Callable, Dict, Iterable, Iterator, List, Literal, Optional, Union
 
 import pytest
 
 from compenv.adapters.distribution import InstalledDistributionConverter
-from compenv.model.record import ActiveModules, Distribution, InstalledDistributions, Module, Modules
+from compenv.model.record import Distribution, InstalledDistributions
 
 
 class FakePackagePath:
@@ -116,55 +116,18 @@ def fake_get_installed_distributions(
 
 
 @pytest.fixture
-def active_modules() -> Set[Module]:
-    return {Module(FakePath("/dist1/package1/__init__.py"), is_active=True)}
-
-
-@pytest.fixture
-def fake_get_active_modules(active_modules: ActiveModules) -> Callable[[], ActiveModules]:
-    def _fake_get_active_modules() -> ActiveModules:
-        return active_modules
-
-    return _fake_get_active_modules
-
-
-@pytest.fixture
 def converter(
     fake_get_installed_distributions: Callable[[], Iterable[FakeDistribution]],
-    fake_get_active_modules: Callable[[], ActiveModules],
 ) -> InstalledDistributionConverter:
     return InstalledDistributionConverter(
         path_cls=FakePath,
         get_installed_distributions=fake_get_installed_distributions,
-        get_active_modules=fake_get_active_modules,
     )
 
 
 def test_correct_distributions_returned(converter: InstalledDistributionConverter) -> None:
     expected_distributions = InstalledDistributions(
-        {
-            Distribution(
-                "dist1",
-                "0.1.0",
-                Modules(
-                    {
-                        Module(FakePath("/dist1/package1/__init__.py"), is_active=True),
-                        Module(FakePath("/dist1/package1/module1.py"), is_active=False),
-                    }
-                ),
-            ),
-            Distribution(
-                "dist2",
-                "0.1.2",
-                Modules(
-                    {
-                        Module(FakePath("/dist2/package1/__init__.py"), is_active=False),
-                        Module(FakePath("/dist2/package1/module1.py"), is_active=False),
-                    }
-                ),
-            ),
-            Distribution("dist3", "1.2.3", Modules()),
-        }
+        {Distribution("dist1", "0.1.0"), Distribution("dist2", "0.1.2"), Distribution("dist3", "1.2.3")}
     )
     actual_distributions = converter()
     assert actual_distributions == expected_distributions

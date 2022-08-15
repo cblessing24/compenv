@@ -1,8 +1,6 @@
-from typing import FrozenSet
-
 import pytest
 
-from compenv.adapters.entity import DJComputationRecord, DJDistribution, DJMembership, DJModule
+from compenv.adapters.entity import DJComputationRecord
 from compenv.adapters.repository import DJRepository
 from compenv.model.computation import ComputationRecord, Identifier
 from compenv.model.record import Record
@@ -53,26 +51,6 @@ class TestGet:
         repo: DJRepository, comp_rec: ComputationRecord, identifier: Identifier
     ) -> None:
         assert repo.get(identifier) == comp_rec
-
-    @staticmethod
-    def test_raises_error_if_missing_module_referenced_in_membership(
-        primary: PrimaryKey,
-        repo: DJRepository,
-        identifier: Identifier,
-        fake_facade: FakeRecordTableFacade,
-        dj_dists: FrozenSet[DJDistribution],
-        dj_memberships: FrozenSet[DJMembership],
-    ) -> None:
-        fake_facade.add(
-            DJComputationRecord(
-                primary=primary,
-                modules=frozenset([DJModule(module_file="module1.py", module_is_active="False")]),
-                distributions=dj_dists,
-                memberships=dj_memberships,
-            ),
-        )
-        with pytest.raises(ValueError, match="Module referenced in membership"):
-            repo.get(identifier)
 
 
 def test_iteration(repo: DJRepository, comp_rec: ComputationRecord) -> None:

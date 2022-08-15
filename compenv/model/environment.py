@@ -5,7 +5,7 @@ from types import TracebackType
 from typing import ContextManager, Optional, Type
 
 from . import record
-from .record import ActiveModules, InstalledDistributions, Record
+from .record import InstalledDistributions, Record
 
 
 class Environment:
@@ -15,8 +15,7 @@ class Environment:
     def record() -> Record:
         """Record information about the current execution environment."""
         installed_dists = InstalledDistributions(record.get_installed_distributions())
-        active_modules = ActiveModules(record.get_active_modules())
-        return Record(installed_distributions=installed_dists, active_modules=active_modules)
+        return Record(installed_distributions=installed_dists)
 
     def consistency_check(self) -> _ConsistencyCheck:
         """Return a context manager used to check the environment's consistency during code execution."""

@@ -7,8 +7,7 @@ from os import PathLike
 from pathlib import Path
 from typing import Callable, Iterable, Literal, Optional, Protocol, Set, Type
 
-from ..model.record import ActiveModules, Distribution, InstalledDistributions, Module, Modules
-from .module import ActiveModuleConverter
+from ..model.record import Distribution, InstalledDistributions
 
 
 class _ExistenceCheckablePath(Protocol):
@@ -61,14 +60,10 @@ class InstalledDistributionConverter:
         self,
         path_cls: Type[_ExistenceCheckablePath] = Path,
         get_installed_distributions: Callable[[], Iterable[_MetadataDistribution]] = metadata.distributions,
-        get_active_modules: Optional[Callable[[], ActiveModules]] = None,
     ) -> None:
         """Initialize the installed distribution converter."""
-        if get_active_modules is None:
-            get_active_modules = ActiveModuleConverter()
         self._path_cls = path_cls
         self._get_installed_distributions = get_installed_distributions
-        self._get_active_modules = get_active_modules
 
     @lru_cache
     def __call__(self) -> InstalledDistributions:
@@ -79,18 +74,7 @@ class InstalledDistributionConverter:
         return InstalledDistributions(conv_dists)
 
     def _convert_distribution(self, orig_dist: _MetadataDistribution) -> Distribution:
-        if orig_dist.files:
-            modules = self._convert_files_to_modules(set(orig_dist.files))
-        else:
-            modules = set()
-        return Distribution(orig_dist.metadata["Name"], orig_dist.metadata["Version"], modules=Modules(modules))
-
-    def _convert_files_to_modules(self, files: Set[_PackagePath]) -> Set[Module]:
-        valid_files = {f for f in files if f.suffix == ".py"}
-        abs_files = {self._path_cls(f.locate()) for f in valid_files}
-        existing_files = {f for f in abs_files if f.exists()}
-        active_files = {m.file for m in self._get_active_modules()}
-        return {Module(f, is_active=f in active_files) for f in existing_files}
+        return Distribution(orig_dist.metadata["Name"], orig_dist.metadata["Version"])
 
     def __repr__(self) -> str:
         """Return a string representation of the translator."""

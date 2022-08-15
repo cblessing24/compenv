@@ -99,10 +99,8 @@ class TestComputationRecord:
                 Identifier: identifier
                 Record:
                     Installed Distributions:
-                        + dist2 (0.1.1)
-                        - dist1 (0.1.0)
-                    Active Modules:
-                        module2.py
+                        dist1 (0.1.0)
+                        dist2 (0.1.1)
             """
         ).strip()
         assert str(computation_record) == expected

@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from pathlib import Path
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -20,19 +19,11 @@ from typing import (
 import pytest
 from datajoint.errors import DuplicateError
 
-from compenv.adapters.entity import DJComputationRecord, DJDistribution, DJMembership, DJModule
+from compenv.adapters.entity import DJComputationRecord, DJDistribution
 from compenv.infrastructure.types import Connection, Table
 from compenv.model import record as record_module
 from compenv.model.computation import ComputationRecord, Identifier
-from compenv.model.record import (
-    ActiveDistributions,
-    ActiveModules,
-    Distribution,
-    InstalledDistributions,
-    Module,
-    Modules,
-    Record,
-)
+from compenv.model.record import Distribution, InstalledDistributions, Record
 from compenv.service.abstract import Repository
 from compenv.types import PrimaryKey
 
@@ -41,43 +32,22 @@ if TYPE_CHECKING:
 
 
 @pytest.fixture
-def active_distributions() -> ActiveDistributions:
-    return ActiveDistributions(
-        {Distribution("dist2", "0.1.1", modules=Modules({Module(Path("module2.py"), is_active=True)}))}
-    )
+def installed_distributions() -> InstalledDistributions:
+    return InstalledDistributions({Distribution("dist1", "0.1.0"), Distribution("dist2", "0.1.1")})
 
 
 @pytest.fixture
-def installed_distributions(active_distributions: ActiveDistributions) -> InstalledDistributions:
-    return InstalledDistributions(
-        {
-            Distribution("dist1", "0.1.0", modules=Modules({Module(Path("module1.py"), is_active=False)})),
-        }.union(active_distributions)
-    )
-
-
-@pytest.fixture
-def active_modules() -> ActiveModules:
-    return ActiveModules({Module(Path("module2.py"), is_active=True)})
-
-
-@pytest.fixture
-def prepare_environment(installed_distributions: InstalledDistributions, active_modules: ActiveModules) -> None:
-    def fake_get_active_modules() -> ActiveModules:
-        return active_modules
-
+def prepare_environment(installed_distributions: InstalledDistributions) -> None:
     def fake_get_installed_distributions() -> InstalledDistributions:
         return installed_distributions
 
-    record_module.get_active_modules = fake_get_active_modules
     record_module.get_installed_distributions = fake_get_installed_distributions
 
 
 @pytest.fixture
-def record(installed_distributions: InstalledDistributions, active_modules: ActiveModules) -> Record:
+def record(installed_distributions: InstalledDistributions) -> Record:
     return Record(
         installed_distributions=installed_distributions,
-        active_modules=active_modules,
     )
 
 
@@ -92,16 +62,6 @@ def primary() -> Dict[str, int]:
 
 
 @pytest.fixture
-def dj_modules() -> FrozenSet[DJModule]:
-    return frozenset(
-        [
-            DJModule(module_file="module1.py", module_is_active="False"),
-            DJModule(module_file="module2.py", module_is_active="True"),
-        ]
-    )
-
-
-@pytest.fixture
 def dj_dists() -> FrozenSet[DJDistribution]:
     return frozenset(
         [
@@ -112,23 +72,11 @@ def dj_dists() -> FrozenSet[DJDistribution]:
 
 
 @pytest.fixture
-def dj_memberships() -> FrozenSet[DJMembership]:
-    return frozenset(
-        [
-            DJMembership(module_file="module1.py", distribution_name="dist1", distribution_version="0.1.0"),
-            DJMembership(module_file="module2.py", distribution_name="dist2", distribution_version="0.1.1"),
-        ]
-    )
-
-
-@pytest.fixture
 def dj_comp_rec(
     primary: PrimaryKey,
-    dj_modules: FrozenSet[DJModule],
     dj_dists: FrozenSet[DJDistribution],
-    dj_memberships: FrozenSet[DJMembership],
 ) -> DJComputationRecord:
-    return DJComputationRecord(primary=primary, modules=dj_modules, distributions=dj_dists, memberships=dj_memberships)
+    return DJComputationRecord(primary=primary, distributions=dj_dists)
 
 
 class FakeTrigger:
