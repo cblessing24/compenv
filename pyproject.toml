@@ -39,6 +39,10 @@ dev = [
     "debugpy>=1.6.2",
 ]
 
+[tool.pdm.scripts]
+test = "pytest -k 'not slow'"
+cov = {composite = ["test --cov"]}
+
 [tool.black]
 line-length = 120
 
