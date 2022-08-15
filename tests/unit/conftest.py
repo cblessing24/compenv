@@ -141,10 +141,10 @@ class FakeTrigger:
         self.triggered = True
 
     def _change_environment(self) -> None:
-        def fake_get_active_modules() -> ActiveModules:
-            return ActiveModules()
+        def fake_get_installed_distributions() -> InstalledDistributions:
+            return InstalledDistributions()
 
-        record_module.get_active_modules = fake_get_active_modules
+        record_module.get_installed_distributions = fake_get_installed_distributions
 
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}()"
