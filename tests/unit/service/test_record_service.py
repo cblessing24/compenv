@@ -14,7 +14,7 @@ class TestRecord:
     def record_environment(
         fake_repository: FakeRepository, fake_output_port: FakeOutputPort, fake_trigger: FakeTrigger
     ) -> None:
-        service = record.RecordService(fake_repository, output_port=fake_output_port)
+        service = record.RecordService(output_port=fake_output_port, repo=fake_repository)
         request = service.create_request(Identifier("identifier"), fake_trigger)
         service(request)
 

@@ -1,5 +1,5 @@
 import dataclasses
-from typing import Any, Callable, List
+from typing import Callable, List
 
 import pytest
 
@@ -24,8 +24,8 @@ class MyService(Service[MyRequest, MyResponse]):
     _request_cls = MyRequest
     _response_cls = MyResponse
 
-    def __init__(self, repo: Any, output_port: Callable[[MyResponse], None], response: MyResponse) -> None:
-        super().__init__(repo, output_port)
+    def __init__(self, *, output_port: Callable[[MyResponse], None], response: MyResponse) -> None:
+        super().__init__(output_port=output_port)
         self.requests: List[MyRequest] = []
         self.response = response
 
@@ -46,7 +46,7 @@ def my_response() -> MyResponse:
 
 @pytest.fixture
 def service(fake_output_port: FakeOutputPort, my_response: MyResponse) -> MyService:
-    return MyService("dummy_repo", output_port=fake_output_port, response=my_response)
+    return MyService(output_port=fake_output_port, response=my_response)
 
 
 def test_correct_request_gets_created(service: MyService, my_request: MyRequest) -> None:

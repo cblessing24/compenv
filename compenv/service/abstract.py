@@ -25,9 +25,8 @@ class Service(ABC, Generic[_T, _V]):
     _request_cls: Type[_T]
     _response_cls: Type[_V]
 
-    def __init__(self, repo: Repository, output_port: Callable[[_V], None]) -> None:
+    def __init__(self, *, output_port: Callable[[_V], None]) -> None:
         """Initialize the service."""
-        self.repo = repo
         self.output_port = output_port
 
     def __call__(self, request: _T) -> None:
