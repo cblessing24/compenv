@@ -5,6 +5,7 @@ import pytest
 from compenv.adapters.controller import DJController
 from compenv.model.computation import Identifier
 from compenv.service.abstract import Response
+from compenv.service.record import RecordService
 from compenv.types import PrimaryKey
 from tests.unit.conftest import FakeRepository, FakeTranslator
 
@@ -29,7 +30,8 @@ def fake_presenter() -> FakePresenter:
 def controller(
     fake_repository: FakeRepository, fake_translator: FakeTranslator, fake_presenter: FakePresenter
 ) -> DJController:
-    return DJController(fake_repository, fake_translator, fake_presenter)
+    record_service = RecordService(output_port=fake_presenter.record, repo=fake_repository)
+    return DJController(record_service, fake_translator)
 
 
 class FakeMake:
@@ -61,10 +63,3 @@ def test_calling_record_inserts_record_with_appropriate_identifier(
 ) -> None:
     controller.record(primary, fake_make)
     assert list(fake_repository) == [identifier]
-
-
-def test_repr(controller: DJController) -> None:
-    assert (
-        repr(controller)
-        == "DJController(repo=FakeRepository(), translator=FakeTranslator(), presenter=FakePresenter())"
-    )

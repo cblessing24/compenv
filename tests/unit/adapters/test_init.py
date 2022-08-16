@@ -1,4 +1,4 @@
-from dataclasses import FrozenInstanceError, is_dataclass
+from dataclasses import is_dataclass
 
 import pytest
 
@@ -50,11 +50,3 @@ def test_correct_controller_is_used(dj_adapters: DJAdapters) -> None:
 
 def test_controller_uses_correct_translator(dj_adapters: DJAdapters) -> None:
     assert dj_adapters.controller.translator is dj_adapters.translator
-
-
-def test_controller_uses_correct_presenter(dj_adapters: DJAdapters) -> None:
-    assert dj_adapters.controller.presenter is dj_adapters.presenter
-
-
-def test_controller_uses_correct_repository(dj_adapters: DJAdapters) -> None:
-    assert dj_adapters.controller.repo is dj_adapters.repo

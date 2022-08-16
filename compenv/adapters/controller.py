@@ -4,10 +4,7 @@ from __future__ import annotations
 import functools
 from typing import TYPE_CHECKING, Callable
 
-from compenv.service.abstract import Repository
-
 from ..service.record import RecordService
-from .presenter import Presenter
 from .translator import Translator
 
 if TYPE_CHECKING:
@@ -19,23 +16,21 @@ if TYPE_CHECKING:
 class DJController:
     """Controls the execution of services."""
 
-    def __init__(self, repo: Repository, translator: Translator[PrimaryKey], presenter: Presenter) -> None:
+    def __init__(self, record_service: RecordService, translator: Translator[PrimaryKey]) -> None:
         """Initialize the controller."""
-        self.repo = repo
+        self.record_service = record_service
         self.translator = translator
-        self.presenter = presenter
 
     def record(self, key: PrimaryKey, make: Callable[[Entity], None]) -> None:
         """Execute the record service."""
         ident = self.translator.to_internal(key)
-        service = RecordService(output_port=self.presenter.record, repo=self.repo)
         trigger = functools.partial(make, key)
-        request = service.create_request(ident, trigger=trigger)
-        service(request)
+        request = self.record_service.create_request(ident, trigger=trigger)
+        self.record_service(request)
 
     def __repr__(self) -> str:
         """Return a string representation of the controller."""
         return (
-            f"{self.__class__.__name__}(repo={repr(self.repo)},"
-            f" translator={repr(self.translator)}, presenter={repr(self.presenter)})"
+            f"{self.__class__.__name__}(record_service={repr(self.record_service)},"
+            f" translator={repr(self.translator)})"
         )

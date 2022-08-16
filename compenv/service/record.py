@@ -36,3 +36,7 @@ class RecordService(Service[RecordRequest, RecordResponse]):  # pylint: disable=
         computation = Computation(request.identifier, environment=Environment(), trigger=request.trigger)
         self.repo.add(computation.execute())
         return self._response_cls()
+
+    def __repr__(self) -> str:
+        """Return a string representation of the record service."""
+        return f"{self.__class__.__name__}(output_port={self.output_port!r}, repo={self.repo!r})"
