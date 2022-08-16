@@ -24,7 +24,7 @@ from compenv.infrastructure.types import Connection, Table
 from compenv.model import record as record_module
 from compenv.model.computation import ComputationRecord, Identifier
 from compenv.model.record import Distribution, Distributions, Record
-from compenv.service.abstract import Repository
+from compenv.service.abstract import Repository, Response
 from compenv.types import PrimaryKey
 
 if TYPE_CHECKING:
@@ -311,3 +311,16 @@ def fake_schema(fake_connection: FakeConnection, fake_table: Type[Table]) -> Fak
     FakeSchema.schema_tables[fake_table.__name__] = fake_table
 
     return FakeSchema("schema", fake_connection)
+
+
+class FakeOutputPort:
+    def __init__(self) -> None:
+        self.responses: list[Response] = []
+
+    def __call__(self, response: Response) -> None:
+        self.responses.append(response)
+
+
+@pytest.fixture
+def fake_output_port() -> FakeOutputPort:
+    return FakeOutputPort()

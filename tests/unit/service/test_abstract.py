@@ -5,7 +5,7 @@ import pytest
 
 from compenv.service.abstract import Request, Response, Service
 
-from .conftest import FakeOutputPort
+from ..conftest import FakeOutputPort
 
 
 @dataclasses.dataclass(frozen=True)

@@ -3,8 +3,7 @@ import pytest
 from compenv.model.computation import ComputationRecord, Identifier
 from compenv.service import record
 
-from ..conftest import FakeRepository, FakeTrigger
-from .conftest import FakeOutputPort
+from ..conftest import FakeOutputPort, FakeRepository, FakeTrigger
 
 
 @pytest.mark.usefixtures("prepare_environment")
