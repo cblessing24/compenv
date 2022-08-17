@@ -22,7 +22,7 @@ from datajoint.errors import DuplicateError
 from compenv.adapters.entity import DJComputationRecord, DJDistribution
 from compenv.infrastructure.types import Connection, Table
 from compenv.model.computation import Temp
-from compenv.model.record import Distribution, Distributions, Identifier, Record
+from compenv.model.record import ComputationRecord, Distribution, Distributions, Identifier
 from compenv.service.abstract import DistributionFinder, Repository, Response
 from compenv.types import PrimaryKey
 
@@ -36,12 +36,12 @@ def distributions() -> Distributions:
 
 
 @pytest.fixture
-def record(identifier: Identifier, distributions: Distributions) -> Record:
-    return Record(identifier=identifier, distributions=distributions)
+def record(identifier: Identifier, distributions: Distributions) -> ComputationRecord:
+    return ComputationRecord(identifier=identifier, distributions=distributions)
 
 
 @pytest.fixture
-def computation_record(record: Record) -> Temp:
+def computation_record(record: ComputationRecord) -> Temp:
     return Temp(Identifier("identifier"), record)
 
 

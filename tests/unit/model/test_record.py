@@ -2,18 +2,18 @@ import textwrap
 
 import pytest
 
-from compenv.model.record import Distribution, Distributions, Record
+from compenv.model.record import ComputationRecord, Distribution, Distributions
 
 
 class TestRecord:
     @staticmethod
     @pytest.mark.parametrize("attr", ["distributions"])
-    def test_attributes_are_read_only(record: Record, attr: str) -> None:
+    def test_attributes_are_read_only(record: ComputationRecord, attr: str) -> None:
         with pytest.raises(AttributeError):
             setattr(record, attr, "something")
 
     @staticmethod
-    def test_str(record: Record) -> None:
+    def test_str(record: ComputationRecord) -> None:
         expected = textwrap.dedent(
             """
             Record:

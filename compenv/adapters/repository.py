@@ -4,7 +4,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Generator, Iterable, Iterator
 
 from ..model.computation import Temp
-from ..model.record import Distribution, Distributions, Identifier, Record
+from ..model.record import ComputationRecord, Distribution, Distributions, Identifier
 from ..service.abstract import Repository
 from .abstract import AbstractTableFacade
 from .entity import DJComputationRecord, DJDistribution
@@ -52,7 +52,7 @@ class DJRepository(Repository):
 
         return Temp(
             identifier=identifier,
-            record=Record(
+            record=ComputationRecord(
                 identifier=identifier,
                 distributions=self._reconstitue_distributions(dj_comp_rec),
             ),

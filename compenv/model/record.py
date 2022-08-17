@@ -9,7 +9,7 @@ Identifier = NewType("Identifier", str)
 
 
 @dataclass(frozen=True)
-class Record:
+class ComputationRecord:
     """Represents a record of the environment."""
 
     identifier: Identifier

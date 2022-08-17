@@ -4,7 +4,7 @@ from __future__ import annotations
 import textwrap
 from dataclasses import dataclass
 
-from .record import Identifier, Record
+from .record import ComputationRecord, Identifier
 
 
 @dataclass(frozen=True)
@@ -12,7 +12,7 @@ class Temp:
     """Represents the association between an executed computation and its environmental record."""
 
     identifier: Identifier
-    record: Record
+    record: ComputationRecord
 
     def __str__(self) -> str:
         """Return a human-readable representation of the computation record."""

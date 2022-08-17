@@ -3,7 +3,7 @@ import pytest
 from compenv.adapters.entity import DJComputationRecord
 from compenv.adapters.repository import DJRepository
 from compenv.model.computation import Temp
-from compenv.model.record import Identifier, Record
+from compenv.model.record import ComputationRecord, Identifier
 from compenv.types import PrimaryKey
 
 from ..conftest import FakeTranslator
@@ -16,7 +16,7 @@ def repo(fake_translator: FakeTranslator, fake_facade: FakeRecordTableFacade) ->
 
 
 @pytest.fixture
-def comp_rec(identifier: Identifier, record: Record) -> Temp:
+def comp_rec(identifier: Identifier, record: ComputationRecord) -> Temp:
     return Temp(identifier, record)
 
 
