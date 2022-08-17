@@ -1,7 +1,6 @@
 import pytest
 
-from compenv.model.computation import Temp
-from compenv.model.record import Identifier
+from compenv.model.record import ComputationRecord, Identifier
 from compenv.service import record
 
 from ..conftest import FakeDistributionFinder, FakeOutputPort, FakeRepository, FakeTrigger
@@ -28,7 +27,7 @@ class TestRecord:
 
     @staticmethod
     def test_computation_record_is_added_to_repository(
-        fake_repository: FakeRepository, computation_record: Temp
+        fake_repository: FakeRepository, computation_record: ComputationRecord
     ) -> None:
         assert fake_repository.get(Identifier("identifier")) == computation_record
 

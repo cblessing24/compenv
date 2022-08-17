@@ -5,15 +5,15 @@ import pytest
 from compenv.model.record import ComputationRecord, Distribution, Distributions
 
 
-class TestRecord:
+class TestComputationRecord:
     @staticmethod
     @pytest.mark.parametrize("attr", ["distributions"])
-    def test_attributes_are_read_only(record: ComputationRecord, attr: str) -> None:
+    def test_attributes_are_read_only(computation_record: ComputationRecord, attr: str) -> None:
         with pytest.raises(AttributeError):
-            setattr(record, attr, "something")
+            setattr(computation_record, attr, "something")
 
     @staticmethod
-    def test_str(record: ComputationRecord) -> None:
+    def test_str(computation_record: ComputationRecord) -> None:
         expected = textwrap.dedent(
             """
             Record:
@@ -22,7 +22,7 @@ class TestRecord:
                     dist2 (0.1.1)
             """
         ).strip()
-        assert str(record) == expected
+        assert str(computation_record) == expected
 
 
 class TestDistributions:

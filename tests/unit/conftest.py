@@ -21,7 +21,6 @@ from datajoint.errors import DuplicateError
 
 from compenv.adapters.entity import DJComputationRecord, DJDistribution
 from compenv.infrastructure.types import Connection, Table
-from compenv.model.computation import Temp
 from compenv.model.record import ComputationRecord, Distribution, Distributions, Identifier
 from compenv.service.abstract import DistributionFinder, Repository, Response
 from compenv.types import PrimaryKey
@@ -36,13 +35,8 @@ def distributions() -> Distributions:
 
 
 @pytest.fixture
-def record(identifier: Identifier, distributions: Distributions) -> ComputationRecord:
+def computation_record(identifier: Identifier, distributions: Distributions) -> ComputationRecord:
     return ComputationRecord(identifier=identifier, distributions=distributions)
-
-
-@pytest.fixture
-def computation_record(record: ComputationRecord) -> Temp:
-    return Temp(Identifier("identifier"), record)
 
 
 @pytest.fixture
@@ -85,12 +79,12 @@ def fake_trigger() -> FakeTrigger:
 
 class FakeRepository(Repository):
     def __init__(self) -> None:
-        self.comp_recs: Dict[Identifier, Temp] = {}
+        self.comp_recs: Dict[Identifier, ComputationRecord] = {}
 
-    def add(self, comp_rec: Temp) -> None:
+    def add(self, comp_rec: ComputationRecord) -> None:
         self.comp_recs[comp_rec.identifier] = comp_rec
 
-    def get(self, identifier: Identifier) -> Temp:
+    def get(self, identifier: Identifier) -> ComputationRecord:
         return self.comp_recs[identifier]
 
     def __iter__(self) -> Iterator[Identifier]:

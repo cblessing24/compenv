@@ -3,7 +3,6 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Generator, Iterable, Iterator
 
-from ..model.computation import Temp
 from ..model.record import ComputationRecord, Distribution, Distributions, Identifier
 from ..service.abstract import Repository
 from .abstract import AbstractTableFacade
@@ -22,7 +21,7 @@ class DJRepository(Repository):
         self.translator = translator
         self.facade = facade
 
-    def add(self, comp_rec: Temp) -> None:
+    def add(self, comp_rec: ComputationRecord) -> None:
         """Add the given computation record to the repository if it does not already exist."""
         primary = self.translator.to_external(comp_rec.identifier)
 
@@ -30,7 +29,7 @@ class DJRepository(Repository):
             self.facade.add(
                 DJComputationRecord(
                     primary=primary,
-                    distributions=frozenset(self._persist_dists(comp_rec.record.distributions)),
+                    distributions=frozenset(self._persist_dists(comp_rec.distributions)),
                 ),
             )
         except ValueError as error:
@@ -41,7 +40,7 @@ class DJRepository(Repository):
         for dist in dists:
             yield DJDistribution(distribution_name=dist.name, distribution_version=dist.version)
 
-    def get(self, identifier: Identifier) -> Temp:
+    def get(self, identifier: Identifier) -> ComputationRecord:
         """Get the computation record matching the given identifier from the repository if it exists."""
         primary = self.translator.to_external(identifier)
 
@@ -50,12 +49,9 @@ class DJRepository(Repository):
         except KeyError as error:
             raise KeyError(f"Record with identifier '{identifier}' does not exist!") from error
 
-        return Temp(
+        return ComputationRecord(
             identifier=identifier,
-            record=ComputationRecord(
-                identifier=identifier,
-                distributions=self._reconstitue_distributions(dj_comp_rec),
-            ),
+            distributions=self._reconstitue_distributions(dj_comp_rec),
         )
 
     def _reconstitue_distributions(self, dj_comp_rec: DJComputationRecord) -> Distributions:
