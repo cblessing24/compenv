@@ -5,6 +5,7 @@ from abc import ABC, abstractmethod
 from typing import Callable, Generic, Iterator, Type, TypeVar
 
 from ..model.computation import ComputationRecord, Identifier
+from ..model.record import Distributions
 
 
 class Request(ABC):  # pylint: disable=too-few-public-methods
@@ -62,3 +63,11 @@ class Repository(ABC):
     @abstractmethod
     def __len__(self) -> int:
         """Return the number of computation records in the repository."""
+
+
+class DistributionFinder(ABC):  # pylint: disable=too-few-public-methods
+    """Defines the interface for finding distributions."""
+
+    @abstractmethod
+    def __call__(self) -> Distributions:
+        """Find the distributions installed on the system."""
