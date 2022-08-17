@@ -5,7 +5,7 @@ import hashlib
 import json
 from typing import TYPE_CHECKING, Callable, Dict, Protocol, TypeVar
 
-from ..model.computation import Identifier
+from ..model.record import Identifier
 
 if TYPE_CHECKING:
     from ..types import PrimaryKey

@@ -3,7 +3,7 @@ from typing import Any, List, Mapping
 import pytest
 
 from compenv.adapters.controller import DJController
-from compenv.model.computation import Identifier
+from compenv.model.record import Identifier
 from compenv.service.abstract import Response
 from compenv.service.record import RecordService
 from compenv.types import PrimaryKey

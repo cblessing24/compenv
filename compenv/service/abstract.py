@@ -4,8 +4,8 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from typing import Callable, Generic, Iterator, Type, TypeVar
 
-from ..model.computation import ComputationRecord, Identifier
-from ..model.record import Distributions
+from ..model.computation import ComputationRecord
+from ..model.record import Distributions, Identifier
 
 
 class Request(ABC):  # pylint: disable=too-few-public-methods

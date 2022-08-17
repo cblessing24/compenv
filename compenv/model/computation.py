@@ -3,11 +3,8 @@ from __future__ import annotations
 
 import textwrap
 from dataclasses import dataclass
-from typing import NewType
 
-from .record import Record
-
-Identifier = NewType("Identifier", str)
+from .record import Identifier, Record
 
 
 @dataclass(frozen=True)

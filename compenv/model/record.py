@@ -3,7 +3,9 @@ from __future__ import annotations
 
 import textwrap
 from dataclasses import asdict, dataclass
-from typing import FrozenSet
+from typing import FrozenSet, NewType
+
+Identifier = NewType("Identifier", str)
 
 
 @dataclass(frozen=True)

@@ -2,8 +2,8 @@
 import dataclasses
 from typing import Callable
 
-from ..model.computation import ComputationRecord, Identifier
-from ..model.record import Record
+from ..model.computation import ComputationRecord
+from ..model.record import Identifier, Record
 from .abstract import DistributionFinder, Repository, Request, Response, Service
 
 

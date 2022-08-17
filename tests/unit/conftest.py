@@ -21,8 +21,8 @@ from datajoint.errors import DuplicateError
 
 from compenv.adapters.entity import DJComputationRecord, DJDistribution
 from compenv.infrastructure.types import Connection, Table
-from compenv.model.computation import ComputationRecord, Identifier
-from compenv.model.record import Distribution, Distributions, Record
+from compenv.model.computation import ComputationRecord
+from compenv.model.record import Distribution, Distributions, Identifier, Record
 from compenv.service.abstract import DistributionFinder, Repository, Response
 from compenv.types import PrimaryKey
 

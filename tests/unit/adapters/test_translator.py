@@ -1,7 +1,7 @@
 import pytest
 
 from compenv.adapters.translator import DJTranslator, blake2b
-from compenv.model.computation import Identifier
+from compenv.model.record import Identifier
 from compenv.types import PrimaryKey
 
 

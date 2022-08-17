@@ -2,8 +2,8 @@ import pytest
 
 from compenv.adapters.entity import DJComputationRecord
 from compenv.adapters.repository import DJRepository
-from compenv.model.computation import ComputationRecord, Identifier
-from compenv.model.record import Record
+from compenv.model.computation import ComputationRecord
+from compenv.model.record import Identifier, Record
 from compenv.types import PrimaryKey
 
 from ..conftest import FakeTranslator

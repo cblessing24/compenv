@@ -1,6 +1,7 @@
 import pytest
 
-from compenv.model.computation import ComputationRecord, Identifier
+from compenv.model.computation import ComputationRecord
+from compenv.model.record import Identifier
 from compenv.service import record
 
 from ..conftest import FakeDistributionFinder, FakeOutputPort, FakeRepository, FakeTrigger

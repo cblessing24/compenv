@@ -3,8 +3,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Generator, Iterable, Iterator
 
-from ..model.computation import ComputationRecord, Identifier
-from ..model.record import Distribution, Distributions, Record
+from ..model.computation import ComputationRecord
+from ..model.record import Distribution, Distributions, Identifier, Record
 from ..service.abstract import Repository
 from .abstract import AbstractTableFacade
 from .entity import DJComputationRecord, DJDistribution
