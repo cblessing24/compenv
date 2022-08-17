@@ -7,7 +7,8 @@ from compenv.model.computation import Identifier
 from compenv.service.abstract import Response
 from compenv.service.record import RecordService
 from compenv.types import PrimaryKey
-from tests.unit.conftest import FakeRepository, FakeTranslator
+
+from ..conftest import FakeDistributionFinder, FakeRepository, FakeTranslator
 
 
 class FakePresenter:
@@ -28,9 +29,14 @@ def fake_presenter() -> FakePresenter:
 
 @pytest.fixture
 def controller(
-    fake_repository: FakeRepository, fake_translator: FakeTranslator, fake_presenter: FakePresenter
+    fake_repository: FakeRepository,
+    fake_translator: FakeTranslator,
+    fake_presenter: FakePresenter,
+    fake_distribution_finder: FakeDistributionFinder,
 ) -> DJController:
-    record_service = RecordService(output_port=fake_presenter.record, repo=fake_repository)
+    record_service = RecordService(
+        output_port=fake_presenter.record, repo=fake_repository, distribution_finder=fake_distribution_finder
+    )
     return DJController(record_service, fake_translator)
 
 

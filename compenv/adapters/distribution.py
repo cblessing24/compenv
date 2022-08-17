@@ -8,6 +8,7 @@ from pathlib import Path
 from typing import Callable, Iterable, Literal, Optional, Protocol, Set, Type
 
 from ..model.record import Distribution, Distributions
+from ..service.abstract import DistributionFinder
 
 
 class _ExistenceCheckablePath(Protocol):
@@ -53,7 +54,7 @@ class _MetadataDistribution(Protocol):
         """Return the distribution's metadata."""
 
 
-class DistributionConverter:
+class DistributionConverter(DistributionFinder):
     """Converts distribution objects into distribution objects from the model."""
 
     def __init__(

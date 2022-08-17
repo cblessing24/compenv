@@ -3,7 +3,7 @@ import pytest
 from compenv.model.computation import ComputationRecord, Identifier
 from compenv.service import record
 
-from ..conftest import FakeOutputPort, FakeRepository, FakeTrigger
+from ..conftest import FakeDistributionFinder, FakeOutputPort, FakeRepository, FakeTrigger
 
 
 @pytest.mark.usefixtures("prepare_environment")
@@ -11,9 +11,14 @@ class TestRecord:
     @staticmethod
     @pytest.fixture(autouse=True)
     def record_environment(
-        fake_repository: FakeRepository, fake_output_port: FakeOutputPort, fake_trigger: FakeTrigger
+        fake_repository: FakeRepository,
+        fake_output_port: FakeOutputPort,
+        fake_trigger: FakeTrigger,
+        fake_distribution_finder: FakeDistributionFinder,
     ) -> None:
-        service = record.RecordService(output_port=fake_output_port, repo=fake_repository)
+        service = record.RecordService(
+            output_port=fake_output_port, repo=fake_repository, distribution_finder=fake_distribution_finder
+        )
         request = service.create_request(Identifier("identifier"), fake_trigger)
         service(request)
 

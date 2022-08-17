@@ -1,6 +1,7 @@
 """This package contains adapters adapting between external systems and the domain/service layers."""
 import dataclasses
 
+from compenv.adapters.distribution import DistributionConverter
 from compenv.service.record import RecordService
 
 from .abstract import AbstractTableFacade
@@ -26,6 +27,6 @@ def create_dj_adapters(facade: AbstractTableFacade[DJComputationRecord]) -> DJAd
     translator = DJTranslator(blake2b)
     presenter = DJPresenter()
     repo = DJRepository(facade=facade, translator=translator)
-    record_service = RecordService(output_port=presenter.record, repo=repo)
+    record_service = RecordService(output_port=presenter.record, repo=repo, distribution_finder=DistributionConverter())
     controller = DJController(record_service=record_service, translator=translator)
     return DJAdapters(translator=translator, presenter=presenter, repo=repo, controller=controller)

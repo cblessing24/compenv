@@ -2,9 +2,9 @@
 import dataclasses
 from typing import Callable
 
-from ..model.computation import Computation, Identifier
-from ..model.environment import Environment
-from .abstract import Repository, Request, Response, Service
+from ..model.computation import ComputationRecord, Identifier
+from ..model.record import Record
+from .abstract import DistributionFinder, Repository, Request, Response, Service
 
 
 @dataclasses.dataclass(frozen=True)
@@ -26,15 +26,25 @@ class RecordService(Service[RecordRequest, RecordResponse]):  # pylint: disable=
     _request_cls = RecordRequest
     _response_cls = RecordResponse
 
-    def __init__(self, *, output_port: Callable[[RecordResponse], None], repo: Repository) -> None:
+    def __init__(
+        self,
+        *,
+        output_port: Callable[[RecordResponse], None],
+        repo: Repository,
+        distribution_finder: DistributionFinder,
+    ) -> None:
         """Initialize the service."""
         super().__init__(output_port=output_port)
         self.repo = repo
+        self.distribution_finder = distribution_finder
 
     def _execute(self, request: RecordRequest) -> RecordResponse:
         """Record the environment."""
-        computation = Computation(request.identifier, environment=Environment(), trigger=request.trigger)
-        self.repo.add(computation.execute())
+        distributions = self.distribution_finder()
+        record = Record(distributions)
+        request.trigger()
+        computation_record = ComputationRecord(request.identifier, record)
+        self.repo.add(computation_record)
         return self._response_cls()
 
     def __repr__(self) -> str:
