@@ -21,7 +21,6 @@ from datajoint.errors import DuplicateError
 
 from compenv.adapters.entity import DJComputationRecord, DJDistribution
 from compenv.infrastructure.types import Connection, Table
-from compenv.model import record as record_module
 from compenv.model.computation import ComputationRecord, Identifier
 from compenv.model.record import Distribution, Distributions, Record
 from compenv.service.abstract import DistributionFinder, Repository, Response
@@ -34,14 +33,6 @@ if TYPE_CHECKING:
 @pytest.fixture
 def distributions() -> Distributions:
     return Distributions({Distribution("dist1", "0.1.0"), Distribution("dist2", "0.1.1")})
-
-
-@pytest.fixture
-def prepare_environment(distributions: Distributions) -> None:
-    def fake_get_distributions() -> Distributions:
-        return distributions
-
-    record_module.get_distributions = fake_get_distributions
 
 
 @pytest.fixture
@@ -79,18 +70,9 @@ def dj_comp_rec(
 
 class FakeTrigger:
     triggered = False
-    change_environment = False
 
     def __call__(self) -> None:
-        if self.change_environment:
-            self._change_environment()
         self.triggered = True
-
-    def _change_environment(self) -> None:
-        def fake_get_distributions() -> Distributions:
-            return Distributions()
-
-        record_module.get_distributions = fake_get_distributions
 
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}()"

@@ -6,7 +6,6 @@ from compenv.service import record
 from ..conftest import FakeDistributionFinder, FakeOutputPort, FakeRepository, FakeTrigger
 
 
-@pytest.mark.usefixtures("prepare_environment")
 class TestRecord:
     @staticmethod
     @pytest.fixture(autouse=True)
