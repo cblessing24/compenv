@@ -24,7 +24,7 @@ from compenv.infrastructure.types import Connection, Table
 from compenv.model import record as record_module
 from compenv.model.computation import ComputationRecord, Identifier
 from compenv.model.record import Distribution, Distributions, Record
-from compenv.service.abstract import Repository, Response
+from compenv.service.abstract import DistributionFinder, Repository, Response
 from compenv.types import PrimaryKey
 
 if TYPE_CHECKING:
@@ -324,3 +324,16 @@ class FakeOutputPort:
 @pytest.fixture
 def fake_output_port() -> FakeOutputPort:
     return FakeOutputPort()
+
+
+class FakeDistributionFinder(DistributionFinder):
+    def __init__(self, distributions: Distributions) -> None:
+        self.distributions = distributions
+
+    def __call__(self) -> Distributions:
+        return self.distributions
+
+
+@pytest.fixture
+def fake_distribution_finder(distributions: Distributions) -> FakeDistributionFinder:
+    return FakeDistributionFinder(distributions)
