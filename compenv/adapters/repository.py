@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Generator, Iterable, Iterator
 
-from ..model.computation import ComputationRecord
+from ..model.computation import Temp
 from ..model.record import Distribution, Distributions, Identifier, Record
 from ..service.abstract import Repository
 from .abstract import AbstractTableFacade
@@ -22,7 +22,7 @@ class DJRepository(Repository):
         self.translator = translator
         self.facade = facade
 
-    def add(self, comp_rec: ComputationRecord) -> None:
+    def add(self, comp_rec: Temp) -> None:
         """Add the given computation record to the repository if it does not already exist."""
         primary = self.translator.to_external(comp_rec.identifier)
 
@@ -41,7 +41,7 @@ class DJRepository(Repository):
         for dist in dists:
             yield DJDistribution(distribution_name=dist.name, distribution_version=dist.version)
 
-    def get(self, identifier: Identifier) -> ComputationRecord:
+    def get(self, identifier: Identifier) -> Temp:
         """Get the computation record matching the given identifier from the repository if it exists."""
         primary = self.translator.to_external(identifier)
 
@@ -50,7 +50,7 @@ class DJRepository(Repository):
         except KeyError as error:
             raise KeyError(f"Record with identifier '{identifier}' does not exist!") from error
 
-        return ComputationRecord(
+        return Temp(
             identifier=identifier,
             record=Record(
                 identifier=identifier,

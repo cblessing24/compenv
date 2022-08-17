@@ -8,7 +8,7 @@ from .record import Identifier, Record
 
 
 @dataclass(frozen=True)
-class ComputationRecord:
+class Temp:
     """Represents the association between an executed computation and its environmental record."""
 
     identifier: Identifier

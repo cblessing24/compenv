@@ -4,7 +4,7 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from typing import Callable, Generic, Iterator, Type, TypeVar
 
-from ..model.computation import ComputationRecord
+from ..model.computation import Temp
 from ..model.record import Distributions, Identifier
 
 
@@ -49,11 +49,11 @@ class Repository(ABC):
     """Defines the interface for the repository containing computation records."""
 
     @abstractmethod
-    def add(self, comp_rec: ComputationRecord) -> None:
+    def add(self, comp_rec: Temp) -> None:
         """Add the given computation record to the repository if it does not already exist."""
 
     @abstractmethod
-    def get(self, identifier: Identifier) -> ComputationRecord:
+    def get(self, identifier: Identifier) -> Temp:
         """Get the computation record matching the given identifier from the repository if it exists."""
 
     @abstractmethod

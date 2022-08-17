@@ -1,6 +1,6 @@
 import pytest
 
-from compenv.model.computation import ComputationRecord
+from compenv.model.computation import Temp
 from compenv.model.record import Identifier
 from compenv.service import record
 
@@ -28,7 +28,7 @@ class TestRecord:
 
     @staticmethod
     def test_computation_record_is_added_to_repository(
-        fake_repository: FakeRepository, computation_record: ComputationRecord
+        fake_repository: FakeRepository, computation_record: Temp
     ) -> None:
         assert fake_repository.get(Identifier("identifier")) == computation_record
 

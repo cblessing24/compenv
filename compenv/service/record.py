@@ -2,7 +2,7 @@
 import dataclasses
 from typing import Callable
 
-from ..model.computation import ComputationRecord
+from ..model.computation import Temp
 from ..model.record import Identifier, Record
 from .abstract import DistributionFinder, Repository, Request, Response, Service
 
@@ -43,7 +43,7 @@ class RecordService(Service[RecordRequest, RecordResponse]):  # pylint: disable=
         distributions = self.distribution_finder()
         record = Record(request.identifier, distributions)
         request.trigger()
-        computation_record = ComputationRecord(request.identifier, record)
+        computation_record = Temp(request.identifier, record)
         self.repo.add(computation_record)
         return self._response_cls()
 

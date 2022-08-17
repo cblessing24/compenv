@@ -2,18 +2,18 @@ import textwrap
 
 import pytest
 
-from compenv.model.computation import ComputationRecord
+from compenv.model.computation import Temp
 
 
 class TestComputationRecord:
     @staticmethod
     @pytest.mark.parametrize("attr", ["identifier", "record"])
-    def test_attributes_are_immutable(computation_record: ComputationRecord, attr: str) -> None:
+    def test_attributes_are_immutable(computation_record: Temp, attr: str) -> None:
         with pytest.raises(AttributeError):
             setattr(computation_record, attr, "another_value")
 
     @staticmethod
-    def test_str(computation_record: ComputationRecord) -> None:
+    def test_str(computation_record: Temp) -> None:
         expected = textwrap.dedent(
             """
             Computation Record:

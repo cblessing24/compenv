@@ -2,7 +2,7 @@ import pytest
 
 from compenv.adapters.entity import DJComputationRecord
 from compenv.adapters.repository import DJRepository
-from compenv.model.computation import ComputationRecord
+from compenv.model.computation import Temp
 from compenv.model.record import Identifier, Record
 from compenv.types import PrimaryKey
 
@@ -16,19 +16,19 @@ def repo(fake_translator: FakeTranslator, fake_facade: FakeRecordTableFacade) ->
 
 
 @pytest.fixture
-def comp_rec(identifier: Identifier, record: Record) -> ComputationRecord:
-    return ComputationRecord(identifier, record)
+def comp_rec(identifier: Identifier, record: Record) -> Temp:
+    return Temp(identifier, record)
 
 
 @pytest.fixture
-def add_computation_record(repo: DJRepository, comp_rec: ComputationRecord) -> None:
+def add_computation_record(repo: DJRepository, comp_rec: Temp) -> None:
     repo.add(comp_rec)
 
 
 @pytest.mark.usefixtures("add_computation_record")
 class TestAdd:
     @staticmethod
-    def test_raises_error_if_already_existing(repo: DJRepository, comp_rec: ComputationRecord) -> None:
+    def test_raises_error_if_already_existing(repo: DJRepository, comp_rec: Temp) -> None:
         with pytest.raises(ValueError, match="already exists!"):
             repo.add(comp_rec)
 
@@ -47,18 +47,16 @@ def test_raises_error_if_not_existing(repo: DJRepository, identifier: Identifier
 class TestGet:
     @staticmethod
     @pytest.mark.usefixtures("add_computation_record")
-    def test_gets_computation_record_if_existing(
-        repo: DJRepository, comp_rec: ComputationRecord, identifier: Identifier
-    ) -> None:
+    def test_gets_computation_record_if_existing(repo: DJRepository, comp_rec: Temp, identifier: Identifier) -> None:
         assert repo.get(identifier) == comp_rec
 
 
-def test_iteration(repo: DJRepository, comp_rec: ComputationRecord) -> None:
+def test_iteration(repo: DJRepository, comp_rec: Temp) -> None:
     repo.add(comp_rec)
     assert list(iter(repo)) == [comp_rec.identifier]
 
 
-def test_length(repo: DJRepository, comp_rec: ComputationRecord) -> None:
+def test_length(repo: DJRepository, comp_rec: Temp) -> None:
     repo.add(comp_rec)
     assert len(repo) == 1
 
