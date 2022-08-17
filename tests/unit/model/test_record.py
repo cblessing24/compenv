@@ -16,7 +16,7 @@ class TestComputationRecord:
     def test_str(computation_record: ComputationRecord) -> None:
         expected = textwrap.dedent(
             """
-            Record:
+            Computation Record:
                 Distributions:
                     dist1 (0.1.0)
                     dist2 (0.1.1)

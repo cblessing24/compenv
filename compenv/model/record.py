@@ -20,10 +20,7 @@ class ComputationRecord:
 
     def __str__(self) -> str:
         """Return a human-readable representation of the record."""
-        attr_names = ["distributions"]
-        sections = [str(getattr(self, n)) for n in attr_names]
-        sections = [textwrap.indent(s, INDENT) for s in sections]
-        return "Record:\n" + "\n".join(sections)
+        return f"Computation Record:\n{textwrap.indent(str(self.distributions), INDENT)}"
 
 
 class Distributions(FrozenSet["Distribution"]):
