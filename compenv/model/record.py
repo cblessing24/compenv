@@ -2,11 +2,8 @@
 from __future__ import annotations
 
 import textwrap
-from collections.abc import Callable
 from dataclasses import asdict, dataclass
 from typing import FrozenSet
-
-get_distributions: Callable[[], Distributions]
 
 
 @dataclass(frozen=True)
