@@ -41,7 +41,7 @@ class RecordService(Service[RecordRequest, RecordResponse]):  # pylint: disable=
     def _execute(self, request: RecordRequest) -> RecordResponse:
         """Record the environment."""
         distributions = self.distribution_finder()
-        record = Record(distributions)
+        record = Record(request.identifier, distributions)
         request.trigger()
         computation_record = ComputationRecord(request.identifier, record)
         self.repo.add(computation_record)

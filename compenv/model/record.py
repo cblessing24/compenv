@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 import textwrap
-from dataclasses import asdict, dataclass
+from dataclasses import dataclass
 from typing import FrozenSet, NewType
 
 Identifier = NewType("Identifier", str)
@@ -12,12 +12,13 @@ Identifier = NewType("Identifier", str)
 class Record:
     """Represents a record of the environment."""
 
+    identifier: Identifier
     distributions: Distributions
 
     def __str__(self) -> str:
         """Return a human-readable representation of the record."""
         indent = 4 * " "
-        attr_names = asdict(self).keys()
+        attr_names = ["distributions"]
         sections = [str(getattr(self, n)) for n in attr_names]
         sections = [textwrap.indent(s, indent) for s in sections]
         return "Record:\n" + "\n".join(sections)

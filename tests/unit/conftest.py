@@ -36,8 +36,8 @@ def distributions() -> Distributions:
 
 
 @pytest.fixture
-def record(distributions: Distributions) -> Record:
-    return Record(distributions=distributions)
+def record(identifier: Identifier, distributions: Distributions) -> Record:
+    return Record(identifier=identifier, distributions=distributions)
 
 
 @pytest.fixture

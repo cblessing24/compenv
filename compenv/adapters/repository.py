@@ -53,6 +53,7 @@ class DJRepository(Repository):
         return ComputationRecord(
             identifier=identifier,
             record=Record(
+                identifier=identifier,
                 distributions=self._reconstitue_distributions(dj_comp_rec),
             ),
         )
