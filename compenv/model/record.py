@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import textwrap
 from dataclasses import dataclass
-from typing import FrozenSet, NewType
+from typing import NewType
 
 Identifier = NewType("Identifier", str)
 
@@ -16,7 +16,7 @@ class ComputationRecord:
     """Represents a record of the environment."""
 
     identifier: Identifier
-    distributions: Distributions
+    distributions: frozenset[Distribution]
 
     def __str__(self) -> str:
         """Return a human-readable representation of the record."""
@@ -24,16 +24,6 @@ class ComputationRecord:
         lines = [f"{d.name:<{max_name_length}} ({d.version})" for d in self.distributions]
         distributions_string = "Distributions:" + "\n" + textwrap.indent("\n".join(sorted(lines)), INDENT)
         return f"Computation Record:\n{textwrap.indent(distributions_string, INDENT)}"
-
-
-class Distributions(FrozenSet["Distribution"]):
-    """Represents a set of distributions."""
-
-    def __str__(self) -> str:
-        """Return a human-readable representation of the set of distributions."""
-        max_name_length = max(len(d.name) for d in self)
-        lines = [f"{d.name:<{max_name_length}} ({d.version})" for d in self]
-        return "Distributions:" + "\n" + textwrap.indent("\n".join(sorted(lines)), INDENT)
 
 
 @dataclass(frozen=True)

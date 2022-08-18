@@ -2,7 +2,7 @@ import textwrap
 
 import pytest
 
-from compenv.model.record import ComputationRecord, Distribution, Distributions
+from compenv.model.record import ComputationRecord, Distribution
 
 
 class TestComputationRecord:
@@ -23,19 +23,6 @@ class TestComputationRecord:
             """
         ).strip()
         assert str(computation_record) == expected
-
-
-class TestDistributions:
-    @staticmethod
-    def test_str(distributions: Distributions) -> None:
-        expected = textwrap.dedent(
-            """
-            Distributions:
-                dist1 (0.1.0)
-                dist2 (0.1.1)
-            """
-        ).strip()
-        assert str(distributions) == expected
 
 
 class TestDistribution:

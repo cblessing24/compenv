@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Generator, Iterable, Iterator
 
-from ..model.record import ComputationRecord, Distribution, Distributions, Identifier
+from ..model.record import ComputationRecord, Distribution, Identifier
 from ..service.abstract import Repository
 from .abstract import AbstractTableFacade
 from .entity import DJComputationRecord, DJDistribution
@@ -54,8 +54,8 @@ class DJRepository(Repository):
             distributions=self._reconstitue_distributions(dj_comp_rec),
         )
 
-    def _reconstitue_distributions(self, dj_comp_rec: DJComputationRecord) -> Distributions:
-        return Distributions(self._reconstitue_dist(d) for d in dj_comp_rec.distributions)
+    def _reconstitue_distributions(self, dj_comp_rec: DJComputationRecord) -> frozenset[Distribution]:
+        return frozenset(self._reconstitue_dist(d) for d in dj_comp_rec.distributions)
 
     def _reconstitue_dist(self, dj_dist: DJDistribution) -> Distribution:
         return Distribution(

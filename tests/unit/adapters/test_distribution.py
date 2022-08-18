@@ -6,7 +6,7 @@ from typing import Callable, Dict, Iterable, Iterator, List, Literal, Optional, 
 import pytest
 
 from compenv.adapters.distribution import DistributionConverter
-from compenv.model.record import Distribution, Distributions
+from compenv.model.record import Distribution
 
 
 class FakePackagePath:
@@ -126,9 +126,10 @@ def converter(
 
 
 def test_correct_distributions_returned(converter: DistributionConverter) -> None:
-    expected_distributions = Distributions(
+    expected_distributions = frozenset(
         {Distribution("dist1", "0.1.0"), Distribution("dist2", "0.1.2"), Distribution("dist3", "1.2.3")}
     )
+
     actual_distributions = converter()
     assert actual_distributions == expected_distributions
 

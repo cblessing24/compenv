@@ -21,7 +21,7 @@ from datajoint.errors import DuplicateError
 
 from compenv.adapters.entity import DJComputationRecord, DJDistribution
 from compenv.infrastructure.types import Connection, Table
-from compenv.model.record import ComputationRecord, Distribution, Distributions, Identifier
+from compenv.model.record import ComputationRecord, Distribution, Identifier
 from compenv.service.abstract import DistributionFinder, Repository, Response
 from compenv.types import PrimaryKey
 
@@ -30,12 +30,12 @@ if TYPE_CHECKING:
 
 
 @pytest.fixture
-def distributions() -> Distributions:
-    return Distributions({Distribution("dist1", "0.1.0"), Distribution("dist2", "0.1.1")})
+def distributions() -> frozenset[Distribution]:
+    return frozenset({Distribution("dist1", "0.1.0"), Distribution("dist2", "0.1.1")})
 
 
 @pytest.fixture
-def computation_record(identifier: Identifier, distributions: Distributions) -> ComputationRecord:
+def computation_record(identifier: Identifier, distributions: frozenset[Distribution]) -> ComputationRecord:
     return ComputationRecord(identifier=identifier, distributions=distributions)
 
 
@@ -303,13 +303,13 @@ def fake_output_port() -> FakeOutputPort:
 
 
 class FakeDistributionFinder(DistributionFinder):
-    def __init__(self, distributions: Distributions) -> None:
+    def __init__(self, distributions: frozenset[Distribution]) -> None:
         self.distributions = distributions
 
-    def __call__(self) -> Distributions:
+    def __call__(self) -> frozenset[Distribution]:
         return self.distributions
 
 
 @pytest.fixture
-def fake_distribution_finder(distributions: Distributions) -> FakeDistributionFinder:
+def fake_distribution_finder(distributions: frozenset[Distribution]) -> FakeDistributionFinder:
     return FakeDistributionFinder(distributions)

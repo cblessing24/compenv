@@ -1,8 +1,10 @@
+from __future__ import annotations
+
 import pytest
 
 from compenv.adapters.entity import DJComputationRecord
 from compenv.adapters.repository import DJRepository
-from compenv.model.record import ComputationRecord, Distributions, Identifier
+from compenv.model.record import ComputationRecord, Distribution, Identifier
 from compenv.types import PrimaryKey
 
 from ..conftest import FakeTranslator
@@ -15,7 +17,7 @@ def repo(fake_translator: FakeTranslator, fake_facade: FakeRecordTableFacade) ->
 
 
 @pytest.fixture
-def comp_rec(identifier: Identifier, distributions: Distributions) -> ComputationRecord:
+def comp_rec(identifier: Identifier, distributions: frozenset[Distribution]) -> ComputationRecord:
     return ComputationRecord(identifier, distributions)
 
 

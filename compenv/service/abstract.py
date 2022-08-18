@@ -4,7 +4,7 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from typing import Callable, Generic, Iterator, Type, TypeVar
 
-from ..model.record import ComputationRecord, Distributions, Identifier
+from ..model.record import ComputationRecord, Distribution, Identifier
 
 
 class Request(ABC):  # pylint: disable=too-few-public-methods
@@ -68,5 +68,5 @@ class DistributionFinder(ABC):  # pylint: disable=too-few-public-methods
     """Defines the interface for finding distributions."""
 
     @abstractmethod
-    def __call__(self) -> Distributions:
+    def __call__(self) -> frozenset[Distribution]:
         """Find the distributions installed on the system."""

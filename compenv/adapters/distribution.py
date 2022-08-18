@@ -7,7 +7,7 @@ from os import PathLike
 from pathlib import Path
 from typing import Callable, Iterable, Literal, Optional, Protocol, Set, Type
 
-from ..model.record import Distribution, Distributions
+from ..model.record import Distribution
 from ..service.abstract import DistributionFinder
 
 
@@ -67,12 +67,12 @@ class DistributionConverter(DistributionFinder):
         self._get_distributions = get_distributions
 
     @lru_cache
-    def __call__(self) -> Distributions:
+    def __call__(self) -> frozenset[Distribution]:
         """Return a dictionary containing all distributions."""
         conv_dists: Set[Distribution] = set()
         for orig_dist in self._get_distributions():
             conv_dists.add(self._convert_distribution(orig_dist))
-        return Distributions(conv_dists)
+        return frozenset(conv_dists)
 
     def _convert_distribution(self, orig_dist: _MetadataDistribution) -> Distribution:
         return Distribution(orig_dist.metadata["Name"], orig_dist.metadata["Version"])
