@@ -20,7 +20,10 @@ class ComputationRecord:
 
     def __str__(self) -> str:
         """Return a human-readable representation of the record."""
-        return f"Computation Record:\n{textwrap.indent(str(self.distributions), INDENT)}"
+        max_name_length = max(len(d.name) for d in self.distributions)
+        lines = [f"{d.name:<{max_name_length}} ({d.version})" for d in self.distributions]
+        distributions_string = "Distributions:" + "\n" + textwrap.indent("\n".join(sorted(lines)), INDENT)
+        return f"Computation Record:\n{textwrap.indent(distributions_string, INDENT)}"
 
 
 class Distributions(FrozenSet["Distribution"]):
