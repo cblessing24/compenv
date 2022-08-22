@@ -8,7 +8,7 @@ from compenv.service.abstract import Request, Response
 from compenv.service.record import RecordRequest
 from compenv.types import PrimaryKey
 
-from ..conftest import FakeTranslator
+from ..conftest import FakeTranslatorFactory
 
 
 class FakePresenter:
@@ -52,9 +52,9 @@ def fake_record_service() -> FakeService[RecordRequest]:
 @pytest.fixture
 def controller(
     fake_record_service: FakeService[RecordRequest],
-    fake_translator: FakeTranslator,
+    fake_translator_factory: FakeTranslatorFactory,
 ) -> DJController:
-    return DJController({"record": fake_record_service}, fake_translator)
+    return DJController({"record": fake_record_service}, fake_translator_factory())
 
 
 def test_record_request_has_appropriate_identifier(

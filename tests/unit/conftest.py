@@ -10,6 +10,7 @@ from typing import (
     Mapping,
     MutableMapping,
     Optional,
+    Protocol,
     Type,
     TypeVar,
     Union,
@@ -121,9 +122,19 @@ class FakeTranslator:
         return f"{self.__class__.__name__}()"
 
 
+class FakeTranslatorFactory(Protocol):
+    def __call__(self, internal_to_external: Optional[Mapping[Identifier, PrimaryKey]] = None) -> FakeTranslator:
+        ...
+
+
 @pytest.fixture
-def fake_translator(identifier: Identifier, primary: PrimaryKey) -> FakeTranslator:
-    return FakeTranslator({identifier: primary})
+def fake_translator_factory(identifier: Identifier, primary: PrimaryKey) -> FakeTranslatorFactory:
+    def factory(internal_to_external: Optional[Mapping[Identifier, PrimaryKey]] = None) -> FakeTranslator:
+        if internal_to_external is None:
+            internal_to_external = {identifier: primary}
+        return FakeTranslator(internal_to_external)
+
+    return factory
 
 
 class FakeConnection:

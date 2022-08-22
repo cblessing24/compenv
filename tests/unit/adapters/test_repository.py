@@ -7,13 +7,13 @@ from compenv.adapters.repository import DJRepository
 from compenv.model.record import ComputationRecord, Distribution, Identifier
 from compenv.types import PrimaryKey
 
-from ..conftest import FakeTranslator
+from ..conftest import FakeTranslatorFactory
 from .conftest import FakeRecordTableFacade
 
 
 @pytest.fixture
-def repo(fake_translator: FakeTranslator, fake_facade: FakeRecordTableFacade) -> DJRepository:
-    return DJRepository(fake_translator, fake_facade)
+def repo(fake_translator_factory: FakeTranslatorFactory, fake_facade: FakeRecordTableFacade) -> DJRepository:
+    return DJRepository(fake_translator_factory(), fake_facade)
 
 
 @pytest.fixture
