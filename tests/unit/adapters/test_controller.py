@@ -1,14 +1,14 @@
-from typing import Any, List, Mapping
+from typing import List, Optional, Type
 
 import pytest
 
 from compenv.adapters.controller import DJController
 from compenv.model.record import Identifier
 from compenv.service.abstract import Response
-from compenv.service.record import RecordService
+from compenv.service.record import RecordRequest
 from compenv.types import PrimaryKey
 
-from ..conftest import FakeDistributionFinder, FakeRepository, FakeTranslator
+from ..conftest import FakeTranslator
 
 
 class FakePresenter:
@@ -27,45 +27,49 @@ def fake_presenter() -> FakePresenter:
     return FakePresenter()
 
 
+class FakeService:
+    request: RecordRequest
+
+    @property
+    def create_request(self) -> Type[RecordRequest]:
+        return RecordRequest
+
+    def __call__(self, request: RecordRequest) -> None:
+        self.request = request
+
+
+@pytest.fixture
+def fake_service() -> FakeService:
+    return FakeService()
+
+
 @pytest.fixture
 def controller(
-    fake_repository: FakeRepository,
+    fake_service: FakeService,
     fake_translator: FakeTranslator,
-    fake_presenter: FakePresenter,
-    fake_distribution_finder: FakeDistributionFinder,
 ) -> DJController:
-    record_service = RecordService(
-        output_port=fake_presenter.record, repo=fake_repository, distribution_finder=fake_distribution_finder
-    )
-    return DJController(record_service, fake_translator)
+    return DJController(fake_service, fake_translator)
+
+
+def test_record_request_has_appropriate_identifier(
+    controller: DJController, primary: PrimaryKey, fake_service: FakeService, identifier: Identifier
+) -> None:
+    controller.record(primary, lambda _: None)
+    assert fake_service.request.identifier == identifier
 
 
 class FakeMake:
     def __init__(self) -> None:
-        self.calls: List[Mapping[str, Any]] = []
+        self.primary_key: Optional[PrimaryKey] = None
 
-    def __call__(self, key: Mapping[str, Any]) -> None:
-        self.calls.append(key)
-
-
-@pytest.fixture
-def fake_make() -> FakeMake:
-    return FakeMake()
+    def __call__(self, primary_key: PrimaryKey) -> None:
+        self.primary_key = primary_key
 
 
-def test_calling_record_calls_make_method_with_appropriate_key(
-    controller: DJController, primary: PrimaryKey, fake_make: FakeMake
+def test_record_request_has_appropriate_trigger(
+    controller: DJController, primary: PrimaryKey, fake_service: FakeService
 ) -> None:
+    fake_make = FakeMake()
     controller.record(primary, fake_make)
-    assert fake_make.calls == [primary]
-
-
-def test_calling_record_inserts_record_with_appropriate_identifier(
-    controller: DJController,
-    primary: PrimaryKey,
-    fake_make: FakeMake,
-    fake_repository: FakeRepository,
-    identifier: Identifier,
-) -> None:
-    controller.record(primary, fake_make)
-    assert list(fake_repository) == [identifier]
+    fake_service.request.trigger()
+    assert fake_make.primary_key == primary
