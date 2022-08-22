@@ -43,7 +43,7 @@ class FakeService(Generic[T]):
 
 
 @pytest.fixture
-def fake_service() -> FakeService[RecordRequest]:
+def fake_record_service() -> FakeService[RecordRequest]:
     service: FakeService[RecordRequest] = FakeService()
     service.request_cls = RecordRequest
     return service
@@ -51,17 +51,20 @@ def fake_service() -> FakeService[RecordRequest]:
 
 @pytest.fixture
 def controller(
-    fake_service: FakeService[RecordRequest],
+    fake_record_service: FakeService[RecordRequest],
     fake_translator: FakeTranslator,
 ) -> DJController:
-    return DJController(fake_service, fake_translator)
+    return DJController(fake_record_service, fake_translator)
 
 
 def test_record_request_has_appropriate_identifier(
-    controller: DJController, primary: PrimaryKey, fake_service: FakeService[RecordRequest], identifier: Identifier
+    controller: DJController,
+    primary: PrimaryKey,
+    fake_record_service: FakeService[RecordRequest],
+    identifier: Identifier,
 ) -> None:
     controller.record(primary, lambda _: None)
-    assert fake_service.request.identifier == identifier
+    assert fake_record_service.request.identifier == identifier
 
 
 class FakeMake:
@@ -73,9 +76,9 @@ class FakeMake:
 
 
 def test_record_request_has_appropriate_trigger(
-    controller: DJController, primary: PrimaryKey, fake_service: FakeService[RecordRequest]
+    controller: DJController, primary: PrimaryKey, fake_record_service: FakeService[RecordRequest]
 ) -> None:
     fake_make = FakeMake()
     controller.record(primary, fake_make)
-    fake_service.request.trigger()
+    fake_record_service.request.trigger()
     assert fake_make.primary_key == primary
