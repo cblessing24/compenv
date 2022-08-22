@@ -2,9 +2,10 @@
 from __future__ import annotations
 
 import functools
-from typing import TYPE_CHECKING, Callable
+from typing import TYPE_CHECKING, Callable, Protocol, Type, TypeVar
 
-from ..service.record import RecordService
+from ..service.abstract import Request
+from ..service.record import RecordRequest
 from .translator import Translator
 
 if TYPE_CHECKING:
@@ -13,10 +14,24 @@ if TYPE_CHECKING:
     from ..types import PrimaryKey
 
 
+_T = TypeVar("_T", bound=Request)
+
+
+class Service(Protocol[_T]):
+    """Define the service interface as expected by the controller."""
+
+    @property
+    def create_request(self) -> Type[_T]:
+        """Return the request class."""
+
+    def __call__(self, request: _T) -> None:
+        """Execute the service."""
+
+
 class DJController:
     """Controls the execution of services."""
 
-    def __init__(self, record_service: RecordService, translator: Translator[PrimaryKey]) -> None:
+    def __init__(self, record_service: Service[RecordRequest], translator: Translator[PrimaryKey]) -> None:
         """Initialize the controller."""
         self.record_service = record_service
         self.translator = translator
