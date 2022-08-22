@@ -108,17 +108,14 @@ def identifier() -> Identifier:
 
 
 class FakeTranslator:
-    def __init__(self, identifier: Identifier, primary: PrimaryKey) -> None:
-        self._identifier = identifier
-        self._primary = primary
+    def __init__(self, internal_to_external: Mapping[Identifier, PrimaryKey]) -> None:
+        self._internal_to_external = internal_to_external
 
     def to_internal(self, primary: PrimaryKey) -> Identifier:
-        assert primary == self._primary
-        return self._identifier
+        return next(internal for internal, external in self._internal_to_external.items() if external == primary)
 
     def to_external(self, identifier: Identifier) -> PrimaryKey:
-        assert identifier == self._identifier
-        return self._primary
+        return self._internal_to_external[identifier]
 
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}()"
@@ -126,7 +123,7 @@ class FakeTranslator:
 
 @pytest.fixture
 def fake_translator(identifier: Identifier, primary: PrimaryKey) -> FakeTranslator:
-    return FakeTranslator(identifier, primary)
+    return FakeTranslator({identifier: primary})
 
 
 class FakeConnection:
