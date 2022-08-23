@@ -3,6 +3,7 @@ import dataclasses
 from typing import Callable
 
 from ..model.record import ComputationRecord, Identifier
+from . import register_service_class
 from .abstract import DistributionFinder, Repository, Request, Response, Service
 
 
@@ -19,6 +20,7 @@ class RecordResponse(Response):
     """Response of the record service."""
 
 
+@register_service_class
 class RecordService(Service[RecordRequest, RecordResponse]):
     """A service used to record the environment."""
 
