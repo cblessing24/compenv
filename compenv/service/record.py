@@ -19,8 +19,10 @@ class RecordResponse(Response):
     """Response of the record service."""
 
 
-class RecordService(Service[RecordRequest, RecordResponse]):  # pylint: disable=too-few-public-methods
+class RecordService(Service[RecordRequest, RecordResponse]):
     """A service used to record the environment."""
+
+    name = "record"
 
     _request_cls = RecordRequest
     _response_cls = RecordResponse

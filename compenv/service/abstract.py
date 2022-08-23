@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import inspect
 from abc import ABC, abstractmethod
-from typing import Callable, Generic, Iterator, Type, TypeVar
+from typing import Callable, ClassVar, Generic, Iterator, Type, TypeVar
 
 from ..model.record import ComputationRecord, Distribution, Identifier
 
@@ -22,6 +22,8 @@ _V = TypeVar("_V", bound=Response)
 
 class Service(ABC, Generic[_T, _V]):
     """Defines the interface for all services."""
+
+    name: ClassVar[str]
 
     _request_cls: Type[_T]
     _response_cls: Type[_V]

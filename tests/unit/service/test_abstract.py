@@ -24,6 +24,8 @@ class MyResponse(Response):
 
 
 class MyService(Service[MyRequest, MyResponse]):
+    name = "myservice"
+
     _request_cls = MyRequest
     _response_cls = MyResponse
 
