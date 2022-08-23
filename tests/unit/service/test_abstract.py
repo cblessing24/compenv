@@ -2,72 +2,34 @@ from __future__ import annotations
 
 import dataclasses
 from collections.abc import Mapping
-from typing import Callable, List
 
 import pytest
 
-from compenv.service.abstract import Request, Response, Service
+from compenv.service.abstract import Service
 
 from ..conftest import FakeOutputPort
-
-
-@dataclasses.dataclass(frozen=True)
-class MyRequest(Request):
-    my_param: int
-    my_other_param: str
-
-
-@dataclasses.dataclass(frozen=True)
-class MyResponse(Response):
-    my_response: int
-    my_other_response: str
-
-
-class MyService(Service[MyRequest, MyResponse]):
-    name = "myservice"
-
-    _request_cls = MyRequest
-    _response_cls = MyResponse
-
-    def __init__(self, *, output_port: Callable[[MyResponse], None], response: MyResponse) -> None:
-        super().__init__(output_port=output_port)
-        self.requests: List[MyRequest] = []
-        self.response = response
-
-    def _execute(self, request: MyRequest) -> MyResponse:
-        self.requests.append(request)
-        return self.response
+from .conftest import FakeRequest, FakeResponse, FakeService
 
 
 @pytest.fixture
-def my_request() -> MyRequest:
-    return MyRequest(42, "foo")
+def service(fake_output_port: FakeOutputPort) -> FakeService:
+    return FakeService(output_port=fake_output_port)
 
 
-@pytest.fixture
-def my_response() -> MyResponse:
-    return MyResponse(1337, "bar")
+def test_correct_request_gets_created(service: FakeService) -> None:
+    fake_request = FakeRequest("pizza")
+    assert service.create_request(**dataclasses.asdict(fake_request)) == fake_request
 
 
-@pytest.fixture
-def service(fake_output_port: FakeOutputPort, my_response: MyResponse) -> MyService:
-    return MyService(output_port=fake_output_port, response=my_response)
+def test_service_gets_executed_with_request(service: FakeService) -> None:
+    fake_request = FakeRequest("pizza")
+    service(fake_request)
+    assert service.requests == [fake_request]
 
 
-def test_correct_request_gets_created(service: MyService, my_request: MyRequest) -> None:
-    assert service.create_request(**dataclasses.asdict(my_request)) == my_request
-
-
-def test_service_gets_executed_with_request(service: MyService, my_request: MyRequest) -> None:
-    service(my_request)
-    assert service.requests == [my_request]
-
-
-def test_response_gets_passed_to_output_port(
-    service: MyService, my_request: MyRequest, my_response: MyResponse, fake_output_port: FakeOutputPort
-) -> None:
-    service(my_request)
-    assert fake_output_port.responses == [my_response]
+def test_response_gets_passed_to_output_port(service: FakeService, fake_output_port: FakeOutputPort) -> None:
+    service(FakeRequest("pizza"))
+    assert fake_output_port.responses[0] == FakeResponse("pizza")
 
 
 def test_abstract_subclass_raises_no_error() -> None:
