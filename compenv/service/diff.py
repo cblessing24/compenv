@@ -26,6 +26,8 @@ class DiffResponse(Response):
 class DiffService(Service[DiffRequest, DiffResponse]):  # pylint: disable=too-few-public-methods
     """A service used to get a diff between two computation records."""
 
+    name = "diff"
+
     def __init__(self, *, output_port: Callable[[DiffResponse], None], repo: Repository) -> None:
         """Initialize the service."""
         super().__init__(output_port=output_port)
