@@ -3,10 +3,9 @@ from __future__ import annotations
 
 import functools
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Callable, Protocol, Type, TypeVar
+from typing import TYPE_CHECKING, Any, Callable, Protocol, Type, TypeVar
 
 from ..service.abstract import Request
-from ..service.record import RecordRequest
 from .translator import Translator
 
 if TYPE_CHECKING:
@@ -32,7 +31,7 @@ class Service(Protocol[_T]):
 class DJController:
     """Controls the execution of services."""
 
-    def __init__(self, services: Mapping[str, Service[RecordRequest]], translator: Translator[PrimaryKey]) -> None:
+    def __init__(self, services: Mapping[str, Service[Any]], translator: Translator[PrimaryKey]) -> None:
         """Initialize the controller."""
         self.services = services
         self.translator = translator
@@ -43,6 +42,12 @@ class DJController:
         trigger = functools.partial(make, key)
         request = self.services["record"].create_request(ident, trigger=trigger)
         self.services["record"](request)
+
+    def diff(self, key1: PrimaryKey, key2: PrimaryKey) -> None:
+        """Execute the diff service."""
+        idents = (self.translator.to_internal(k) for k in (key1, key2))
+        request = self.services["diff"].create_request(*idents)
+        self.services["diff"](request)
 
     def __repr__(self) -> str:
         """Return a string representation of the controller."""

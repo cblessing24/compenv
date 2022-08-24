@@ -1,12 +1,14 @@
 from __future__ import annotations
 
-from typing import Generic, List, Optional, Type, TypeVar
+from collections.abc import Mapping
+from typing import Any, Generic, List, Optional, Type, TypeVar
 
 import pytest
 
 from compenv.adapters.controller import DJController
 from compenv.model.record import Identifier
 from compenv.service.abstract import Request, Response
+from compenv.service.diff import DiffRequest
 from compenv.service.record import RecordRequest
 from compenv.types import PrimaryKey
 
@@ -52,8 +54,17 @@ def fake_record_service() -> FakeService[RecordRequest]:
 
 
 @pytest.fixture
-def fake_services(fake_record_service: FakeService[RecordRequest]) -> dict[str, FakeService]:  # type: ignore[type-arg]
-    return {"record": fake_record_service}
+def fake_diff_service() -> FakeService[DiffRequest]:
+    service: FakeService[DiffRequest] = FakeService()
+    service.request_cls = DiffRequest
+    return service
+
+
+@pytest.fixture
+def fake_services(
+    fake_record_service: FakeService[RecordRequest], fake_diff_service: FakeService[DiffRequest]
+) -> dict[str, FakeService[Any]]:
+    return {"record": fake_record_service, "diff": fake_diff_service}
 
 
 @pytest.fixture
@@ -89,3 +100,14 @@ def test_record_request_has_appropriate_trigger(
     controller.record(primary, fake_make)
     fake_record_service.request.trigger()
     assert fake_make.primary_key == primary
+
+
+def test_diff_request_has_appropriate_identifiers(
+    fake_services: Mapping[str, FakeService[Any]], fake_translator_factory: FakeTranslatorFactory
+) -> None:
+    key1, key2 = {"a": 0}, {"a": 1}
+    identifier1, identifier2 = Identifier("identifier1"), Identifier("identifier2")
+    fake_translator = fake_translator_factory({identifier1: key1, identifier2: key2})
+    controller = DJController(fake_services, fake_translator)
+    controller.diff(key1, key2)
+    assert fake_services["diff"].request == DiffRequest(identifier1, identifier2)
