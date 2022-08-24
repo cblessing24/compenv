@@ -54,7 +54,7 @@ def controller(
     fake_record_service: FakeService[RecordRequest],
     fake_translator: FakeTranslator,
 ) -> DJController:
-    return DJController(fake_record_service, fake_translator)
+    return DJController({"record": fake_record_service}, fake_translator)
 
 
 def test_record_request_has_appropriate_identifier(

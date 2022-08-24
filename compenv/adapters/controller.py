@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import functools
+from collections.abc import Mapping
 from typing import TYPE_CHECKING, Callable, Protocol, Type, TypeVar
 
 from ..service.abstract import Request
@@ -31,21 +32,18 @@ class Service(Protocol[_T]):
 class DJController:
     """Controls the execution of services."""
 
-    def __init__(self, record_service: Service[RecordRequest], translator: Translator[PrimaryKey]) -> None:
+    def __init__(self, services: Mapping[str, Service[RecordRequest]], translator: Translator[PrimaryKey]) -> None:
         """Initialize the controller."""
-        self.record_service = record_service
+        self.services = services
         self.translator = translator
 
     def record(self, key: PrimaryKey, make: Callable[[Entity], None]) -> None:
         """Execute the record service."""
         ident = self.translator.to_internal(key)
         trigger = functools.partial(make, key)
-        request = self.record_service.create_request(ident, trigger=trigger)
-        self.record_service(request)
+        request = self.services["record"].create_request(ident, trigger=trigger)
+        self.services["record"](request)
 
     def __repr__(self) -> str:
         """Return a string representation of the controller."""
-        return (
-            f"{self.__class__.__name__}(record_service={repr(self.record_service)},"
-            f" translator={repr(self.translator)})"
-        )
+        return f"{self.__class__.__name__}(services={repr(self.services)}," f" translator={repr(self.translator)})"

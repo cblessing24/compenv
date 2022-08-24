@@ -33,5 +33,5 @@ def create_dj_adapters(facade: AbstractTableFacade[DJComputationRecord]) -> DJAd
         output_ports=output_ports,
         dependencies=dependencies,
     )  # type: ignore
-    controller = DJController(record_service=services["record"], translator=translator)
+    controller = DJController(services=services, translator=translator)
     return DJAdapters(translator=translator, presenter=presenter, repo=repo, controller=controller)
