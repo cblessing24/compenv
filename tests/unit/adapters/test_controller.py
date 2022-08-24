@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from typing import Generic, List, Optional, Type, TypeVar
 
 import pytest
@@ -50,11 +52,16 @@ def fake_record_service() -> FakeService[RecordRequest]:
 
 
 @pytest.fixture
+def fake_services(fake_record_service: FakeService[RecordRequest]) -> dict[str, FakeService]:  # type: ignore[type-arg]
+    return {"record": fake_record_service}
+
+
+@pytest.fixture
 def controller(
-    fake_record_service: FakeService[RecordRequest],
+    fake_services: dict[str, FakeService],  # type: ignore[type-arg]
     fake_translator_factory: FakeTranslatorFactory,
 ) -> DJController:
-    return DJController({"record": fake_record_service}, fake_translator_factory())
+    return DJController(fake_services, fake_translator_factory())
 
 
 def test_record_request_has_appropriate_identifier(
