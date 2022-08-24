@@ -2,11 +2,17 @@
 from __future__ import annotations
 
 import inspect
+from typing import Any, Type, TypeVar
+
+from .abstract import Service
 
 SERVICE_CLASSES = {}
 
 
-def register_service_class(service_class):  # type: ignore
+_T = TypeVar("_T", bound=Service[Any, Any])
+
+
+def register_service_class(service_class: Type[_T]) -> Type[_T]:
     """Add the service class to the services dictionary."""
     SERVICE_CLASSES[service_class.name] = service_class
     return service_class
