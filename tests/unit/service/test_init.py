@@ -25,7 +25,7 @@ def test_service_is_correctly_initialized(fake_output_port: FakeOutputPort) -> N
 
     initialized_services = initialize_services(
         output_ports=output_ports, dependencies=dependencies, service_classes=services
-    )  # type:  ignore
+    )
     initialized_services["fake_service"](FakeRequest("pizza"))
 
     assert fake_output_port.responses[0] == FakeResponse("pizza")
