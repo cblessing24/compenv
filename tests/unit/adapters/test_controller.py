@@ -69,7 +69,7 @@ def fake_services(
 
 @pytest.fixture
 def controller(
-    fake_services: dict[str, FakeService],  # type: ignore[type-arg]
+    fake_services: dict[str, FakeService[Any]],
     fake_translator_factory: FakeTranslatorFactory,
 ) -> DJController:
     return DJController(fake_services, fake_translator_factory())
