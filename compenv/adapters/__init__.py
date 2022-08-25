@@ -24,7 +24,7 @@ class DJAdapters:
 def create_dj_adapters(facade: AbstractTableFacade[DJComputationRecord]) -> DJAdapters:
     """Create a set of DataJoint adapters using the given facade."""
     translator = DJTranslator(blake2b)
-    presenter = DJPresenter()
+    presenter = DJPresenter(print_=print)
     repo = DJRepository(facade=facade, translator=translator)
     output_ports = {"record": presenter.record}
     dependencies = {"repo": repo, "distribution_finder": DistributionConverter()}
