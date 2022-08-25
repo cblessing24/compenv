@@ -16,18 +16,18 @@ class Presenter(Protocol):  # pylint: disable=too-few-public-methods
         """Present information contained within the record service's response."""
 
 
-class DJPresenter:
-    """Presents information contained within service responses."""
+class PrintingPresenter:
+    """Prints information contained within service responses."""
 
     def __init__(self, print_: Callable[[str], None]):
         """Initialize the presenter."""
         self.print = print_
 
     def record(self, response: RecordResponse) -> None:
-        """Present information contained within the record service's response."""
+        """Print information contained within the record service's response."""
 
     def diff(self, response: DiffResponse) -> None:
-        """Present information contained withing the diff service's response."""
+        """Print information contained withing the diff service's response."""
         if response.differ:
             self.print("The computation records differ")
         else:

@@ -4,7 +4,7 @@ import pytest
 
 from compenv.adapters import DJAdapters, create_dj_adapters
 from compenv.adapters.controller import DJController
-from compenv.adapters.presenter import DJPresenter
+from compenv.adapters.presenter import PrintingPresenter
 from compenv.adapters.repository import DJRepository
 from compenv.adapters.translator import DJTranslator
 
@@ -29,7 +29,7 @@ def test_correct_translator_is_used(dj_adapters: DJAdapters) -> None:
 
 
 def test_correct_presenter_is_used(dj_adapters: DJAdapters) -> None:
-    assert isinstance(dj_adapters.presenter, DJPresenter)
+    assert isinstance(dj_adapters.presenter, PrintingPresenter)
 
 
 def test_correct_repository_is_used(dj_adapters: DJAdapters) -> None:
