@@ -1,6 +1,7 @@
 """Contains interface definitions expected by the service layer."""
 from __future__ import annotations
 
+import inspect
 from abc import ABC, abstractmethod
 from typing import Callable, Generic, Iterator, Type, TypeVar
 
@@ -42,6 +43,15 @@ class Service(ABC, Generic[_T, _V]):
     def create_request(self) -> Type[_T]:
         """Create a new request from the given arguments."""
         return self._request_cls
+
+    def __init_subclass__(subclass) -> None:  # pylint: disable=bad-classmethod-argument,arguments-differ
+        """Make sure subclass has a class variable called 'name'."""
+        super().__init_subclass__()
+        if inspect.isabstract(subclass):
+            return
+        for attr in subclass.__annotations__:  # pylint: disable=no-member
+            if not hasattr(subclass, attr):
+                raise RuntimeError(f"{subclass.__name__} is missing '{attr}' class variable")
 
 
 class Repository(ABC):

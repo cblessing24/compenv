@@ -1,4 +1,7 @@
+from __future__ import annotations
+
 import dataclasses
+from collections.abc import Mapping
 from typing import Callable, List
 
 import pytest
@@ -63,3 +66,19 @@ def test_response_gets_passed_to_output_port(
 ) -> None:
     service(my_request)
     assert fake_output_port.responses == [my_response]
+
+
+def test_abstract_subclass_raises_no_error() -> None:
+    type("MyService", (Service,), {})
+
+
+@pytest.fixture
+def class_attributes() -> dict[str, object]:
+    return {name: ... for name in list(Service.__annotations__) + ["_execute"]}
+
+
+@pytest.mark.parametrize("missing", Service.__annotations__)
+def test_missing_class_variable_raises_error(missing: str, class_attributes: Mapping[str, object]) -> None:
+    class_attributes = {name: attr for name, attr in class_attributes.items() if name != missing}
+    with pytest.raises(RuntimeError):
+        type("MyService", (Service,), class_attributes)
