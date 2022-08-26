@@ -33,14 +33,7 @@ class EnvironmentRecorder:  # pylint: disable=too-few-public-methods
 
         def _record_environment(table_cls: Type[_T]) -> Type[_T]:
             if not schema.context:
-                curr_frame = self.get_current_frame()
-                if not curr_frame:
-                    raise RuntimeError("Need stack frame support to dynamically determine context!")
-                prev_frame = curr_frame.f_back
-                if not prev_frame:
-                    raise RuntimeError("No previous stack frame found but needed to dynamically determine context!")
-                schema.context = prev_frame.f_locals
-
+                schema.context = self._determine_context(self.get_current_frame())
             backend = create_dj_backend(schema, table_cls.__name__)
             self._modify_table(schema, table_cls, backend.infra.factory, backend.adapters.controller)
 
@@ -50,6 +43,14 @@ class EnvironmentRecorder:  # pylint: disable=too-few-public-methods
             return table_cls
 
         return _record_environment
+
+    def _determine_context(self, current_frame: Optional[FrameType]) -> dict[str, object]:
+        if not current_frame:
+            raise RuntimeError("Need stack frame support to dynamically determine context!")
+        prev_frame = current_frame.f_back
+        if not prev_frame:
+            raise RuntimeError("No previous stack frame found but needed to dynamically determine context!")
+        return prev_frame.f_locals
 
     @staticmethod
     def _modify_table(schema: Schema, table_cls: Type[_T], factory: DJTableFactory, controller: DJController) -> None:

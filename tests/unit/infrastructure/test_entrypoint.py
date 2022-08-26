@@ -142,3 +142,12 @@ def test_record_table_is_created(
 ) -> None:
     fake_autopopulated_table = record_environment(fake_schema)(fake_autopopulated_table)
     assert fake_autopopulated_table.database == "schema"
+
+
+def test_context_is_based_on_correct_stack_frame(
+    fake_schema: Schema, fake_autopopulated_table: Type[FakeAutopopulatedTable]
+) -> None:
+    record_environment = EnvironmentRecorder()
+    something = "else"
+    record_environment(fake_schema)(fake_autopopulated_table)
+    assert fake_schema.context["something"] == "else"
