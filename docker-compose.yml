@@ -10,6 +10,10 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - compenv:/src
+    environment:
+      - DOCKER=1
+    networks:
+      - test
     command: "zsh"
   build:
     image: cblessing24/compenv:latest
