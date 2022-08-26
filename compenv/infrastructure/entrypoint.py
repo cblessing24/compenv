@@ -8,8 +8,22 @@ from typing import Callable, Optional, Type, TypeVar
 
 from ..adapters.controller import DJController
 from ..backend import create_dj_backend
+from ..types import PrimaryKey
 from .hook import hook_into_make_method
 from .types import AutopopulatedTable, Entity, Schema
+
+
+class Entrypoint:  # pylint: disable=too-few-public-methods
+    """Entrypoint to most services."""
+
+    def __init__(self, controller: DJController):
+        """Initialize the entrypoint."""
+        self.controller = controller
+
+    def diff(self, key1: PrimaryKey, key2: PrimaryKey) -> None:
+        """Show a diff between two records."""
+        self.controller.diff(key1, key2)
+
 
 _T = TypeVar("_T", bound=AutopopulatedTable)
 
@@ -58,3 +72,4 @@ class EnvironmentRecorder:  # pylint: disable=too-few-public-methods
 
         table_cls = schema(table_cls)
         table_cls = hook_into_make_method(hook)(table_cls)
+        setattr(table_cls, "records", Entrypoint(controller))

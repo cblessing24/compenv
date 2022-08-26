@@ -114,3 +114,10 @@ def test_context_is_based_on_correct_stack_frame(
     something = "else"
     record_environment(fake_schema)(fake_autopopulated_table)
     assert fake_schema.context["something"] == "else"
+
+
+def test_records_attribute_is_set(
+    record_environment: EnvironmentRecorder, fake_schema: Schema, fake_autopopulated_table: Type[FakeAutopopulatedTable]
+) -> None:
+    fake_autopopulated_table = record_environment(fake_schema)(fake_autopopulated_table)
+    assert hasattr(fake_autopopulated_table, "records")
