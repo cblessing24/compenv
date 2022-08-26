@@ -273,9 +273,9 @@ class FakeSchema:
         self.database = schema_name
         self.connection = connection
         self.decorated_tables: Dict[str, Type[Table]] = {}
-        self.context: Dict[str, Type[Table]] = {}
+        self.context: Dict[str, object] = {}
 
-    def __call__(self, cls: Type[T], *, context: Optional[Mapping[str, Type[Table]]] = None) -> Type[T]:
+    def __call__(self, cls: Type[T], *, context: Optional[Mapping[str, object]] = None) -> Type[T]:
         if context:
             self.context = dict(context)
         self.decorated_tables[cls.__name__] = cls
@@ -283,7 +283,7 @@ class FakeSchema:
         cls.connection = self.connection
         return cls
 
-    def spawn_missing_classes(self, context: MutableMapping[str, Type[Table]]) -> None:
+    def spawn_missing_classes(self, context: MutableMapping[str, object]) -> None:
         context.update(self.schema_tables)
 
     def __repr__(self) -> str:

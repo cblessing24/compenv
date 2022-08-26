@@ -7,7 +7,7 @@ from typing import Dict, Type
 from datajoint import Lookup, Part
 
 from ..adapters.abstract import PartEntity
-from .types import Schema, Table
+from .types import Schema
 
 
 class DJTableFactory:
@@ -28,9 +28,9 @@ class DJTableFactory:
                 part_cls.__name__,
                 type(part_cls.__name__, (Part,), {"definition": part_cls.definition}),
             )
-        schema_tables: Dict[str, Type[Table]] = {}
+        schema_tables: Dict[str, object] = {}
         self.schema.spawn_missing_classes(schema_tables)
-        context = {self.parent: schema_tables[self.parent]}
+        context: dict[str, object] = {self.parent: schema_tables[self.parent]}
         if self.schema.context:
             context.update(self.schema.context)
         return self.schema(master_cls, context=context)()

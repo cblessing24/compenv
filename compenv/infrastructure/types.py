@@ -39,17 +39,17 @@ class Factory(Protocol):  # pylint: disable=too-few-public-methods
         """Return a object that supports the table protocol."""
 
 
-Context = MutableMapping[str, Type[Table]]
+Context = MutableMapping[str, object]
 _T = TypeVar("_T", bound=Table)
 
 
 class Schema(Protocol):
     """Datajoint schema protocol."""
 
-    context: Dict[str, Type[Table]]
+    context: Dict[str, object]
 
     def spawn_missing_classes(self, context: Context) -> None:
         """Place missing tables in the context."""
 
-    def __call__(self, cls: Type[_T], *, context: Optional[Mapping[str, Type[Table]]] = None) -> Type[_T]:
+    def __call__(self, cls: Type[_T], *, context: Optional[Mapping[str, object]] = None) -> Type[_T]:
         """Bind the supplied class to the schema."""
