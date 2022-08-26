@@ -30,6 +30,9 @@ class DiffService(Service[DiffRequest, DiffResponse]):  # pylint: disable=too-fe
 
     name = "diff"
 
+    _request_cls = DiffRequest
+    _response_cls = DiffResponse
+
     def __init__(self, *, output_port: Callable[[DiffResponse], None], repo: Repository) -> None:
         """Initialize the service."""
         super().__init__(output_port=output_port)
