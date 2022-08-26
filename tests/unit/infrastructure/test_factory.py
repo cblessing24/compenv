@@ -65,4 +65,4 @@ def test_instance_is_cached(factory: DJTableFactory) -> None:
 
 
 def test_repr(factory: DJTableFactory) -> None:
-    assert repr(factory) == f"DJTableFactory(schema=FakeSchema(), parent='FakeTable')"
+    assert repr(factory) == "DJTableFactory(schema=FakeSchema(), parent='FakeTable')"

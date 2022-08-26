@@ -12,7 +12,6 @@ from compenv.model.record import Distribution
 class FakePackagePath:
     def __init__(self, path: Union[str, os.PathLike[str]]) -> None:
         """Fake version of importlib.metadata.PackagePath."""
-
         self.path = os.fspath(path)
         self.suffix = "." + self.path.split(".")[-1]
 
