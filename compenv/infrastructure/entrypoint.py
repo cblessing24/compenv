@@ -8,7 +8,6 @@ from typing import Callable, Optional, Type, TypeVar
 
 from ..adapters.controller import DJController
 from ..backend import create_dj_backend
-from .factory import DJTableFactory
 from .hook import hook_into_make_method
 from .types import AutopopulatedTable, Entity, Schema
 
@@ -35,7 +34,7 @@ class EnvironmentRecorder:  # pylint: disable=too-few-public-methods
             if not schema.context:
                 schema.context = self._determine_context(self.get_current_frame())
             backend = create_dj_backend(schema, table_cls.__name__)
-            self._modify_table(schema, table_cls, backend.infra.factory, backend.adapters.controller)
+            self._modify_table(schema, table_cls, backend.adapters.controller)
 
             # Create record table now while not in a transaction.
             backend.infra.factory()
@@ -53,10 +52,9 @@ class EnvironmentRecorder:  # pylint: disable=too-few-public-methods
         return prev_frame.f_locals
 
     @staticmethod
-    def _modify_table(schema: Schema, table_cls: Type[_T], factory: DJTableFactory, controller: DJController) -> None:
+    def _modify_table(schema: Schema, table_cls: Type[_T], controller: DJController) -> None:
         def hook(make: Callable[[_T, Entity], None], table: _T, key: Entity) -> None:
             controller.record(key, functools.partial(make, table))
 
         table_cls = schema(table_cls)
         table_cls = hook_into_make_method(hook)(table_cls)
-        setattr(table_cls, "records", factory)

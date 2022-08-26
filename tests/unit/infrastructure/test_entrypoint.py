@@ -4,7 +4,6 @@ from typing import Any, Mapping, Optional, Type, cast
 import pytest
 
 from compenv.infrastructure.entrypoint import EnvironmentRecorder
-from compenv.infrastructure.factory import DJTableFactory
 from compenv.infrastructure.types import AutopopulatedTable, Schema
 
 from ..conftest import FakeAutopopulatedTable, FakeTable
@@ -97,42 +96,6 @@ def test_raises_error_if_there_is_no_previous_frame(
     fake_current_frame.f_back = None
     with pytest.raises(RuntimeError, match="No previous"):
         record_environment(fake_schema)(fake_autopopulated_table)
-
-
-def test_sets_records_attribute_on_table_class(
-    record_environment: EnvironmentRecorder,
-    fake_schema: Schema,
-    fake_autopopulated_table: Type[AutopopulatedTable],
-) -> None:
-    fake_autopopulated_table = record_environment(fake_schema)(fake_autopopulated_table)
-    assert hasattr(fake_autopopulated_table, "records")
-
-
-def test_records_attribute_is_table_factory(
-    record_environment: EnvironmentRecorder,
-    fake_schema: Schema,
-    fake_autopopulated_table: Type[AutopopulatedTable],
-) -> None:
-    fake_autopopulated_table = record_environment(fake_schema)(fake_autopopulated_table)
-    assert isinstance(fake_autopopulated_table.records, DJTableFactory)  # type: ignore[attr-defined]
-
-
-def test_table_factory_has_correct_schema(
-    record_environment: EnvironmentRecorder,
-    fake_schema: Schema,
-    fake_autopopulated_table: Type[AutopopulatedTable],
-) -> None:
-    fake_autopopulated_table = record_environment(fake_schema)(fake_autopopulated_table)
-    assert fake_autopopulated_table.records.schema is fake_schema  # type: ignore[attr-defined]
-
-
-def test_table_factory_has_correct_parent(
-    record_environment: EnvironmentRecorder,
-    fake_schema: Schema,
-    fake_autopopulated_table: Type[AutopopulatedTable],
-) -> None:
-    fake_autopopulated_table = record_environment(fake_schema)(fake_autopopulated_table)
-    assert fake_autopopulated_table.records.parent == fake_autopopulated_table.__name__  # type: ignore[attr-defined]
 
 
 def test_record_table_is_created(
