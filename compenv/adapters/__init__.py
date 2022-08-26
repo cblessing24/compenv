@@ -1,5 +1,9 @@
 """This package contains adapters adapting between external systems and the domain/service layers."""
+from __future__ import annotations
+
 import dataclasses
+from collections.abc import Callable
+from typing import Any
 
 from ..service import SERVICE_CLASSES, initialize_services
 from .abstract import AbstractTableFacade
@@ -26,7 +30,7 @@ def create_dj_adapters(facade: AbstractTableFacade[DJComputationRecord]) -> DJAd
     translator = DJTranslator(blake2b)
     presenter = PrintingPresenter(print_=print)
     repo = DJRepository(facade=facade, translator=translator)
-    output_ports = {"record": presenter.record}
+    output_ports: dict[str, Callable[[Any], None]] = {"record": presenter.record, "diff": presenter.diff}
     dependencies = {"repo": repo, "distribution_finder": DistributionConverter()}
     services = initialize_services(
         SERVICE_CLASSES,

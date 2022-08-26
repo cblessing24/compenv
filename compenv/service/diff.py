@@ -5,6 +5,7 @@ from collections.abc import Callable
 from dataclasses import dataclass
 
 from ..model.record import Identifier
+from ..service import register_service_class
 from .abstract import Repository, Request, Response, Service
 
 
@@ -23,6 +24,7 @@ class DiffResponse(Response):
     differ: bool
 
 
+@register_service_class
 class DiffService(Service[DiffRequest, DiffResponse]):  # pylint: disable=too-few-public-methods
     """A service used to get a diff between two computation records."""
 
