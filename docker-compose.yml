@@ -1,5 +1,5 @@
 version: "3.9"
-
+name: compenv
 services:
   dev:
     build:
@@ -24,8 +24,7 @@ services:
   pytest:
     image: cblessing24/compenv:latest
     volumes:
-      - .:/src
-      - pypackages:/src/__pypackages__
+      - compenv:/src:ro
       - /var/run/docker.sock:/var/run/docker.sock
     environment:
       - DOCKER=1
@@ -60,7 +59,6 @@ services:
 
 volumes:
   compenv:
-  pypackages:
 
 networks:
   test:
