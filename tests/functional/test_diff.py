@@ -87,7 +87,7 @@ def schema(start_database, configure_dj):
     return dj.schema(SCHEMA_NAME)
 
 
-def test_record_is_added_to_record_table(schema):
+def test_records_do_not_differ(schema, capsys):
     @schema
     class MyManualTable(Manual):
         definition = """
@@ -111,7 +111,7 @@ def test_record_is_added_to_record_table(schema):
             self.insert1(key)
 
     MyManualTable().insert([{"id": 0, "number": 12.5}, {"id": 1, "number": 18}])
-
     MyComputedTable().populate()
-
-    assert len(MyComputedTable.records()) == 2
+    MyComputedTable().records.diff({"id": 0}, {"id": 1})
+    captured = capsys.readouterr()
+    assert captured.out == "The computation records do not differ\n"
