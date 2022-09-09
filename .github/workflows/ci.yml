@@ -37,7 +37,7 @@ jobs:
       - name: Check out code
         uses: actions/checkout@v2
       - name: Lint code
-        run: touch .env && docker-compose run ${{ matrix.linter }}
+        run: touch .env && docker compose run ${{ matrix.linter }}
   test:
     needs: build_image
     runs-on: ubuntu-20.04
@@ -51,7 +51,7 @@ jobs:
       - name: Check out code
         uses: actions/checkout@v2
       - name: Test code
-        run: touch .env && docker-compose run pytest_github
+        run: touch .env && docker compose run pytest_github
       - name: Upload coverage to codecov
         uses: codecov/codecov-action@v2
         with:
@@ -92,7 +92,7 @@ jobs:
       - name: Check out code
         uses: actions/checkout@v2
       - name: Build distribution artifacts
-        run: touch .env && docker-compose run build
+        run: touch .env && docker compose run build
       - name: Upload distribution packages to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
