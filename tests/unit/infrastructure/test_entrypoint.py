@@ -111,7 +111,7 @@ def test_context_is_based_on_correct_stack_frame(
     fake_schema: Schema, fake_autopopulated_table: Type[FakeAutopopulatedTable]
 ) -> None:
     record_environment = EnvironmentRecorder()
-    something = "else"
+    something = "else"  # noqa: F841
     record_environment(fake_schema)(fake_autopopulated_table)
     assert fake_schema.context["something"] == "else"
 
