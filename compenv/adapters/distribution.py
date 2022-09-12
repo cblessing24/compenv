@@ -1,7 +1,6 @@
 """Contains code related to getting information about installed distributions."""
 from __future__ import annotations
 
-from functools import lru_cache
 from importlib import metadata
 from os import PathLike
 from pathlib import Path
@@ -66,7 +65,6 @@ class DistributionConverter(DistributionFinder):
         self._path_cls = path_cls
         self._get_distributions = get_distributions
 
-    @lru_cache
     def __call__(self) -> frozenset[Distribution]:
         """Return a dictionary containing all distributions."""
         conv_dists: Set[Distribution] = set()
