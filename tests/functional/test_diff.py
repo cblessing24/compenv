@@ -1,4 +1,5 @@
 import os
+import subprocess
 import time
 
 import datajoint as dj
@@ -115,3 +116,39 @@ def test_records_do_not_differ(schema, capsys):
     MyComputedTable().records.diff({"id": 0}, {"id": 1})
     captured = capsys.readouterr()
     assert captured.out == "The computation records do not differ\n"
+
+
+def test_records_differ(schema, capsys):
+    @schema
+    class MyManualTable(Manual):
+        definition = """
+        id: int
+        ---
+        number: float
+        """
+
+    @record_environment(schema)
+    class MyComputedTable(Computed):
+        definition = """
+        -> MyManualTable
+        ---
+        number: float
+        """
+
+        def make(self, key):
+            number = (MyManualTable & key).fetch1("number")
+            key["number"] = number + 1
+
+            self.insert1(key)
+
+    MyManualTable().insert([{"id": 0, "number": 12.5}])
+    MyComputedTable().populate()
+    subprocess.run(["pip", "install", "dummy_test==0.1.3"], check=True)
+    try:
+        MyManualTable().insert([{"id": 1, "number": 18}])
+        MyComputedTable().populate()
+        MyComputedTable().records.diff({"id": 0}, {"id": 1})
+        captured = capsys.readouterr()
+        assert captured.out == "The computation records differ\n"
+    finally:
+        subprocess.run(["pip", "uninstall", "--yes", "dummy_test"], check=True)
