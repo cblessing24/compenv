@@ -24,7 +24,7 @@ services:
   pytest:
     image: cblessing24/compenv:latest
     volumes:
-      - compenv:/src:ro
+      - compenv:/src
       - /var/run/docker.sock:/var/run/docker.sock
     environment:
       - DOCKER=1
