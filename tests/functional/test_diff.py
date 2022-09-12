@@ -1,6 +1,7 @@
 import os
 import subprocess
 import time
+from contextlib import contextmanager
 
 import datajoint as dj
 import docker
@@ -88,7 +89,8 @@ def schema(start_database, configure_dj):
     return dj.schema(SCHEMA_NAME)
 
 
-def test_records_do_not_differ(schema, capsys):
+@pytest.fixture
+def manual_table_cls(schema):
     @schema
     class MyManualTable(Manual):
         definition = """
@@ -97,58 +99,51 @@ def test_records_do_not_differ(schema, capsys):
         number: float
         """
 
+    return MyManualTable
+
+
+@pytest.fixture
+def computed_table_cls(schema, manual_table_cls):
     @record_environment(schema)
     class MyComputedTable(Computed):
         definition = """
-        -> MyManualTable
+        -> manual_table_cls
         ---
         number: float
         """
 
         def make(self, key):
-            number = (MyManualTable & key).fetch1("number")
+            number = (manual_table_cls & key).fetch1("number")
             key["number"] = number + 1
 
             self.insert1(key)
 
-    MyManualTable().insert([{"id": 0, "number": 12.5}, {"id": 1, "number": 18}])
-    MyComputedTable().populate()
-    MyComputedTable().records.diff({"id": 0}, {"id": 1})
+    return MyComputedTable
+
+
+def test_records_do_not_differ(manual_table_cls, computed_table_cls, capsys):
+    manual_table_cls().insert([{"id": 0, "number": 12.5}, {"id": 1, "number": 18}])
+    computed_table_cls().populate()
+    computed_table_cls().records.diff({"id": 0}, {"id": 1})
     captured = capsys.readouterr()
     assert captured.out == "The computation records do not differ\n"
 
 
-def test_records_differ(schema, capsys):
-    @schema
-    class MyManualTable(Manual):
-        definition = """
-        id: int
-        ---
-        number: float
-        """
-
-    @record_environment(schema)
-    class MyComputedTable(Computed):
-        definition = """
-        -> MyManualTable
-        ---
-        number: float
-        """
-
-        def make(self, key):
-            number = (MyManualTable & key).fetch1("number")
-            key["number"] = number + 1
-
-            self.insert1(key)
-
-    MyManualTable().insert([{"id": 0, "number": 12.5}])
-    MyComputedTable().populate()
-    subprocess.run(["pip", "install", "dummy_test==0.1.3"], check=True)
+@contextmanager
+def installed_package(package, version):
+    subprocess.run(["pip", "install", f"{package}=={version}"], check=True)
     try:
-        MyManualTable().insert([{"id": 1, "number": 18}])
-        MyComputedTable().populate()
-        MyComputedTable().records.diff({"id": 0}, {"id": 1})
-        captured = capsys.readouterr()
-        assert captured.out == "The computation records differ\n"
+        yield
     finally:
-        subprocess.run(["pip", "uninstall", "--yes", "dummy_test"], check=True)
+        subprocess.run(["pip", "uninstall", "--yes", package], check=True)
+
+
+def test_records_differ(manual_table_cls, computed_table_cls, capsys):
+    manual_table_cls().insert([{"id": 0, "number": 12.5}])
+    computed_table_cls().populate()
+    manual_table_cls().insert([{"id": 1, "number": 18}])
+    with installed_package("dummy_test", version="0.1.3"):
+        computed_table_cls().populate()
+    computed_table_cls().records.diff({"id": 0}, {"id": 1})
+    captured = capsys.readouterr()
+    assert captured.out == "The computation records differ\n"
