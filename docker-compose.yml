@@ -40,7 +40,12 @@ services:
       - DOCKER=1
     networks:
       - test
-    command: ["pytest", "--cov", "--cov-report=xml:/src/reports/coverage.xml"]
+    command: [
+      "pytest", 
+      "--cov", 
+      "--cov-report=xml:/src/reports/coverage.xml",
+      "--cov-config=pyproject.toml", # Workaround for https://github.com/nedbat/coveragepy/issues/512
+    ]
   black:
     image: cblessing24/compenv:latest
     command: ["black", "--check", "--diff", "."]
