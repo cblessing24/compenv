@@ -7,7 +7,7 @@
 <a href="https://github.com/psf/black"><img alt="Code style: black" src="https://img.shields.io/badge/code%20style-black-000000.svg"></a>
 </p>
 
-Track information about the execution environment of computations.
+Track information about installed packages.
 
 ## Install
 
@@ -17,7 +17,7 @@ pip install compenv
 
 ## Usage
 
-Decorate the auto-populated table on which you want to track the execution environments:
+Decorate the auto-populated table on which you want to track the installed packages:
 
 ```python
 from compenv import record_environment
@@ -34,4 +34,10 @@ After populating the table you can view the generated records in the records tab
 
 ```python
 MyAutoPopulatedTable.records()
+```
+
+You can get a difference view between two records:
+
+```python
+MyAutoPopulatedTable.records.diff(key1, key2)
 ```
