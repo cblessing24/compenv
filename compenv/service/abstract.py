@@ -3,7 +3,8 @@ from __future__ import annotations
 
 import inspect
 from abc import ABC, abstractmethod
-from typing import Callable, ClassVar, Generic, Iterator, Type, TypeVar
+from types import TracebackType
+from typing import Callable, ClassVar, Generic, Iterator, Optional, Type, TypeVar
 
 from ..model.record import ComputationRecord, Distribution, Identifier
 
@@ -82,3 +83,31 @@ class DistributionFinder(ABC):  # pylint: disable=too-few-public-methods
     @abstractmethod
     def __call__(self) -> frozenset[Distribution]:
         """Find the distributions installed on the system."""
+
+
+R = TypeVar("R", bound=Repository)
+
+
+class UnitOfWork(ABC):
+    """Defines the interface for the unit of work."""
+
+    records: Repository
+    U = TypeVar("U", bound="UnitOfWork")
+
+    def __enter__(self: U) -> U:
+        """Enter the unit of work."""
+        return self
+
+    def __exit__(
+        self, exc_type: Optional[Type[BaseException]], exc: Optional[BaseException], traceback: Optional[TracebackType]
+    ) -> None:
+        """Exit the unit of work."""
+        self.rollback()
+
+    @abstractmethod
+    def commit(self) -> None:
+        """Commit the unit of work."""
+
+    @abstractmethod
+    def rollback(self) -> None:
+        """Rollback the unit of work."""
