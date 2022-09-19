@@ -63,7 +63,7 @@ class AbstractTableFacade(ABC, Generic[_T]):
         """Return the number of entities in the table."""
 
 
-class TransactionFacade(ABC):
+class AbstractTransactionFacade(ABC):
     """Defines the interface for all connection facades."""
 
     @abstractmethod
