@@ -61,3 +61,24 @@ class AbstractTableFacade(ABC, Generic[_T]):
     @abstractmethod
     def __len__(self) -> int:
         """Return the number of entities in the table."""
+
+
+class TransactionFacade(ABC):
+    """Defines the interface for all connection facades."""
+
+    @abstractmethod
+    def start(self) -> None:
+        """Start a transaction."""
+
+    @abstractmethod
+    def commit(self) -> None:
+        """Commit the transaction."""
+
+    @abstractmethod
+    def rollback(self) -> None:
+        """Rollback the transaction."""
+
+    @property
+    @abstractmethod
+    def in_transaction(self) -> bool:
+        """Return True if we are currently in a transaction, False otherwise."""
