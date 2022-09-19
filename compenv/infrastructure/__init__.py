@@ -3,6 +3,7 @@ import dataclasses
 
 from .facade import DJTableFacade
 from .factory import DJTableFactory
+from .transaction import TransactionFacade
 from .types import Schema
 
 
@@ -12,10 +13,12 @@ class DJInfrastructure:
 
     factory: DJTableFactory
     facade: DJTableFacade
+    transaction: TransactionFacade
 
 
 def create_dj_infrastructure(schema: Schema, table_name: str) -> DJInfrastructure:
     """Create a set of DataJoint infrastructure objects."""
     factory = DJTableFactory(schema, parent=table_name)
     facade = DJTableFacade(factory=factory)
-    return DJInfrastructure(factory=factory, facade=facade)
+    transaction = TransactionFacade(schema.connection)  # type: ignore
+    return DJInfrastructure(factory=factory, facade=facade, transaction=transaction)

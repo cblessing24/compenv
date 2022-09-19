@@ -4,7 +4,7 @@ from typing import Callable
 
 from ..model.record import ComputationRecord, Identifier
 from . import register_service_class
-from .abstract import DistributionFinder, Repository, Request, Response, Service
+from .abstract import DistributionFinder, Request, Response, Service, UnitOfWork
 
 
 @dataclasses.dataclass(frozen=True)
@@ -33,22 +33,24 @@ class RecordService(Service[RecordRequest, RecordResponse]):
         self,
         *,
         output_port: Callable[[RecordResponse], None],
-        repo: Repository,
+        uow: UnitOfWork,
         distribution_finder: DistributionFinder,
     ) -> None:
         """Initialize the service."""
         super().__init__(output_port=output_port)
-        self.repo = repo
+        self.uow = uow
         self.distribution_finder = distribution_finder
 
     def _execute(self, request: RecordRequest) -> RecordResponse:
         """Record the environment."""
-        distributions = self.distribution_finder()
-        request.trigger()
-        computation_record = ComputationRecord(request.identifier, distributions)
-        self.repo.add(computation_record)
+        with self.uow:
+            distributions = self.distribution_finder()
+            request.trigger()
+            computation_record = ComputationRecord(request.identifier, distributions)
+            self.uow.records.add(computation_record)
+            self.uow.commit()
         return self._response_cls()
 
     def __repr__(self) -> str:
         """Return a string representation of the record service."""
-        return f"{self.__class__.__name__}(output_port={self.output_port!r}, repo={self.repo!r})"
+        return f"{self.__class__.__name__}(output_port={self.output_port!r}, repo={self.uow!r})"
