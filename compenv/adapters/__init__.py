@@ -35,7 +35,7 @@ def create_dj_adapters(
     repo = DJRepository(facade=facade, translator=translator)
     uow = DJUnitOfWork(transaction=transaction, records=repo)
     output_ports: dict[str, Callable[[Any], None]] = {"record": presenter.record, "diff": presenter.diff}
-    dependencies = {"repo": repo, "uow": uow, "distribution_finder": DistributionConverter()}
+    dependencies = {"uow": uow, "distribution_finder": DistributionConverter()}
     services = initialize_services(
         SERVICE_CLASSES,
         output_ports=output_ports,

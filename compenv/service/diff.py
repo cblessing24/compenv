@@ -6,7 +6,7 @@ from dataclasses import dataclass
 
 from ..model.record import Identifier
 from ..service import register_service_class
-from .abstract import Repository, Request, Response, Service
+from .abstract import Request, Response, Service, UnitOfWork
 
 
 @dataclass(frozen=True)
@@ -33,13 +33,13 @@ class DiffService(Service[DiffRequest, DiffResponse]):  # pylint: disable=too-fe
     _request_cls = DiffRequest
     _response_cls = DiffResponse
 
-    def __init__(self, *, output_port: Callable[[DiffResponse], None], repo: Repository) -> None:
+    def __init__(self, *, output_port: Callable[[DiffResponse], None], uow: UnitOfWork) -> None:
         """Initialize the service."""
         super().__init__(output_port=output_port)
-        self.repo = repo
+        self.uow = uow
 
     def _execute(self, request: DiffRequest) -> DiffResponse:
         """Determine the diff of two computation records."""
-        rec1 = self.repo.get(request.identifier1)
-        rec2 = self.repo.get(request.identifier2)
+        rec1 = self.uow.records.get(request.identifier1)
+        rec2 = self.uow.records.get(request.identifier2)
         return DiffResponse(differ=rec1.distributions != rec2.distributions)

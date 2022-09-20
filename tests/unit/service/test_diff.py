@@ -3,7 +3,8 @@ import pytest
 from compenv.model.record import ComputationRecord, Distribution, Identifier
 from compenv.service.diff import DiffRequest, DiffResponse, DiffService
 
-from ..conftest import FakeOutputPort, FakeRepository
+from ..conftest import FakeOutputPort
+from .conftest import FakeUnitOfWork
 
 
 @pytest.mark.parametrize(
@@ -14,7 +15,7 @@ from ..conftest import FakeOutputPort, FakeRepository
     ],
 )
 def test_diff_behvaior_of_computation_records(
-    version1: str, version2: str, differ: bool, fake_output_port: FakeOutputPort, fake_repository: FakeRepository
+    version1: str, version2: str, differ: bool, fake_output_port: FakeOutputPort, fake_uow: FakeUnitOfWork
 ) -> None:
     rec1 = ComputationRecord(
         Identifier("identifier1"), distributions=frozenset((Distribution(name="numpy", version=version1),))
@@ -22,10 +23,10 @@ def test_diff_behvaior_of_computation_records(
     rec2 = ComputationRecord(
         Identifier("identifier2"), distributions=frozenset((Distribution(name="numpy", version=version2),))
     )
-    fake_repository.add(rec1)
-    fake_repository.add(rec2)
+    fake_uow.records.add(rec1)
+    fake_uow.records.add(rec2)
 
-    diff = DiffService(output_port=fake_output_port, repo=fake_repository)
+    diff = DiffService(output_port=fake_output_port, uow=fake_uow)
     request = DiffRequest(Identifier("identifier1"), Identifier("identifier2"))
     diff(request)
     assert fake_output_port.responses == [DiffResponse(differ=differ)]
