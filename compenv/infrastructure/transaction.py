@@ -26,3 +26,7 @@ class TransactionFacade(AbstractTransactionFacade):
     def in_transaction(self) -> bool:
         """Return True if we are in a transaction, False otherwise."""
         return self._connection.in_transaction
+
+    def close(self) -> None:
+        """Close the connection."""
+        self._connection.close()

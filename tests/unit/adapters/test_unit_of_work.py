@@ -33,6 +33,9 @@ class FakeTransaction(AbstractTransactionFacade):
     def in_transaction(self) -> bool:
         return self._in_transaction
 
+    def close(self) -> None:
+        pass
+
 
 @pytest.fixture
 def fake_transaction(fake_repository: FakeRepository) -> FakeTransaction:

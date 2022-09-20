@@ -82,3 +82,7 @@ class AbstractTransactionFacade(ABC):
     @abstractmethod
     def in_transaction(self) -> bool:
         """Return True if we are currently in a transaction, False otherwise."""
+
+    @abstractmethod
+    def close(self) -> None:
+        """Close the connection."""
