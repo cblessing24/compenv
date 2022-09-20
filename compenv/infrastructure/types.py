@@ -37,6 +37,9 @@ class Connection(Protocol):
     def in_transaction(self) -> bool:
         """Return True if we are in a transaction, False otherwise."""
 
+    def close(self) -> None:
+        """Close the connection."""
+
 
 class AutopopulatedTable(Table, Protocol):  # pylint: disable=abstract-method
     """Datajoint auto-populated table protocol."""

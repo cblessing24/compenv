@@ -156,6 +156,9 @@ class FakeConnection:
     def in_transaction(self) -> bool:
         return self._in_transaction
 
+    def close(self) -> None:
+        pass
+
 
 @pytest.fixture
 def fake_connection() -> FakeConnection:
