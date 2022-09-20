@@ -2,26 +2,9 @@ import pytest
 
 from compenv.model.record import ComputationRecord, Identifier
 from compenv.service import record
-from compenv.service.abstract import UnitOfWork
 
 from ..conftest import FakeDistributionFinder, FakeOutputPort, FakeRepository, FakeTrigger
-
-
-class FakeUnitOfWork(UnitOfWork):
-    def __init__(self, records: FakeRepository) -> None:
-        self.records = records
-        self.committed = False
-
-    def commit(self) -> None:
-        self.committed = True
-
-    def rollback(self) -> None:
-        ...
-
-
-@pytest.fixture
-def fake_uow(fake_repository: FakeRepository) -> FakeUnitOfWork:
-    return FakeUnitOfWork(fake_repository)
+from .conftest import FakeUnitOfWork
 
 
 class TestRecord:

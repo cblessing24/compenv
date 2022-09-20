@@ -1,7 +1,11 @@
 import dataclasses
 from typing import Callable, List
 
-from compenv.service.abstract import _T, _V, Request, Response, Service
+import pytest
+
+from compenv.service.abstract import _T, _V, Request, Response, Service, UnitOfWork
+
+from ..conftest import FakeRepository
 
 
 @dataclasses.dataclass(frozen=True)
@@ -32,3 +36,20 @@ class FakeService(RequestTrackingService[FakeRequest, FakeResponse]):
 
     def _execute(self, request: FakeRequest) -> FakeResponse:
         return self._response_cls(request.message)
+
+
+class FakeUnitOfWork(UnitOfWork):
+    def __init__(self, records: FakeRepository) -> None:
+        self.records = records
+        self.committed = False
+
+    def commit(self) -> None:
+        self.committed = True
+
+    def rollback(self) -> None:
+        ...
+
+
+@pytest.fixture
+def fake_uow(fake_repository: FakeRepository) -> FakeUnitOfWork:
+    return FakeUnitOfWork(fake_repository)
