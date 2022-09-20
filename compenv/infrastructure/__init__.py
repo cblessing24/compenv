@@ -20,5 +20,5 @@ def create_dj_infrastructure(schema: Schema, table_name: str) -> DJInfrastructur
     """Create a set of DataJoint infrastructure objects."""
     factory = DJTableFactory(schema, parent=table_name)
     facade = DJTableFacade(factory=factory)
-    transaction = TransactionFacade(schema.connection)  # type: ignore
+    transaction = TransactionFacade(schema.connection)
     return DJInfrastructure(factory=factory, facade=facade, transaction=transaction)

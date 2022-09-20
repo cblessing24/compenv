@@ -1,7 +1,6 @@
 """Contains transaction related code."""
-from datajoint.connection import Connection
-
 from ..adapters.abstract import AbstractTransactionFacade
+from .types import Connection
 
 
 class TransactionFacade(AbstractTransactionFacade):
