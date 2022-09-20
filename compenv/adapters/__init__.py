@@ -6,7 +6,7 @@ from collections.abc import Callable
 from typing import Any
 
 from ..service import SERVICE_CLASSES, initialize_services
-from .abstract import AbstractTableFacade, AbstractTransactionFacade
+from .abstract import AbstractConnectionFacade, AbstractTableFacade
 from .controller import DJController
 from .distribution import DistributionConverter
 from .entity import DJComputationRecord
@@ -27,13 +27,13 @@ class DJAdapters:
 
 
 def create_dj_adapters(
-    facade: AbstractTableFacade[DJComputationRecord], transaction: AbstractTransactionFacade
+    facade: AbstractTableFacade[DJComputationRecord], connection: AbstractConnectionFacade
 ) -> DJAdapters:
     """Create a set of DataJoint adapters using the given facade."""
     translator = DJTranslator(blake2b)
     presenter = PrintingPresenter(print_=print)
     repo = DJRepository(facade=facade, translator=translator)
-    uow = DJUnitOfWork(transaction=transaction, records=repo)
+    uow = DJUnitOfWork(connection=connection, records=repo)
     output_ports: dict[str, Callable[[Any], None]] = {"record": presenter.record, "diff": presenter.diff}
     dependencies = {"uow": uow, "distribution_finder": DistributionConverter()}
     services = initialize_services(

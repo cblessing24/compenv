@@ -17,5 +17,5 @@ class DJBackend:
 def create_dj_backend(schema: Schema, table_name: str) -> DJBackend:
     """Create backend made up of all the DataJoint specific parts."""
     infra = create_dj_infrastructure(schema, table_name)
-    adapters = create_dj_adapters(infra.facade, infra.transaction)
+    adapters = create_dj_adapters(infra.facade, infra.connection)
     return DJBackend(infra=infra, adapters=adapters)

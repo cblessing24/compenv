@@ -4,7 +4,7 @@ from __future__ import annotations
 from typing import Protocol
 
 from ..service.abstract import Repository, UnitOfWork
-from .abstract import AbstractTransactionFacade
+from .abstract import AbstractConnectionFacade
 
 
 class Connection(Protocol):
@@ -27,21 +27,21 @@ class Connection(Protocol):
 class DJUnitOfWork(UnitOfWork):
     """Represents a DataJoint specific unit of work."""
 
-    def __init__(self, transaction: AbstractTransactionFacade, records: Repository) -> None:
+    def __init__(self, connection: AbstractConnectionFacade, records: Repository) -> None:
         """Initialize the unit of work."""
-        self.transaction = transaction
+        self.connection = connection
         self.records = records
 
     def __enter__(self) -> DJUnitOfWork:
         """Enter the unit of work."""
-        if not self.transaction.in_transaction:
-            self.transaction.start()
+        if not self.connection.in_transaction:
+            self.connection.start()
         return super().__enter__()
 
     def commit(self) -> None:
         """Commit the unit of work."""
-        self.transaction.commit()
+        self.connection.commit()
 
     def rollback(self) -> None:
         """Rollback the unit of work."""
-        self.transaction.rollback()
+        self.connection.rollback()

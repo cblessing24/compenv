@@ -1,10 +1,10 @@
-"""Contains transaction related code."""
-from ..adapters.abstract import AbstractTransactionFacade
+"""Contains code related to DataJoint's connection object."""
+from ..adapters.abstract import AbstractConnectionFacade
 from .types import Connection
 
 
-class TransactionFacade(AbstractTransactionFacade):
-    """Represents a facade around DataJoint's transaction interface."""
+class ConnectionFacade(AbstractConnectionFacade):
+    """Represents a facade around DataJoint's connection object."""
 
     def __init__(self, connection: Connection) -> None:
         """Initialize the transaction."""
