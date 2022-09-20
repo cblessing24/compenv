@@ -36,10 +36,11 @@ repos:
         entry: pdm
         language: system
         types: [python]
+        pass_filenames: false
         args:
           [
             "run",
-            "./scripts/mypy_wrapper.sh",
+            "mypy",
         ]
   - repo: https://github.com/pycqa/isort
     rev: 5.10.1

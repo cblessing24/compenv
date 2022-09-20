@@ -54,7 +54,7 @@ services:
     command: ["isort", "--check-only", "--diff", "."]
   mypy:
     image: cblessing24/compenv:latest
-    command: ["scripts/mypy_wrapper.sh"]
+    command: ["mypy"]
   flake8:
     image: cblessing24/compenv:latest
     command: ["flake8", "."]
