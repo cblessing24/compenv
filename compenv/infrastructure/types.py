@@ -21,8 +21,21 @@ class Table(
         """Insert a row into the table."""
 
 
-class Connection(Protocol):  # pylint: disable=too-few-public-methods
+class Connection(Protocol):
     """Datajoint connection protocol."""
+
+    def start_transaction(self) -> None:
+        """Start a transaction."""
+
+    def commit_transaction(self) -> None:
+        """Commit the transaction."""
+
+    def cancel_transaction(self) -> None:
+        """Cancel the transaction."""
+
+    @property
+    def in_transaction(self) -> bool:
+        """Return True if we are in a transaction, False otherwise."""
 
 
 class AutopopulatedTable(Table, Protocol):  # pylint: disable=abstract-method
@@ -47,6 +60,10 @@ class Schema(Protocol):
     """Datajoint schema protocol."""
 
     context: Dict[str, object]
+
+    @property
+    def connection(self) -> Connection:
+        """Return the connection object."""
 
     def spawn_missing_classes(self, context: Context) -> None:
         """Place missing tables in the context."""

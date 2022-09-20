@@ -139,10 +139,22 @@ def fake_translator_factory(identifier: Identifier, primary: PrimaryKey) -> Fake
 
 class FakeConnection:
     def __init__(self) -> None:
-        self.in_transaction: Optional[bool] = None
+        self._in_transaction = False
+        self.committed = False
+
+    def start_transaction(self) -> None:
+        self._in_transaction = True
+
+    def commit_transaction(self) -> None:
+        self.committed = True
+        self._in_transaction = False
 
     def cancel_transaction(self) -> None:
-        self.in_transaction = False
+        self._in_transaction = False
+
+    @property
+    def in_transaction(self) -> bool:
+        return self._in_transaction
 
 
 @pytest.fixture
