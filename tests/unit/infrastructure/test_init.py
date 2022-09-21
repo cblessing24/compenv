@@ -4,8 +4,7 @@ from typing import Type
 import pytest
 
 from compenv.infrastructure import DJInfrastructure, create_dj_infrastructure
-from compenv.infrastructure.factory import DJTableFactory
-from compenv.infrastructure.table import DJTableFacade
+from compenv.infrastructure.table import DJTableFacade, DJTableFactory
 
 from ..conftest import FakeSchema, FakeTable
 

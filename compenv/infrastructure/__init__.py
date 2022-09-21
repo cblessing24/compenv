@@ -2,8 +2,7 @@
 import dataclasses
 
 from .connection import ConnectionFacade
-from .factory import DJTableFactory
-from .table import DJTableFacade
+from .table import DJTableFacade, DJTableFactory
 from .types import Schema
 
 

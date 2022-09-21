@@ -4,14 +4,16 @@ from __future__ import annotations
 import dataclasses
 import functools
 from collections.abc import Callable, Iterator
-from typing import TypeVar
+from functools import lru_cache
+from typing import Dict, Type, TypeVar
 
+from datajoint import Lookup, Part
 from datajoint.errors import DuplicateError
 
-from ..adapters.abstract import AbstractTableFacade
+from ..adapters.abstract import AbstractTableFacade, PartEntity
 from ..adapters.entity import DJComputationRecord
 from ..types import PrimaryKey
-from .types import Factory
+from .types import Factory, Schema
 
 _T = TypeVar("_T")
 
@@ -76,3 +78,33 @@ class DJTableFacade(AbstractTableFacade[DJComputationRecord]):
     def __repr__(self) -> str:
         """Return a string representation of the record table facade."""
         return f"{self.__class__.__name__}(factory={repr(self.factory)})"
+
+
+class DJTableFactory:
+    """Produces record table instances."""
+
+    def __init__(self, schema: Schema, parent: str) -> None:
+        """Initialize the factory."""
+        self.schema = schema
+        self.parent = parent
+
+    @lru_cache
+    def __call__(self) -> Lookup:
+        """Produce a record table instance."""
+        master_cls: Type[Lookup] = type(self.parent + "Record", (Lookup,), {"definition": "-> " + self.parent})
+        for part_cls in PartEntity.__subclasses__():
+            setattr(
+                master_cls,
+                part_cls.__name__,
+                type(part_cls.__name__, (Part,), {"definition": part_cls.definition}),
+            )
+        schema_tables: Dict[str, object] = {}
+        self.schema.spawn_missing_classes(schema_tables)
+        context: dict[str, object] = {self.parent: schema_tables[self.parent]}
+        if self.schema.context:
+            context.update(self.schema.context)
+        return self.schema(master_cls, context=context)()
+
+    def __repr__(self) -> str:
+        """Create a string representation of the factory."""
+        return f"{self.__class__.__name__}(schema={repr(self.schema)}, parent={repr(self.parent)})"
