@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING
 import pytest
 
 from compenv.adapters.entity import DJComputationRecord
-from compenv.infrastructure.facade import DJTableFacade
+from compenv.infrastructure.table import DJTableFacade
 
 from ..conftest import FakeTable
 

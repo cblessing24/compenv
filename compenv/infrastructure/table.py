@@ -1,4 +1,4 @@
-"""Contains code related to facades for DataJoint tables."""
+"""Contains code related to DataJoint tables."""
 from __future__ import annotations
 
 import dataclasses
