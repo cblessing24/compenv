@@ -141,6 +141,7 @@ class FakeConnection:
     def __init__(self) -> None:
         self._in_transaction = False
         self.committed = False
+        self.is_connected = True
 
     def start_transaction(self) -> None:
         self._in_transaction = True
@@ -157,7 +158,7 @@ class FakeConnection:
         return self._in_transaction
 
     def close(self) -> None:
-        pass
+        self.is_connected = False
 
 
 @pytest.fixture
