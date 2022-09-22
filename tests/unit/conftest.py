@@ -160,6 +160,9 @@ class FakeConnection:
     def close(self) -> None:
         self.is_connected = False
 
+    def __repr__(self) -> str:
+        return "FakeConnection()"
+
 
 @pytest.fixture
 def fake_connection() -> FakeConnection:
