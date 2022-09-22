@@ -41,15 +41,23 @@ class TestConnectionFacade:
 
 class TestConnectionFactory:
     @staticmethod
-    def test_returns_connection_facade(monkeypatch: pytest.MonkeyPatch) -> None:
-        monkeypatch.setattr("compenv.infrastructure.connection.DJConnection", MagicMock)
-        factory = ConnectionFactory(host="mydb", user="myuser", password="mypassword")
-        assert isinstance(factory(), ConnectionFacade)
+    @pytest.fixture
+    def connection_factory() -> ConnectionFactory:
+        return ConnectionFactory(host="mydb", user="myuser", password="mypassword")
 
     @staticmethod
-    def test_can_set_options(monkeypatch: pytest.MonkeyPatch) -> None:
+    @pytest.fixture(autouse=True)
+    def dj_connection_cls_mock(monkeypatch: pytest.MonkeyPatch) -> MagicMock:
         dj_connection_cls_mock = MagicMock()
         monkeypatch.setattr("compenv.infrastructure.connection.DJConnection", dj_connection_cls_mock)
+        return dj_connection_cls_mock
+
+    @staticmethod
+    def test_returns_connection_facade(connection_factory: ConnectionFactory) -> None:
+        assert isinstance(connection_factory(), ConnectionFacade)
+
+    @staticmethod
+    def test_can_set_options(dj_connection_cls_mock: MagicMock) -> None:
         factory = ConnectionFactory(
             host="mydb", user="myuser", password="mypassword", options={"port": 1234, "init_fun": None, "use_tls": None}
         )
@@ -57,26 +65,19 @@ class TestConnectionFactory:
         assert dj_connection_cls_mock.call_args_list[0].kwargs["port"] == 1234
 
     @staticmethod
-    def test_can_access_connection(monkeypatch: pytest.MonkeyPatch) -> None:
-        monkeypatch.setattr("compenv.infrastructure.connection.DJConnection", MagicMock)
-        factory = ConnectionFactory(
-            host="mydb", user="myuser", password="mypassword", options={"port": 1234, "init_fun": None, "use_tls": None}
-        )
-        assert factory() is factory.connection
+    def test_can_access_connection(connection_factory: ConnectionFactory) -> None:
+        assert connection_factory() is connection_factory.connection
 
     @staticmethod
-    def test_raises_runtime_error_if_no_connection(monkeypatch: pytest.MonkeyPatch) -> None:
-        monkeypatch.setattr("compenv.infrastructure.connection.DJConnection", MagicMock)
-        factory = ConnectionFactory(
-            host="mydb", user="myuser", password="mypassword", options={"port": 1234, "init_fun": None, "use_tls": None}
-        )
+    def test_raises_runtime_error_if_no_connection(connection_factory: ConnectionFactory) -> None:
         with pytest.raises(RuntimeError, match="is missing"):
-            factory.connection
+            connection_factory.connection
 
     @staticmethod
-    def test_repr() -> None:
-        factory = ConnectionFactory(host="mydb", user="myuser", password="mypassword")
-        assert repr(factory) == (
+    def test_repr(
+        connection_factory: ConnectionFactory,
+    ) -> None:
+        assert repr(connection_factory) == (
             "ConnectionFactory(host='mydb', user='myuser', password='mypassword', "
             "options={'port': None, 'init_fun': None, 'use_tls': None})"
         )
