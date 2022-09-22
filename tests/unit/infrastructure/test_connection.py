@@ -1,6 +1,8 @@
+from unittest.mock import MagicMock
+
 import pytest
 
-from compenv.infrastructure.connection import ConnectionFacade
+from compenv.infrastructure.connection import ConnectionFacade, ConnectionFactory
 
 from ..conftest import FakeConnection
 
@@ -31,3 +33,29 @@ class TestConnectionFacade:
     def test_can_close_connection(connection_facade: ConnectionFacade, fake_connection: FakeConnection) -> None:
         connection_facade.close()
         assert not fake_connection.is_connected
+
+
+class TestConnectionFactory:
+    @staticmethod
+    def test_returns_connection_facade(monkeypatch: pytest.MonkeyPatch) -> None:
+        monkeypatch.setattr("compenv.infrastructure.connection.DJConnection", MagicMock)
+        factory = ConnectionFactory(host="mydb", user="myuser", password="mypassword")
+        assert isinstance(factory(), ConnectionFacade)
+
+    @staticmethod
+    def test_can_set_options(monkeypatch: pytest.MonkeyPatch) -> None:
+        dj_connection_cls_mock = MagicMock()
+        monkeypatch.setattr("compenv.infrastructure.connection.DJConnection", dj_connection_cls_mock)
+        factory = ConnectionFactory(
+            host="mydb", user="myuser", password="mypassword", options={"port": 1234, "init_fun": None, "use_tls": None}
+        )
+        factory()
+        assert dj_connection_cls_mock.call_args_list[0].kwargs["port"] == 1234
+
+    @staticmethod
+    def test_repr() -> None:
+        factory = ConnectionFactory(host="mydb", user="myuser", password="mypassword")
+        assert repr(factory) == (
+            "ConnectionFactory(host='mydb', user='myuser', password='mypassword', "
+            "options={'port': None, 'init_fun': None, 'use_tls': None})"
+        )
