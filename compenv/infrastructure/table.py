@@ -80,8 +80,8 @@ class DJTableFacade(AbstractTableFacade[DJComputationRecord]):
         return f"{self.__class__.__name__}(factory={repr(self.factory)})"
 
 
-class DJTableFactory:
-    """Produces record table instances."""
+class TableFactory:
+    """A factory producing tables."""
 
     def __init__(self, schema: Schema, parent: str) -> None:
         """Initialize the factory."""

@@ -8,7 +8,7 @@ from datajoint.user_tables import Lookup, Part
 
 from compenv.adapters.abstract import PartEntity
 from compenv.adapters.entity import DJComputationRecord
-from compenv.infrastructure.table import DJTableFacade, DJTableFactory
+from compenv.infrastructure.table import DJTableFacade, TableFactory
 
 from ..conftest import FakeSchema, FakeTable
 
@@ -109,12 +109,12 @@ def test_facade_repr(facade: DJTableFacade) -> None:
 
 
 @pytest.fixture
-def factory(fake_schema: FakeSchema, fake_table: Type[FakeTable]) -> DJTableFactory:
-    return DJTableFactory(fake_schema, parent=fake_table.__name__)
+def factory(fake_schema: FakeSchema, fake_table: Type[FakeTable]) -> TableFactory:
+    return TableFactory(fake_schema, parent=fake_table.__name__)
 
 
 @pytest.fixture
-def produce_instance(factory: DJTableFactory) -> Lookup:
+def produce_instance(factory: TableFactory) -> Lookup:
     return factory()
 
 
@@ -151,7 +151,7 @@ class TestPartClasses:
 
 def test_parent_is_added_to_context_when_schema_is_called(fake_schema: FakeSchema, fake_table: Type[FakeTable]) -> None:
     fake_schema.context = {"foo": FakeTable}
-    _ = DJTableFactory(fake_schema, parent=fake_table.__name__)()
+    _ = TableFactory(fake_schema, parent=fake_table.__name__)()
     assert fake_schema.context == {"foo": FakeTable, "FakeTable": fake_table}
 
 
@@ -159,9 +159,9 @@ def test_if_instance_is_instance_of_class(produce_instance: Lookup, fake_schema:
     assert isinstance(produce_instance, fake_schema.decorated_tables["FakeTableRecord"])
 
 
-def test_instance_is_cached(factory: DJTableFactory) -> None:
+def test_instance_is_cached(factory: TableFactory) -> None:
     assert factory() is factory()
 
 
-def test_factory_repr(factory: DJTableFactory) -> None:
-    assert repr(factory) == "DJTableFactory(schema=FakeSchema(), parent='FakeTable')"
+def test_factory_repr(factory: TableFactory) -> None:
+    assert repr(factory) == "TableFactory(schema=FakeSchema(), parent='FakeTable')"

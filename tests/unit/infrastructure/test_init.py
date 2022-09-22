@@ -4,7 +4,7 @@ from typing import Type
 import pytest
 
 from compenv.infrastructure import DJInfrastructure, create_dj_infrastructure
-from compenv.infrastructure.table import DJTableFacade, DJTableFactory
+from compenv.infrastructure.table import DJTableFacade, TableFactory
 
 from ..conftest import FakeSchema, FakeTable
 
@@ -23,7 +23,7 @@ def test_infrastructure_is_dataclass(dj_infra: DJInfrastructure) -> None:
 
 
 def test_correct_factory_is_used(dj_infra: DJInfrastructure) -> None:
-    assert isinstance(dj_infra.factory, DJTableFactory)
+    assert isinstance(dj_infra.factory, TableFactory)
 
 
 def test_factory_uses_correct_schema(dj_infra: DJInfrastructure, fake_schema: FakeSchema) -> None:
