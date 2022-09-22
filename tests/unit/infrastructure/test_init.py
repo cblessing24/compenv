@@ -4,7 +4,7 @@ from typing import Type
 import pytest
 
 from compenv.infrastructure import DJInfrastructure, create_dj_infrastructure
-from compenv.infrastructure.table import DJTableFacade, TableFactory
+from compenv.infrastructure.table import TableFacade, TableFactory
 
 from ..conftest import FakeSchema, FakeTable
 
@@ -35,7 +35,7 @@ def test_factory_uses_correct_table_name(dj_infra: DJInfrastructure, fake_table:
 
 
 def test_correct_facade_is_used(dj_infra: DJInfrastructure) -> None:
-    assert isinstance(dj_infra.facade, DJTableFacade)
+    assert isinstance(dj_infra.facade, TableFacade)
 
 
 def test_facade_uses_correct_factory(dj_infra: DJInfrastructure) -> None:

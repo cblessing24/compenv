@@ -18,9 +18,9 @@ from .types import Factory, Schema
 _T = TypeVar("_T")
 
 
-def _check_primary(func: Callable[[DJTableFacade, PrimaryKey], _T]) -> Callable[[DJTableFacade, PrimaryKey], _T]:
+def _check_primary(func: Callable[[TableFacade, PrimaryKey], _T]) -> Callable[[TableFacade, PrimaryKey], _T]:
     @functools.wraps(func)
-    def wrapper(self: DJTableFacade, primary: PrimaryKey) -> _T:
+    def wrapper(self: TableFacade, primary: PrimaryKey) -> _T:
         if primary not in self.factory():
             raise KeyError(f"Computation record with primary key '{primary}' does not exist!")
         return func(self, primary)
@@ -28,7 +28,7 @@ def _check_primary(func: Callable[[DJTableFacade, PrimaryKey], _T]) -> Callable[
     return wrapper
 
 
-class DJTableFacade(AbstractTableFacade[DJComputationRecord]):
+class TableFacade(AbstractTableFacade[DJComputationRecord]):
     """Facade around a DataJoint table that stores computation records."""
 
     def __init__(self, factory: Factory) -> None:
