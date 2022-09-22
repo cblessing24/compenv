@@ -38,6 +38,10 @@ class ConnectionFacade(AbstractConnectionFacade):
         """Close the connection."""
         self._connection.close()
 
+    def __repr__(self) -> str:
+        """Return a string representation of the connection facade."""
+        return f"{self.__class__.__name__}(connection={repr(self._connection)})"
+
 
 class ConnectionOptionsDict(TypedDict):
     """A dictionary containing optional arguments for DataJoint's connection object."""

@@ -34,6 +34,10 @@ class TestConnectionFacade:
         connection_facade.close()
         assert not fake_connection.is_connected
 
+    @staticmethod
+    def test_repr(connection_facade: ConnectionFacade) -> None:
+        assert repr(connection_facade) == "ConnectionFacade(connection=FakeConnection())"
+
 
 class TestConnectionFactory:
     @staticmethod
