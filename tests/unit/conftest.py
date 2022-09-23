@@ -21,7 +21,7 @@ import pytest
 from datajoint.errors import DuplicateError
 
 from compenv.adapters.entity import DJComputationRecord, DJDistribution
-from compenv.infrastructure.types import Connection, Table
+from compenv.infrastructure.types import Connection, ConnInfoDict, Table
 from compenv.model.record import ComputationRecord, Distribution, Identifier
 from compenv.service.abstract import DistributionFinder, Repository, Response
 from compenv.types import PrimaryKey
@@ -142,6 +142,7 @@ class FakeConnection:
         self._in_transaction = False
         self.committed = False
         self.is_connected = True
+        self.conn_info: ConnInfoDict = {"host": "myhost", "user": "myuser", "passwd": "mypasswd"}
 
     def start_transaction(self) -> None:
         self._in_transaction = True

@@ -1,4 +1,12 @@
+from typing import TypedDict
+
+class ConnInfoDict(TypedDict):
+    host: str
+    user: str
+    passwd: str
+
 class Connection:
+    conn_info: ConnInfoDict
     def __init__(self, host: str, user: str, password: str) -> None: ...
     def start_transaction(self) -> None: ...
     def commit_transaction(self) -> None: ...

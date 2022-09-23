@@ -1,7 +1,20 @@
 """Contains custom types used in the infrastructure layer."""
 from __future__ import annotations
 
-from typing import Container, Dict, Iterable, Mapping, MutableMapping, Optional, Protocol, Sized, Type, TypeVar, Union
+from typing import (
+    Container,
+    Dict,
+    Iterable,
+    Mapping,
+    MutableMapping,
+    Optional,
+    Protocol,
+    Sized,
+    Type,
+    TypedDict,
+    TypeVar,
+    Union,
+)
 
 from ..types import PrimaryKey
 
@@ -21,8 +34,18 @@ class Table(
         """Insert a row into the table."""
 
 
+class ConnInfoDict(TypedDict):
+    """Dictionary containing connection information."""
+
+    host: str
+    user: str
+    passwd: str
+
+
 class Connection(Protocol):
     """Datajoint connection protocol."""
+
+    conn_info: ConnInfoDict
 
     def start_transaction(self) -> None:
         """Start a transaction."""
