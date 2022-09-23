@@ -62,6 +62,7 @@ _T = TypeVar("_T", bound=Table)
 class Schema(Protocol):
     """Datajoint schema protocol."""
 
+    database: str
     context: Dict[str, object]
 
     @property
