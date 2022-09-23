@@ -73,3 +73,10 @@ class Schema(Protocol):
 
     def __call__(self, cls: Type[_T], *, context: Optional[Mapping[str, object]] = None) -> Type[_T]:
         """Bind the supplied class to the schema."""
+
+
+class SchemaFactory(Protocol):  # pylint: disable=too-few-public-methods
+    """A factory producing schemas."""
+
+    def __call__(self) -> Schema:
+        """Produce a new schema."""
