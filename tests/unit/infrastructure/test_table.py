@@ -110,48 +110,17 @@ class TestFacade:
         assert repr(facade) == "TableFacade(factory=FakeFactory())"
 
 
+@pytest.fixture
+def factory(fake_schema: FakeSchema, fake_table: Type[FakeTable]) -> TableFactory:
+    return TableFactory(fake_schema, parent=fake_table.__name__)
+
+
+@pytest.fixture
+def produce_instance(factory: TableFactory) -> Lookup:
+    return factory()
+
+
 class TestFactory:
-    @staticmethod
-    @pytest.fixture
-    def factory(fake_schema: FakeSchema, fake_table: Type[FakeTable]) -> TableFactory:
-        return TableFactory(fake_schema, parent=fake_table.__name__)
-
-    @staticmethod
-    @pytest.fixture
-    def produce_instance(factory: TableFactory) -> Lookup:
-        return factory()
-
-    @staticmethod
-    @pytest.mark.usefixtures("produce_instance")
-    class TestMasterClass:
-        @staticmethod
-        def test_class_has_correct_name(fake_schema: FakeSchema) -> None:
-            assert "FakeTableRecord" in fake_schema.decorated_tables
-
-        @staticmethod
-        def test_class_is_lookup_table(fake_schema: FakeSchema) -> None:
-            assert issubclass(fake_schema.decorated_tables["FakeTableRecord"], Lookup)
-
-        @staticmethod
-        def test_class_has_correct_definition(fake_schema: FakeSchema) -> None:
-            assert fake_schema.decorated_tables["FakeTableRecord"].definition == "-> FakeTable"
-
-    @staticmethod
-    @pytest.mark.parametrize("part", PartEntity.__subclasses__())
-    @pytest.mark.usefixtures("produce_instance")
-    class TestPartClasses:
-        @staticmethod
-        def test_part_classes_are_present_on_table_class(fake_schema: FakeSchema, part: Type[PartEntity]) -> None:
-            assert hasattr(fake_schema.decorated_tables["FakeTableRecord"], part.__name__)
-
-        @staticmethod
-        def test_part_classes_are_subclass_of_part_table(fake_schema: FakeSchema, part: Type[PartEntity]) -> None:
-            assert issubclass(getattr(fake_schema.decorated_tables["FakeTableRecord"], part.__name__), Part)
-
-        @staticmethod
-        def test_part_classes_have_correct_definitions(fake_schema: FakeSchema, part: Type[PartEntity]) -> None:
-            assert getattr(fake_schema.decorated_tables["FakeTableRecord"], part.__name__).definition == part.definition
-
     @staticmethod
     def test_parent_is_added_to_context_when_schema_is_called(
         fake_schema: FakeSchema, fake_table: Type[FakeTable]
@@ -171,3 +140,35 @@ class TestFactory:
     @staticmethod
     def test_factory_repr(factory: TableFactory) -> None:
         assert repr(factory) == "TableFactory(schema=FakeSchema(), parent='FakeTable')"
+
+
+@staticmethod
+@pytest.mark.usefixtures("produce_instance")
+class TestFactoryMasterClass:
+    @staticmethod
+    def test_class_has_correct_name(fake_schema: FakeSchema) -> None:
+        assert "FakeTableRecord" in fake_schema.decorated_tables
+
+    @staticmethod
+    def test_class_is_lookup_table(fake_schema: FakeSchema) -> None:
+        assert issubclass(fake_schema.decorated_tables["FakeTableRecord"], Lookup)
+
+    @staticmethod
+    def test_class_has_correct_definition(fake_schema: FakeSchema) -> None:
+        assert fake_schema.decorated_tables["FakeTableRecord"].definition == "-> FakeTable"
+
+
+@pytest.mark.parametrize("part", PartEntity.__subclasses__())
+@pytest.mark.usefixtures("produce_instance")
+class TestFactoryPartClasses:
+    @staticmethod
+    def test_part_classes_are_present_on_table_class(fake_schema: FakeSchema, part: Type[PartEntity]) -> None:
+        assert hasattr(fake_schema.decorated_tables["FakeTableRecord"], part.__name__)
+
+    @staticmethod
+    def test_part_classes_are_subclass_of_part_table(fake_schema: FakeSchema, part: Type[PartEntity]) -> None:
+        assert issubclass(getattr(fake_schema.decorated_tables["FakeTableRecord"], part.__name__), Part)
+
+    @staticmethod
+    def test_part_classes_have_correct_definitions(fake_schema: FakeSchema, part: Type[PartEntity]) -> None:
+        assert getattr(fake_schema.decorated_tables["FakeTableRecord"], part.__name__).definition == part.definition
