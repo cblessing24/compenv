@@ -67,12 +67,12 @@ class TestConnectionFactory:
     @staticmethod
     def test_can_access_connection(connection_factory: ConnectionFactory) -> None:
         connection_factory()
-        assert connection_factory.connection == "DataJoint Connection"  # type: ignore[comparison-overlap]
+        assert connection_factory.dj_connection == "DataJoint Connection"  # type: ignore[comparison-overlap]
 
     @staticmethod
     def test_raises_runtime_error_if_no_connection(connection_factory: ConnectionFactory) -> None:
         with pytest.raises(RuntimeError, match="is missing"):
-            connection_factory.connection
+            connection_factory.dj_connection
 
     @staticmethod
     def test_repr(

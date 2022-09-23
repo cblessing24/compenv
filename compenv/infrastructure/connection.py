@@ -66,8 +66,8 @@ class ConnectionFactory:
         self._connection: Optional[DJConnection] = None
 
     @property
-    def connection(self) -> DJConnection:
-        """Return the connection object if it exists."""
+    def dj_connection(self) -> DJConnection:
+        """Return the DataJoint connection used in the connection facade if it exists."""
         if self._connection is None:
             raise RuntimeError("Connection is missing")
         return self._connection
