@@ -48,7 +48,7 @@ class TestConnectionFactory:
     @staticmethod
     @pytest.fixture(autouse=True)
     def dj_connection_cls_mock(monkeypatch: pytest.MonkeyPatch) -> MagicMock:
-        dj_connection_cls_mock = MagicMock()
+        dj_connection_cls_mock = MagicMock(return_value="DataJoint Connection")
         monkeypatch.setattr("compenv.infrastructure.connection.DJConnection", dj_connection_cls_mock)
         return dj_connection_cls_mock
 
@@ -66,7 +66,8 @@ class TestConnectionFactory:
 
     @staticmethod
     def test_can_access_connection(connection_factory: ConnectionFactory) -> None:
-        assert connection_factory() is connection_factory.connection
+        connection_factory()
+        assert connection_factory.connection == "DataJoint Connection"  # type: ignore[comparison-overlap]
 
     @staticmethod
     def test_raises_runtime_error_if_no_connection(connection_factory: ConnectionFactory) -> None:

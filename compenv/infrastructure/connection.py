@@ -63,10 +63,10 @@ class ConnectionFactory:
         self.user = user
         self.password = password
         self.options = options if options else DEFAULT_OPTIONS
-        self._connection: Optional[ConnectionFacade] = None
+        self._connection: Optional[DJConnection] = None
 
     @property
-    def connection(self) -> ConnectionFacade:
+    def connection(self) -> DJConnection:
         """Return the connection object if it exists."""
         if self._connection is None:
             raise RuntimeError("Connection is missing")
@@ -74,10 +74,8 @@ class ConnectionFactory:
 
     def __call__(self) -> ConnectionFacade:
         """Create a new connection."""
-        self._connection = ConnectionFacade(
-            DJConnection(host=self.host, user=self.user, password=self.password, **self.options)
-        )
-        return self.connection
+        self._connection = DJConnection(host=self.host, user=self.user, password=self.password, **self.options)
+        return ConnectionFacade(self._connection)
 
     def __repr__(self) -> str:
         """Return a string representation of the object."""
