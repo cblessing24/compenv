@@ -4,7 +4,7 @@ from typing import Any, Mapping, Optional, Type, cast
 import pytest
 
 from compenv.infrastructure.entrypoint import EnvironmentRecorder
-from compenv.infrastructure.types import AutopopulatedTable, Schema
+from compenv.infrastructure.types import Schema
 
 from ..conftest import FakeAutopopulatedTable, FakeTable
 
@@ -45,7 +45,7 @@ def record_environment(fake_get_current_frame: FakeCurrentFrameGetter) -> Enviro
 def test_schema_is_applied_to_table_class(
     record_environment: EnvironmentRecorder,
     fake_schema: Schema,
-    fake_autopopulated_table: Type[AutopopulatedTable],
+    fake_autopopulated_table: Type[FakeAutopopulatedTable],
 ) -> None:
     bla = record_environment(fake_schema)(fake_autopopulated_table)
     assert hasattr(bla, "database")
@@ -55,7 +55,7 @@ def test_locals_are_added_to_context_if_schema_has_no_context(
     fake_current_frame: FakeFrame,
     record_environment: EnvironmentRecorder,
     fake_schema: Schema,
-    fake_autopopulated_table: Type[AutopopulatedTable],
+    fake_autopopulated_table: Type[FakeAutopopulatedTable],
 ) -> None:
     assert fake_current_frame.f_back is not None
     fake_current_frame.f_back.f_locals = {"foo": "bar"}
@@ -67,7 +67,7 @@ def test_locals_are_not_added_to_context_if_schema_has_context(
     fake_current_frame: FakeFrame,
     record_environment: EnvironmentRecorder,
     fake_schema: Schema,
-    fake_autopopulated_table: Type[AutopopulatedTable],
+    fake_autopopulated_table: Type[FakeAutopopulatedTable],
 ) -> None:
     assert fake_current_frame.f_back is not None
     fake_current_frame.f_back.f_locals = {"foo": "bar"}
@@ -80,7 +80,7 @@ def test_raises_error_if_stack_frame_support_is_missing(
     fake_get_current_frame: FakeCurrentFrameGetter,
     record_environment: EnvironmentRecorder,
     fake_schema: Schema,
-    fake_autopopulated_table: Type[AutopopulatedTable],
+    fake_autopopulated_table: Type[FakeAutopopulatedTable],
 ) -> None:
     fake_get_current_frame.frame = None
     with pytest.raises(RuntimeError, match="Need stack frame support"):
@@ -91,7 +91,7 @@ def test_raises_error_if_there_is_no_previous_frame(
     fake_current_frame: FakeFrame,
     record_environment: EnvironmentRecorder,
     fake_schema: Schema,
-    fake_autopopulated_table: Type[AutopopulatedTable],
+    fake_autopopulated_table: Type[FakeAutopopulatedTable],
 ) -> None:
     fake_current_frame.f_back = None
     with pytest.raises(RuntimeError, match="No previous"):
