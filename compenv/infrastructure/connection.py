@@ -32,24 +32,24 @@ class ConnectionFacade(AbstractConnectionFacade):
 
     def start(self) -> None:
         """Start a transaction."""
-        self._factory().start_transaction()
+        self.dj_connection.start_transaction()
 
     def commit(self) -> None:
         """Commit the transaction."""
-        self._factory().commit_transaction()
+        self.dj_connection.commit_transaction()
 
     def rollback(self) -> None:
         """Rollback the transaction."""
-        self._factory().cancel_transaction()
+        self.dj_connection.cancel_transaction()
 
     @property
     def in_transaction(self) -> bool:
         """Return True if we are in a transaction, False otherwise."""
-        return self._factory().in_transaction
+        return self.dj_connection.in_transaction
 
     def close(self) -> None:
         """Close the connection."""
-        self._factory().close()
+        self.dj_connection.close()
         self._dj_connection = None
 
     def __repr__(self) -> str:

@@ -46,6 +46,7 @@ class TestConnectionFacade:
     def test_can_start_transaction(
         connection_facade: ConnectionFacade, fake_connection_factory: FakeConnectionFactory
     ) -> None:
+        connection_facade.open()
         connection_facade.start()
         assert fake_connection_factory.fake_connection.in_transaction
 
@@ -53,11 +54,13 @@ class TestConnectionFacade:
     def test_can_commit_transaction(
         connection_facade: ConnectionFacade, fake_connection_factory: FakeConnectionFactory
     ) -> None:
+        connection_facade.open()
         connection_facade.commit()
         assert fake_connection_factory.fake_connection.committed
 
     @staticmethod
     def test_can_rollback_transaction(connection_facade: ConnectionFacade, fake_connection: FakeConnection) -> None:
+        connection_facade.open()
         connection_facade.start()
         connection_facade.rollback()
         assert not fake_connection.in_transaction
@@ -66,6 +69,7 @@ class TestConnectionFacade:
     def test_can_close_connection(
         connection_facade: ConnectionFacade, fake_connection_factory: FakeConnectionFactory
     ) -> None:
+        connection_facade.open()
         connection_facade.close()
         assert not fake_connection_factory.fake_connection.is_connected
 
