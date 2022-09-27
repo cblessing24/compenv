@@ -55,29 +55,29 @@ DEFAULT_OPTIONS = {"port": None, "init_fun": None, "use_tls": None}
 
 
 class ConnectionFactory:
-    """A factory producing connections."""
+    """A factory producing DataJoint connections."""
 
     def __init__(self, host: str, user: str, password: str, options: Optional[ConnectionOptionsDict] = None) -> None:
-        """Initialize the connection factory."""
+        """Initialize the factory."""
         self.host = host
         self.user = user
         self.password = password
         self.options = options if options else DEFAULT_OPTIONS
-        self._connection: Optional[DJConnection] = None
+        self._dj_connection: Optional[DJConnection] = None
 
     @property
     def dj_connection(self) -> DJConnection:
-        """Return the DataJoint connection used in the connection facade if it exists."""
-        if self._connection is None:
+        """Return the last created DataJoint connection if it exists."""
+        if self._dj_connection is None:
             raise RuntimeError("Connection is missing")
-        return self._connection
+        return self._dj_connection
 
-    def __call__(self) -> ConnectionFacade:
-        """Create a new connection."""
-        self._connection = DJConnection(host=self.host, user=self.user, password=self.password, **self.options)
-        return ConnectionFacade(self._connection)
+    def __call__(self) -> DJConnection:
+        """Create a new DataJoint connection."""
+        self._dj_connection = DJConnection(host=self.host, user=self.user, password=self.password, **self.options)
+        return self.dj_connection
 
     def __repr__(self) -> str:
-        """Return a string representation of the object."""
+        """Return a string representation of the factory."""
         args_string = ", ".join(f"{a}={repr(v)}" for a, v in self.__dict__.items() if not a.startswith("_"))
         return f"{self.__class__.__name__}({args_string})"

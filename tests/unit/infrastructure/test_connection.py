@@ -53,8 +53,8 @@ class TestConnectionFactory:
         return dj_connection_cls_mock
 
     @staticmethod
-    def test_returns_connection_facade(connection_factory: ConnectionFactory) -> None:
-        assert isinstance(connection_factory(), ConnectionFacade)
+    def test_returns_connection(connection_factory: ConnectionFactory) -> None:
+        assert connection_factory() == "DataJoint Connection"  # type: ignore[comparison-overlap]
 
     @staticmethod
     def test_can_set_options(dj_connection_cls_mock: MagicMock) -> None:
