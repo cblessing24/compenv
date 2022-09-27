@@ -50,9 +50,6 @@ class EnvironmentRecorder:  # pylint: disable=too-few-public-methods
             backend = create_dj_backend(schema, table_cls.__name__)
             self._modify_table(schema, table_cls, backend.adapters.controller)
 
-            # Create record table now while not in a transaction.
-            backend.infra.factory()
-
             return table_cls
 
         return _record_environment

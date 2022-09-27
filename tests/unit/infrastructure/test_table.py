@@ -110,9 +110,25 @@ class TestFacade:
         assert repr(facade) == "TableFacade(factory=FakeFactory())"
 
 
+class FakeSchemaFactory:
+    def __init__(self, fake_schema: FakeSchema) -> None:
+        self.fake_schema = fake_schema
+
+    def __call__(self) -> FakeSchema:
+        return self.fake_schema
+
+    def __repr__(self) -> str:
+        return f"{self.__class__.__name__}(fake_schema={repr(self.fake_schema)})"
+
+
 @pytest.fixture
-def factory(fake_schema: FakeSchema, fake_table: Type[FakeTable]) -> TableFactory:
-    return TableFactory(fake_schema, parent=fake_table.__name__)
+def fake_schema_factory(fake_schema: FakeSchema) -> FakeSchemaFactory:
+    return FakeSchemaFactory(fake_schema)
+
+
+@pytest.fixture
+def factory(fake_schema_factory: FakeSchemaFactory, fake_table: Type[FakeTable]) -> TableFactory:
+    return TableFactory(fake_schema_factory, parent=fake_table.__name__)
 
 
 @pytest.fixture
@@ -123,10 +139,10 @@ def produce_instance(factory: TableFactory) -> Lookup:
 class TestFactory:
     @staticmethod
     def test_parent_is_added_to_context_when_schema_is_called(
-        fake_schema: FakeSchema, fake_table: Type[FakeTable]
+        fake_schema_factory: FakeSchemaFactory, fake_schema: FakeSchema, fake_table: Type[FakeTable]
     ) -> None:
         fake_schema.context = {"foo": FakeTable}
-        _ = TableFactory(fake_schema, parent=fake_table.__name__)()
+        _ = TableFactory(fake_schema_factory, parent=fake_table.__name__)()
         assert fake_schema.context == {"foo": FakeTable, "FakeTable": fake_table}
 
     @staticmethod
@@ -138,8 +154,11 @@ class TestFactory:
         assert factory() is factory()
 
     @staticmethod
-    def test_factory_repr(factory: TableFactory) -> None:
-        assert repr(factory) == "TableFactory(schema=FakeSchema(), parent='FakeTable')"
+    def test_repr(factory: TableFactory) -> None:
+        assert (
+            repr(factory)
+            == "TableFactory(schema_factory=FakeSchemaFactory(fake_schema=FakeSchema()), parent='FakeTable')"
+        )
 
 
 @staticmethod

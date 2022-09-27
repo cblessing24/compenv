@@ -1,11 +1,10 @@
 from typing import Any, Dict, Mapping, MutableMapping, Optional, Type, TypeVar
 
 from compenv.infrastructure.types import Connection as ConnectionProtocol
-
-from .table import Table
+from compenv.infrastructure.types import Table as TableProtocol
 
 Context = MutableMapping[str, Any]
-_V = TypeVar("_V", bound=Table)
+_V = TypeVar("_V", bound=TableProtocol)
 
 class Schema:
     context: Dict[str, object]

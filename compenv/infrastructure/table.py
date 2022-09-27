@@ -13,7 +13,7 @@ from datajoint.errors import DuplicateError
 from ..adapters.abstract import AbstractTableFacade, PartEntity
 from ..adapters.entity import DJComputationRecord
 from ..types import PrimaryKey
-from .types import Factory, Schema
+from .types import Factory, SchemaFactory
 
 _T = TypeVar("_T")
 
@@ -83,9 +83,9 @@ class TableFacade(AbstractTableFacade[DJComputationRecord]):
 class TableFactory:
     """A factory producing tables."""
 
-    def __init__(self, schema: Schema, parent: str) -> None:
+    def __init__(self, schema_factory: SchemaFactory, parent: str) -> None:
         """Initialize the factory."""
-        self.schema = schema
+        self.schema_factory = schema_factory
         self.parent = parent
 
     @lru_cache
@@ -99,12 +99,13 @@ class TableFactory:
                 type(part_cls.__name__, (Part,), {"definition": part_cls.definition}),
             )
         schema_tables: Dict[str, object] = {}
-        self.schema.spawn_missing_classes(schema_tables)
+        schema = self.schema_factory()
+        schema.spawn_missing_classes(schema_tables)
         context: dict[str, object] = {self.parent: schema_tables[self.parent]}
-        if self.schema.context:
-            context.update(self.schema.context)
-        return self.schema(master_cls, context=context)()
+        if schema.context:
+            context.update(schema.context)
+        return schema(master_cls, context=context)()
 
     def __repr__(self) -> str:
         """Create a string representation of the factory."""
-        return f"{self.__class__.__name__}(schema={repr(self.schema)}, parent={repr(self.parent)})"
+        return f"{self.__class__.__name__}(schema_factory={repr(self.schema_factory)}, parent={repr(self.parent)})"
