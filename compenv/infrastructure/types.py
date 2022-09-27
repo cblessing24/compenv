@@ -64,6 +64,13 @@ class Connection(Protocol):
         """Close the connection."""
 
 
+class ConnectionFactory(Protocol):  # pylint: disable=too-few-public-methods
+    """Protocol representing a factory producing DataJoint connections."""
+
+    def __call__(self) -> Connection:
+        """Create a new connection."""
+
+
 class AutopopulatedTable(Table, Protocol):  # pylint: disable=abstract-method
     """Datajoint auto-populated table protocol."""
 
