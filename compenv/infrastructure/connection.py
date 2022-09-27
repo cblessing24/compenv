@@ -7,40 +7,40 @@ from typing import Optional, TypedDict
 from datajoint.connection import Connection as DJConnection
 
 from ..adapters.abstract import AbstractConnectionFacade
-from .types import Connection
+from .types import ConnectionFactory as ConnectionFactoryProto
 
 
 class ConnectionFacade(AbstractConnectionFacade):
     """Represents a facade around DataJoint's connection object."""
 
-    def __init__(self, connection: Connection) -> None:
+    def __init__(self, factory: ConnectionFactoryProto) -> None:
         """Initialize the transaction."""
-        self._connection = connection
+        self._factory = factory
 
     def start(self) -> None:
         """Start a transaction."""
-        self._connection.start_transaction()
+        self._factory().start_transaction()
 
     def commit(self) -> None:
         """Commit the transaction."""
-        self._connection.commit_transaction()
+        self._factory().commit_transaction()
 
     def rollback(self) -> None:
         """Rollback the transaction."""
-        self._connection.cancel_transaction()
+        self._factory().cancel_transaction()
 
     @property
     def in_transaction(self) -> bool:
         """Return True if we are in a transaction, False otherwise."""
-        return self._connection.in_transaction
+        return self._factory().in_transaction
 
     def close(self) -> None:
         """Close the connection."""
-        self._connection.close()
+        self._factory().close()
 
     def __repr__(self) -> str:
         """Return a string representation of the connection facade."""
-        return f"{self.__class__.__name__}(connection={repr(self._connection)})"
+        return f"{self.__class__.__name__}(factory={repr(self._factory)})"
 
 
 class ConnectionOptionsDict(TypedDict):

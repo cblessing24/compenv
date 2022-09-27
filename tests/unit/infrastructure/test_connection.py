@@ -7,11 +7,27 @@ from compenv.infrastructure.connection import ConnectionFacade, ConnectionFactor
 from ..conftest import FakeConnection
 
 
+class FakeConnectionFactory:
+    def __init__(self, fake_connection: FakeConnection) -> None:
+        self._fake_connection = fake_connection
+
+    def __call__(self) -> FakeConnection:
+        return self._fake_connection
+
+    def __repr__(self) -> str:
+        return f"{self.__class__.__name__}(fake_connection={self._fake_connection})"
+
+
+@pytest.fixture
+def fake_connection_factory(fake_connection: FakeConnection) -> FakeConnectionFactory:
+    return FakeConnectionFactory(fake_connection)
+
+
 class TestConnectionFacade:
     @staticmethod
     @pytest.fixture
-    def connection_facade(fake_connection: FakeConnection) -> ConnectionFacade:
-        return ConnectionFacade(fake_connection)
+    def connection_facade(fake_connection_factory: FakeConnectionFactory) -> ConnectionFacade:
+        return ConnectionFacade(fake_connection_factory)
 
     @staticmethod
     def test_can_start_transaction(connection_facade: ConnectionFacade, fake_connection: FakeConnection) -> None:
@@ -36,7 +52,10 @@ class TestConnectionFacade:
 
     @staticmethod
     def test_repr(connection_facade: ConnectionFacade) -> None:
-        assert repr(connection_facade) == "ConnectionFacade(connection=FakeConnection())"
+        assert (
+            repr(connection_facade)
+            == "ConnectionFacade(factory=FakeConnectionFactory(fake_connection=FakeConnection()))"
+        )
 
 
 class TestConnectionFactory:
