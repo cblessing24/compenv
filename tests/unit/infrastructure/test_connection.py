@@ -116,16 +116,6 @@ class TestConnectionFactory:
         assert dj_connection_cls_mock.call_args_list[0].kwargs["port"] == 1234
 
     @staticmethod
-    def test_can_access_connection(connection_factory: ConnectionFactory) -> None:
-        connection_factory()
-        assert connection_factory.dj_connection == "DataJoint Connection"  # type: ignore[comparison-overlap]
-
-    @staticmethod
-    def test_raises_runtime_error_if_no_connection(connection_factory: ConnectionFactory) -> None:
-        with pytest.raises(RuntimeError, match="is missing"):
-            connection_factory.dj_connection
-
-    @staticmethod
     def test_repr(
         connection_factory: ConnectionFactory,
     ) -> None:

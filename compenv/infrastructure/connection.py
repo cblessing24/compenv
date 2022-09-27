@@ -77,19 +77,10 @@ class ConnectionFactory:
         self.user = user
         self.password = password
         self.options = options if options else DEFAULT_OPTIONS
-        self._dj_connection: Optional[DJConnection] = None
-
-    @property
-    def dj_connection(self) -> DJConnection:
-        """Return the last created DataJoint connection if it exists."""
-        if self._dj_connection is None:
-            raise RuntimeError("Connection is missing")
-        return self._dj_connection
 
     def __call__(self) -> DJConnection:
         """Create a new DataJoint connection."""
-        self._dj_connection = DJConnection(host=self.host, user=self.user, password=self.password, **self.options)
-        return self.dj_connection
+        return DJConnection(host=self.host, user=self.user, password=self.password, **self.options)
 
     def __repr__(self) -> str:
         """Return a string representation of the factory."""
