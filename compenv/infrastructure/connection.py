@@ -7,6 +7,7 @@ from typing import Optional, TypedDict
 from datajoint.connection import Connection as DJConnection
 
 from ..adapters.abstract import AbstractConnectionFacade
+from .types import Connection as ConnectionProto
 from .types import ConnectionFactory as ConnectionFactoryProto
 
 
@@ -16,6 +17,11 @@ class ConnectionFacade(AbstractConnectionFacade):
     def __init__(self, factory: ConnectionFactoryProto) -> None:
         """Initialize the transaction."""
         self._factory = factory
+        self.dj_connection: Optional[ConnectionProto] = None
+
+    def open(self) -> None:
+        """Open a new connection."""
+        self.dj_connection = self._factory()
 
     def start(self) -> None:
         """Start a transaction."""
