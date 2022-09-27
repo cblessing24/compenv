@@ -1,3 +1,4 @@
+from typing import Optional
 from unittest.mock import MagicMock
 
 import pytest
@@ -8,19 +9,26 @@ from ..conftest import FakeConnection
 
 
 class FakeConnectionFactory:
-    def __init__(self, fake_connection: FakeConnection) -> None:
-        self._fake_connection = fake_connection
+    def __init__(self) -> None:
+        self._fake_connection: Optional[FakeConnection] = None
 
-    def __call__(self) -> FakeConnection:
+    @property
+    def fake_connection(self) -> FakeConnection:
+        if not self._fake_connection:
+            raise RuntimeError("No connection")
         return self._fake_connection
 
+    def __call__(self) -> FakeConnection:
+        self._fake_connection = FakeConnection()
+        return self.fake_connection
+
     def __repr__(self) -> str:
-        return f"{self.__class__.__name__}(fake_connection={self._fake_connection})"
+        return f"{self.__class__.__name__}()"
 
 
 @pytest.fixture
-def fake_connection_factory(fake_connection: FakeConnection) -> FakeConnectionFactory:
-    return FakeConnectionFactory(fake_connection)
+def fake_connection_factory() -> FakeConnectionFactory:
+    return FakeConnectionFactory()
 
 
 class TestConnectionFacade:
@@ -35,14 +43,18 @@ class TestConnectionFacade:
             connection_facade.dj_connection
 
     @staticmethod
-    def test_can_start_transaction(connection_facade: ConnectionFacade, fake_connection: FakeConnection) -> None:
+    def test_can_start_transaction(
+        connection_facade: ConnectionFacade, fake_connection_factory: FakeConnectionFactory
+    ) -> None:
         connection_facade.start()
-        assert fake_connection.in_transaction
+        assert fake_connection_factory.fake_connection.in_transaction
 
     @staticmethod
-    def test_can_commit_transaction(connection_facade: ConnectionFacade, fake_connection: FakeConnection) -> None:
+    def test_can_commit_transaction(
+        connection_facade: ConnectionFacade, fake_connection_factory: FakeConnectionFactory
+    ) -> None:
         connection_facade.commit()
-        assert fake_connection.committed
+        assert fake_connection_factory.fake_connection.committed
 
     @staticmethod
     def test_can_rollback_transaction(connection_facade: ConnectionFacade, fake_connection: FakeConnection) -> None:
@@ -51,9 +63,11 @@ class TestConnectionFacade:
         assert not fake_connection.in_transaction
 
     @staticmethod
-    def test_can_close_connection(connection_facade: ConnectionFacade, fake_connection: FakeConnection) -> None:
+    def test_can_close_connection(
+        connection_facade: ConnectionFacade, fake_connection_factory: FakeConnectionFactory
+    ) -> None:
         connection_facade.close()
-        assert not fake_connection.is_connected
+        assert not fake_connection_factory.fake_connection.is_connected
 
     @staticmethod
     def test_accessing_dj_connection_after_closing_raises_error(connection_facade: ConnectionFacade) -> None:
@@ -69,10 +83,7 @@ class TestConnectionFacade:
 
     @staticmethod
     def test_repr(connection_facade: ConnectionFacade) -> None:
-        assert (
-            repr(connection_facade)
-            == "ConnectionFacade(factory=FakeConnectionFactory(fake_connection=FakeConnection()))"
-        )
+        assert repr(connection_facade) == "ConnectionFacade(factory=FakeConnectionFactory())"
 
 
 class TestConnectionFactory:
