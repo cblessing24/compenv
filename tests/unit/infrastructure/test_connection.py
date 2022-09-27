@@ -30,6 +30,11 @@ class TestConnectionFacade:
         return ConnectionFacade(fake_connection_factory)
 
     @staticmethod
+    def test_raises_runtime_error_if_no_connection(connection_facade: ConnectionFacade) -> None:
+        with pytest.raises(RuntimeError, match="Not connected"):
+            connection_facade.dj_connection
+
+    @staticmethod
     def test_can_start_transaction(connection_facade: ConnectionFacade, fake_connection: FakeConnection) -> None:
         connection_facade.start()
         assert fake_connection.in_transaction

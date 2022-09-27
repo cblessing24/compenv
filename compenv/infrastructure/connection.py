@@ -17,11 +17,18 @@ class ConnectionFacade(AbstractConnectionFacade):
     def __init__(self, factory: ConnectionFactoryProto) -> None:
         """Initialize the transaction."""
         self._factory = factory
-        self.dj_connection: Optional[ConnectionProto] = None
+        self._dj_connection: Optional[ConnectionProto] = None
+
+    @property
+    def dj_connection(self) -> ConnectionProto:
+        """Return the DataJoint connection if it exists."""
+        if not self._dj_connection:
+            raise RuntimeError("Not connected")
+        return self._dj_connection
 
     def open(self) -> None:
         """Open a new connection."""
-        self.dj_connection = self._factory()
+        self._dj_connection = self._factory()
 
     def start(self) -> None:
         """Start a transaction."""
