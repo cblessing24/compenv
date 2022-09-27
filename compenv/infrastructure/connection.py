@@ -50,6 +50,7 @@ class ConnectionFacade(AbstractConnectionFacade):
     def close(self) -> None:
         """Close the connection."""
         self._factory().close()
+        self._dj_connection = None
 
     def __repr__(self) -> str:
         """Return a string representation of the connection facade."""

@@ -56,6 +56,13 @@ class TestConnectionFacade:
         assert not fake_connection.is_connected
 
     @staticmethod
+    def test_accessing_dj_connection_after_closing_raises_error(connection_facade: ConnectionFacade) -> None:
+        connection_facade.open()
+        connection_facade.close()
+        with pytest.raises(RuntimeError, match="Not connected"):
+            connection_facade.dj_connection
+
+    @staticmethod
     def test_can_open_connection(connection_facade: ConnectionFacade) -> None:
         connection_facade.open()
         assert connection_facade.dj_connection
