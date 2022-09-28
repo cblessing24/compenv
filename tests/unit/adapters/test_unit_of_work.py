@@ -15,6 +15,9 @@ class FakeConnection(AbstractConnectionFacade):
         self.computation_records: dict[Identifier, ComputationRecord] = {}
         self._in_transaction = False
 
+    def open(self) -> None:
+        pass
+
     def start(self) -> None:
         if self._in_transaction:
             raise RuntimeError("Nested transactions are not allowed")

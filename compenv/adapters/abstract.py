@@ -67,6 +67,10 @@ class AbstractConnectionFacade(ABC):
     """Defines the interface for all connection facades."""
 
     @abstractmethod
+    def open(self) -> None:
+        """Open a new connection."""
+
+    @abstractmethod
     def start(self) -> None:
         """Start a transaction."""
 
