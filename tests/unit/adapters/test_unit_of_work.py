@@ -14,9 +14,10 @@ class FakeConnection(AbstractConnectionFacade):
         self.repository = repository
         self.computation_records: dict[Identifier, ComputationRecord] = {}
         self._in_transaction = False
+        self.is_connected = False
 
     def open(self) -> None:
-        pass
+        self.is_connected = True
 
     def start(self) -> None:
         if self._in_transaction:
@@ -37,7 +38,10 @@ class FakeConnection(AbstractConnectionFacade):
         return self._in_transaction
 
     def close(self) -> None:
-        pass
+        self.is_connected = False
+
+    def __repr__(self) -> str:
+        return f"{self.__class__.__name__}(repository={repr(self.repository)})"
 
 
 @pytest.fixture
@@ -45,26 +49,47 @@ def fake_connection(fake_repository: FakeRepository) -> FakeConnection:
     return FakeConnection(fake_repository)
 
 
-def test_rolls_back_by_default(
-    fake_connection: FakeConnection, fake_repository: FakeRepository, computation_record: ComputationRecord
-) -> None:
-    with DJUnitOfWork(fake_connection, fake_repository) as uow:
+@pytest.fixture
+def uow(fake_connection: FakeConnection, fake_repository: FakeRepository) -> DJUnitOfWork:
+    return DJUnitOfWork(fake_connection, fake_repository)
+
+
+def test_opens_connection_on_entering_context(uow: DJUnitOfWork, fake_connection: FakeConnection) -> None:
+    with uow:
+        assert fake_connection.is_connected
+
+
+def test_closes_connection_on_leaving_context(uow: DJUnitOfWork, fake_connection: FakeConnection) -> None:
+    with uow:
+        pass
+    assert not fake_connection.is_connected
+
+
+def test_rolls_back_by_default(uow: DJUnitOfWork, computation_record: ComputationRecord) -> None:
+    with uow as uow:
         uow.records.add(computation_record)
     assert len(uow.records) == 0
 
 
 def test_no_nested_transactions(
-    fake_connection: FakeConnection, fake_repository: FakeRepository, computation_record: ComputationRecord
+    uow: DJUnitOfWork,
+    fake_connection: FakeConnection,
+    computation_record: ComputationRecord,
 ) -> None:
     fake_connection.start()
-    with DJUnitOfWork(fake_connection, fake_repository) as uow:
+    with uow as uow:
         uow.records.add(computation_record)
 
 
 def test_commit(
-    fake_connection: FakeConnection, fake_repository: FakeRepository, computation_record: ComputationRecord
+    uow: DJUnitOfWork,
+    computation_record: ComputationRecord,
 ) -> None:
-    with DJUnitOfWork(fake_connection, fake_repository) as uow:
+    with uow as uow:
         uow.records.add(computation_record)
         uow.commit()
     assert len(uow.records) == 1
+
+
+def test_repr(uow: DJUnitOfWork) -> None:
+    assert repr(uow) == "DJUnitOfWork(connection=FakeConnection(repository=FakeRepository()), records=FakeRepository())"

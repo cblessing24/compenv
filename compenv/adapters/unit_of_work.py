@@ -1,6 +1,9 @@
 """Contains the DataJoint specific unit of work."""
 from __future__ import annotations
 
+from types import TracebackType
+from typing import Optional, Type
+
 from ..service.abstract import Repository, UnitOfWork
 from .abstract import AbstractConnectionFacade
 
@@ -15,6 +18,7 @@ class DJUnitOfWork(UnitOfWork):
 
     def __enter__(self) -> DJUnitOfWork:
         """Enter the unit of work."""
+        self.connection.open()
         if not self.connection.in_transaction:
             self.connection.start()
         return super().__enter__()
@@ -26,3 +30,14 @@ class DJUnitOfWork(UnitOfWork):
     def rollback(self) -> None:
         """Rollback the unit of work."""
         self.connection.rollback()
+
+    def __exit__(
+        self, exc_type: Optional[Type[BaseException]], exc: Optional[BaseException], traceback: Optional[TracebackType]
+    ) -> None:
+        """Exit the unit of work."""
+        super().__exit__(exc_type, exc, traceback)
+        self.connection.close()
+
+    def __repr__(self) -> str:
+        """Return a string representation of the unit of work."""
+        return f"{self.__class__.__name__}(connection={repr(self.connection)}, records={repr(self.records)})"
