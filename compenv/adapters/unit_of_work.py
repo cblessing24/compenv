@@ -1,27 +1,8 @@
 """Contains the DataJoint specific unit of work."""
 from __future__ import annotations
 
-from typing import Protocol
-
 from ..service.abstract import Repository, UnitOfWork
 from .abstract import AbstractConnectionFacade
-
-
-class Connection(Protocol):
-    """DataJoint connection protocol."""
-
-    def start_transaction(self) -> None:
-        """Start a transaction."""
-
-    def commit_transaction(self) -> None:
-        """Commit the transaction."""
-
-    def cancel_transaction(self) -> None:
-        """Cancel the transaction."""
-
-    @property
-    def in_transaction(self) -> bool:
-        """Return True if we are currently in a transaction, False otherwise."""
 
 
 class DJUnitOfWork(UnitOfWork):
