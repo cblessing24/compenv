@@ -71,16 +71,6 @@ def test_rolls_back_by_default(uow: DJUnitOfWork, computation_record: Computatio
     assert len(uow.records) == 0
 
 
-def test_no_nested_transactions(
-    uow: DJUnitOfWork,
-    fake_connection: FakeConnection,
-    computation_record: ComputationRecord,
-) -> None:
-    fake_connection.start()
-    with uow as uow:
-        uow.records.add(computation_record)
-
-
 def test_commit(
     uow: DJUnitOfWork,
     computation_record: ComputationRecord,

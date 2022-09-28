@@ -19,8 +19,7 @@ class DJUnitOfWork(UnitOfWork):
     def __enter__(self) -> DJUnitOfWork:
         """Enter the unit of work."""
         self.connection.open()
-        if not self.connection.in_transaction:
-            self.connection.start()
+        self.connection.start()
         return super().__enter__()
 
     def commit(self) -> None:
