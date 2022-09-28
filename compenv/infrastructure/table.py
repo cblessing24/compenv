@@ -10,7 +10,7 @@ from typing import Dict, Type, TypeVar
 from datajoint import Lookup, Part
 from datajoint.errors import DuplicateError
 
-from ..adapters.abstract import AbstractTableFacade, PartEntity
+from ..adapters.abstract import AbstractTable, PartEntity
 from ..adapters.entity import DJComputationRecord
 from ..types import PrimaryKey
 from .types import Factory, SchemaFactory
@@ -28,7 +28,7 @@ def _check_primary(func: Callable[[TableFacade, PrimaryKey], _T]) -> Callable[[T
     return wrapper
 
 
-class TableFacade(AbstractTableFacade[DJComputationRecord]):
+class TableFacade(AbstractTable[DJComputationRecord]):
     """Facade around a DataJoint table that stores computation records."""
 
     def __init__(self, factory: Factory) -> None:

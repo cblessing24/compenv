@@ -12,8 +12,8 @@ from .conftest import FakeRecordTableFacade
 
 
 @pytest.fixture
-def repo(fake_translator_factory: FakeTranslatorFactory, fake_facade: FakeRecordTableFacade) -> DJRepository:
-    return DJRepository(fake_translator_factory(), fake_facade)
+def repo(fake_translator_factory: FakeTranslatorFactory, fake_table: FakeRecordTableFacade) -> DJRepository:
+    return DJRepository(fake_translator_factory(), fake_table)
 
 
 @pytest.fixture
@@ -30,9 +30,9 @@ class TestAdd:
 
     @staticmethod
     def test_inserts_dj_computation_record(
-        fake_facade: FakeRecordTableFacade, primary: PrimaryKey, dj_comp_rec: DJComputationRecord
+        fake_table: FakeRecordTableFacade, primary: PrimaryKey, dj_comp_rec: DJComputationRecord
     ) -> None:
-        assert fake_facade.get(primary) == dj_comp_rec
+        assert fake_table.get(primary) == dj_comp_rec
 
 
 def test_raises_error_if_not_existing(repo: DJRepository, identifier: Identifier) -> None:
@@ -60,4 +60,4 @@ def test_length(repo: DJRepository, computation_record: ComputationRecord) -> No
 
 
 def test_repr(repo: DJRepository) -> None:
-    assert repr(repo) == "DJRepository(translator=FakeTranslator(), facade=FakeRecordTableFacade())"
+    assert repr(repo) == "DJRepository(translator=FakeTranslator(), table=FakeRecordTableFacade())"

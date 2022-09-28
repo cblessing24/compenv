@@ -2,12 +2,12 @@ from typing import Iterator, List, Tuple
 
 import pytest
 
-from compenv.adapters.abstract import AbstractTableFacade
+from compenv.adapters.abstract import AbstractTable
 from compenv.adapters.entity import DJComputationRecord
 from compenv.types import PrimaryKey
 
 
-class FakeRecordTableFacade(AbstractTableFacade[DJComputationRecord]):
+class FakeRecordTableFacade(AbstractTable[DJComputationRecord]):
     def __init__(self) -> None:
         self.dj_comp_recs: List[Tuple[PrimaryKey, DJComputationRecord]] = []
 
@@ -33,5 +33,5 @@ class FakeRecordTableFacade(AbstractTableFacade[DJComputationRecord]):
 
 
 @pytest.fixture
-def fake_facade() -> FakeRecordTableFacade:
+def fake_table() -> FakeRecordTableFacade:
     return FakeRecordTableFacade()

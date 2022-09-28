@@ -35,8 +35,8 @@ class PartEntity:  # pylint: disable=too-few-public-methods
 _T = TypeVar("_T", bound=MasterEntity)
 
 
-class AbstractTableFacade(ABC, Generic[_T]):
-    """Defines the interface for all table facades."""
+class AbstractTable(ABC, Generic[_T]):
+    """Defines the interface for all tables."""
 
     @abstractmethod
     def add(self, master_entity: _T) -> None:
