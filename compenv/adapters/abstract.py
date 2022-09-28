@@ -63,8 +63,8 @@ class AbstractTableFacade(ABC, Generic[_T]):
         """Return the number of entities in the table."""
 
 
-class AbstractConnectionFacade(ABC):
-    """Defines the interface for all connection facades."""
+class AbstractConnection(ABC):
+    """Defines the interface for all connections."""
 
     @abstractmethod
     def open(self) -> None:

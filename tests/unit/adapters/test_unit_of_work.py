@@ -2,14 +2,14 @@ from __future__ import annotations
 
 import pytest
 
-from compenv.adapters.abstract import AbstractConnectionFacade
+from compenv.adapters.abstract import AbstractConnection
 from compenv.adapters.unit_of_work import DJUnitOfWork
 from compenv.model.record import ComputationRecord, Identifier
 
 from ..conftest import FakeRepository
 
 
-class FakeConnection(AbstractConnectionFacade):
+class FakeConnection(AbstractConnection):
     def __init__(self, repository: FakeRepository) -> None:
         self.repository = repository
         self.computation_records: dict[Identifier, ComputationRecord] = {}

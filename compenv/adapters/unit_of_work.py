@@ -5,13 +5,13 @@ from types import TracebackType
 from typing import Optional, Type
 
 from ..service.abstract import Repository, UnitOfWork
-from .abstract import AbstractConnectionFacade
+from .abstract import AbstractConnection
 
 
 class DJUnitOfWork(UnitOfWork):
     """Represents a DataJoint specific unit of work."""
 
-    def __init__(self, connection: AbstractConnectionFacade, records: Repository) -> None:
+    def __init__(self, connection: AbstractConnection, records: Repository) -> None:
         """Initialize the unit of work."""
         self.connection = connection
         self.records = records

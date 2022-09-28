@@ -6,12 +6,12 @@ from typing import Optional, TypedDict
 
 from datajoint.connection import Connection as DJConnection
 
-from ..adapters.abstract import AbstractConnectionFacade
+from ..adapters.abstract import AbstractConnection
 from .types import Connection as ConnectionProto
 from .types import ConnectionFactory as ConnectionFactoryProto
 
 
-class ConnectionFacade(AbstractConnectionFacade):
+class ConnectionFacade(AbstractConnection):
     """Represents a facade around DataJoint's connection object."""
 
     def __init__(self, factory: ConnectionFactoryProto) -> None:
