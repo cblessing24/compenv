@@ -42,11 +42,6 @@ class ConnectionFacade(AbstractConnectionFacade):
         """Rollback the transaction."""
         self.dj_connection.cancel_transaction()
 
-    @property
-    def in_transaction(self) -> bool:
-        """Return True if we are in a transaction, False otherwise."""
-        return self.dj_connection.in_transaction
-
     def close(self) -> None:
         """Close the connection."""
         self.dj_connection.close()

@@ -13,29 +13,23 @@ class FakeConnection(AbstractConnectionFacade):
     def __init__(self, repository: FakeRepository) -> None:
         self.repository = repository
         self.computation_records: dict[Identifier, ComputationRecord] = {}
-        self._in_transaction = False
+        self.in_transaction = False
         self.is_connected = False
 
     def open(self) -> None:
         self.is_connected = True
 
     def start(self) -> None:
-        if self._in_transaction:
-            raise RuntimeError("Nested transactions are not allowed")
         self.computation_records = self.repository.comp_recs.copy()
-        self._in_transaction = True
+        self.in_transaction = True
 
     def commit(self) -> None:
-        self._in_transaction = False
+        self.in_transaction = False
 
     def rollback(self) -> None:
-        if self._in_transaction:
+        if self.in_transaction:
             self.repository.comp_recs = self.computation_records
-            self._in_transaction = False
-
-    @property
-    def in_transaction(self) -> bool:
-        return self._in_transaction
+            self.in_transaction = False
 
     def close(self) -> None:
         self.is_connected = False
