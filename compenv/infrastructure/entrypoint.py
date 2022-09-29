@@ -3,14 +3,13 @@ from __future__ import annotations
 
 import functools
 import inspect
-from types import FrameType
-from typing import Callable, Optional, Type, TypeVar
+from typing import Callable, Mapping, Optional, Type, TypeVar
 
 from ..adapters.controller import DJController
 from ..backend import create_dj_backend
 from ..types import PrimaryKey
 from .hook import hook_into_make_method
-from .types import AutopopulatedTable, Entity, Schema
+from .types import AutopopulatedTable, Entity, FrameType, Schema
 
 
 class Entrypoint:  # pylint: disable=too-few-public-methods
@@ -31,13 +30,22 @@ _T = TypeVar("_T", bound=AutopopulatedTable)
 DEFAULT_GET_CURRENT_FRAME = inspect.currentframe
 
 
+def determine_context(context: Mapping[str, object], current_frame: Optional[FrameType]) -> dict[str, object]:
+    """Determine the context."""
+    if context:
+        return dict(context)
+    if not current_frame:
+        raise RuntimeError("Need stack frame support to dynamically determine context!")
+    prev_frame = current_frame.f_back
+    if not prev_frame:
+        raise RuntimeError("No previous stack frame found but needed to dynamically determine context!")
+    return dict(prev_frame.f_locals)
+
+
 class EnvironmentRecorder:  # pylint: disable=too-few-public-methods
     """Records the environment."""
 
-    def __init__(
-        self,
-        get_current_frame: Callable[[], Optional[FrameType]] = DEFAULT_GET_CURRENT_FRAME,
-    ) -> None:
+    def __init__(self, get_current_frame: Callable[[], Optional[FrameType]] = DEFAULT_GET_CURRENT_FRAME) -> None:
         """Initialize the environment recorder."""
         self.get_current_frame = get_current_frame
 
@@ -45,22 +53,13 @@ class EnvironmentRecorder:  # pylint: disable=too-few-public-methods
         """Record the environment during executions of the table's make method."""
 
         def _record_environment(table_cls: Type[_T]) -> Type[_T]:
-            if not schema.context:
-                schema.context = self._determine_context(self.get_current_frame())
+            schema.context = determine_context(schema.context, self.get_current_frame())
             backend = create_dj_backend(schema, table_cls.__name__)
             self._modify_table(schema, table_cls, backend.adapters.controller)
 
             return table_cls
 
         return _record_environment
-
-    def _determine_context(self, current_frame: Optional[FrameType]) -> dict[str, object]:
-        if not current_frame:
-            raise RuntimeError("Need stack frame support to dynamically determine context!")
-        prev_frame = current_frame.f_back
-        if not prev_frame:
-            raise RuntimeError("No previous stack frame found but needed to dynamically determine context!")
-        return prev_frame.f_locals
 
     @staticmethod
     def _modify_table(schema: Schema, table_cls: Type[_T], controller: DJController) -> None:
