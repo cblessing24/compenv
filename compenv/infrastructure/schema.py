@@ -1,13 +1,13 @@
 """Contains code related to DataJoint's schema object."""
 from datajoint.schemas import Schema
 
-from .connection import ConnectionFacade
+from .connection import Connection
 
 
 class SchemaFactory:
     """A factory producing schemas."""
 
-    def __init__(self, name: str, connection: ConnectionFacade) -> None:
+    def __init__(self, name: str, connection: Connection) -> None:
         """Initialize the schema factory."""
         self._name = name
         self._connection = connection

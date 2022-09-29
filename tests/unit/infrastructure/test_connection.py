@@ -3,7 +3,7 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from compenv.infrastructure.connection import ConnectionFacade, ConnectionFactory
+from compenv.infrastructure.connection import Connection, DJConnectionFactory
 
 from ..conftest import FakeConnection
 
@@ -34,68 +34,62 @@ def fake_connection_factory() -> FakeConnectionFactory:
 class TestConnectionFacade:
     @staticmethod
     @pytest.fixture
-    def connection_facade(fake_connection_factory: FakeConnectionFactory) -> ConnectionFacade:
-        return ConnectionFacade(fake_connection_factory)
+    def connection(fake_connection_factory: FakeConnectionFactory) -> Connection:
+        return Connection(fake_connection_factory)
 
     @staticmethod
-    def test_raises_runtime_error_if_no_connection(connection_facade: ConnectionFacade) -> None:
+    def test_raises_runtime_error_if_no_connection(connection: Connection) -> None:
         with pytest.raises(RuntimeError, match="Not connected"):
-            connection_facade.dj_connection
+            connection.dj_connection
 
     @staticmethod
-    def test_can_start_transaction(
-        connection_facade: ConnectionFacade, fake_connection_factory: FakeConnectionFactory
-    ) -> None:
-        with connection_facade:
-            connection_facade.transaction.start()
+    def test_can_start_transaction(connection: Connection, fake_connection_factory: FakeConnectionFactory) -> None:
+        with connection:
+            connection.transaction.start()
             assert fake_connection_factory.fake_connection.in_transaction
 
     @staticmethod
-    def test_can_commit_transaction(
-        connection_facade: ConnectionFacade, fake_connection_factory: FakeConnectionFactory
-    ) -> None:
-        with connection_facade:
-            connection_facade.transaction.start()
-            connection_facade.transaction.commit()
+    def test_can_commit_transaction(connection: Connection, fake_connection_factory: FakeConnectionFactory) -> None:
+        with connection:
+            connection.transaction.start()
+            connection.transaction.commit()
             assert fake_connection_factory.fake_connection.committed
 
     @staticmethod
-    def test_can_rollback_transaction(connection_facade: ConnectionFacade, fake_connection: FakeConnection) -> None:
-        with connection_facade:
-            connection_facade.transaction.start()
-            connection_facade.transaction.rollback()
+    def test_can_rollback_transaction(connection: Connection, fake_connection: FakeConnection) -> None:
+        with connection:
+            connection.transaction.start()
+            connection.transaction.rollback()
             assert not fake_connection.in_transaction
 
     @staticmethod
-    def test_can_close_connection(
-        connection_facade: ConnectionFacade, fake_connection_factory: FakeConnectionFactory
-    ) -> None:
-        with connection_facade:
+    def test_can_close_connection(connection: Connection, fake_connection_factory: FakeConnectionFactory) -> None:
+        with connection:
             pass
         assert not fake_connection_factory.fake_connection.is_connected
 
     @staticmethod
-    def test_accessing_dj_connection_after_closing_raises_error(connection_facade: ConnectionFacade) -> None:
-        with connection_facade:
+    def test_accessing_dj_connection_after_closing_raises_error(connection: Connection) -> None:
+        with connection:
             pass
         with pytest.raises(RuntimeError, match="Not connected"):
-            connection_facade.dj_connection
+            connection.dj_connection
 
     @staticmethod
-    def test_can_open_connection(connection_facade: ConnectionFacade) -> None:
-        with connection_facade:
-            assert connection_facade.dj_connection
+    def test_can_open_connection(connection: Connection) -> None:
+        with connection:
+            assert connection.dj_connection
 
     @staticmethod
-    def test_repr(connection_facade: ConnectionFacade) -> None:
-        assert repr(connection_facade) == "ConnectionFacade(factory=FakeConnectionFactory())"
+    def test_repr(connection: Connection) -> None:
+        assert repr(connection) == "Connection(factory=FakeConnectionFactory())"
 
 
 class TestConnectionFactory:
     @staticmethod
     @pytest.fixture
-    def connection_factory() -> ConnectionFactory:
-        return ConnectionFactory(host="mydb", user="myuser", password="mypassword")
+    def connection_factory() -> DJConnectionFactory:
+        return DJConnectionFactory(host="mydb", user="myuser", password="mypassword")
 
     @staticmethod
     @pytest.fixture(autouse=True)
@@ -105,12 +99,12 @@ class TestConnectionFactory:
         return dj_connection_cls_mock
 
     @staticmethod
-    def test_returns_connection(connection_factory: ConnectionFactory) -> None:
+    def test_returns_connection(connection_factory: DJConnectionFactory) -> None:
         assert connection_factory() == "DataJoint Connection"  # type: ignore[comparison-overlap]
 
     @staticmethod
     def test_can_set_options(dj_connection_cls_mock: MagicMock) -> None:
-        factory = ConnectionFactory(
+        factory = DJConnectionFactory(
             host="mydb", user="myuser", password="mypassword", options={"port": 1234, "init_fun": None, "use_tls": None}
         )
         factory()
@@ -118,9 +112,9 @@ class TestConnectionFactory:
 
     @staticmethod
     def test_repr(
-        connection_factory: ConnectionFactory,
+        connection_factory: DJConnectionFactory,
     ) -> None:
         assert repr(connection_factory) == (
-            "ConnectionFactory(host='mydb', user='myuser', password='mypassword', "
+            "DJConnectionFactory(host='mydb', user='myuser', password='mypassword', "
             "options={'port': None, 'init_fun': None, 'use_tls': None})"
         )

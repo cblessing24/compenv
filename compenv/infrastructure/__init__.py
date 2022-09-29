@@ -1,7 +1,7 @@
 """This package contains the infrastructure layer."""
 import dataclasses
 
-from .connection import ConnectionFacade, ConnectionFactory
+from .connection import Connection, DJConnectionFactory
 from .schema import SchemaFactory
 from .table import TableFacade, TableFactory
 from .types import Schema
@@ -13,14 +13,16 @@ class DJInfrastructure:
 
     factory: TableFactory
     facade: TableFacade
-    connection: ConnectionFacade
+    connection: Connection
 
 
 def create_dj_infrastructure(schema: Schema, table_name: str) -> DJInfrastructure:
     """Create a set of DataJoint infrastructure objects."""
     connection_info = schema.connection.conn_info
-    connection_factory = ConnectionFactory(connection_info["host"], connection_info["user"], connection_info["passwd"])
-    connection = ConnectionFacade(connection_factory)
+    connection_factory = DJConnectionFactory(
+        connection_info["host"], connection_info["user"], connection_info["passwd"]
+    )
+    connection = Connection(connection_factory)
     schema_factory = SchemaFactory(schema.database, connection=connection)
     table_factory = TableFactory(schema_factory, parent=table_name)
     table = TableFacade(factory=table_factory)

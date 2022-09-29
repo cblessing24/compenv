@@ -11,17 +11,17 @@ from ..adapters.abstract import AbstractConnection, AbstractTransaction
 from . import types
 
 
-class ConnectionFacade(AbstractConnection):
+class Connection(AbstractConnection):
     """Represents a facade around the connection specific parts of DataJoint's connection object."""
 
     def __init__(self, factory: types.ConnectionFactory) -> None:
         """Initialize the connection."""
         self._factory = factory
         self._dj_connection: Optional[types.Connection] = None
-        self._transaction = TransactionFacade(self)
+        self._transaction = _Transaction(self)
 
     @property
-    def transaction(self) -> TransactionFacade:
+    def transaction(self) -> _Transaction:
         """Return the transaction."""
         return self._transaction
 
@@ -56,10 +56,10 @@ class ConnectionFacade(AbstractConnection):
         return f"{self.__class__.__name__}(factory={repr(self._factory)})"
 
 
-class TransactionFacade(AbstractTransaction):
+class _Transaction(AbstractTransaction):
     """Represents a facade around the transaction specific parts of DataJoint's connection object."""
 
-    def __init__(self, connection: ConnectionFacade) -> None:
+    def __init__(self, connection: Connection) -> None:
         """Initialize the transaction."""
         self._connection = connection
 
@@ -87,7 +87,7 @@ class ConnectionOptionsDict(TypedDict):
 DEFAULT_OPTIONS = {"port": None, "init_fun": None, "use_tls": None}
 
 
-class ConnectionFactory:
+class DJConnectionFactory:
     """A factory producing DataJoint connections."""
 
     def __init__(self, host: str, user: str, password: str, options: Optional[ConnectionOptionsDict] = None) -> None:
