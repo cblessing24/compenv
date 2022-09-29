@@ -7,17 +7,23 @@ from typing import Optional, Type, TypedDict
 
 from datajoint.connection import Connection as DJConnection
 
-from ..adapters.abstract import AbstractConnection
+from ..adapters.abstract import AbstractConnection, AbstractTransaction
 from . import types
 
 
 class ConnectionFacade(AbstractConnection):
-    """Represents a facade around DataJoint's connection object."""
+    """Represents a facade around the connection specific parts of DataJoint's connection object."""
 
     def __init__(self, factory: types.ConnectionFactory) -> None:
-        """Initialize the transaction."""
+        """Initialize the connection."""
         self._factory = factory
         self._dj_connection: Optional[types.Connection] = None
+        self._transaction = TransactionFacade(self)
+
+    @property
+    def transaction(self) -> TransactionFacade:
+        """Return the transaction."""
+        return self._transaction
 
     @property
     def dj_connection(self) -> types.Connection:
@@ -29,18 +35,6 @@ class ConnectionFacade(AbstractConnection):
     def open(self) -> None:
         """Open a new connection."""
         self._dj_connection = self._factory()
-
-    def start(self) -> None:
-        """Start a transaction."""
-        self.dj_connection.start_transaction()
-
-    def commit(self) -> None:
-        """Commit the transaction."""
-        self.dj_connection.commit_transaction()
-
-    def rollback(self) -> None:
-        """Rollback the transaction."""
-        self.dj_connection.cancel_transaction()
 
     def close(self) -> None:
         """Close the connection."""
@@ -60,6 +54,26 @@ class ConnectionFacade(AbstractConnection):
     def __repr__(self) -> str:
         """Return a string representation of the connection facade."""
         return f"{self.__class__.__name__}(factory={repr(self._factory)})"
+
+
+class TransactionFacade(AbstractTransaction):
+    """Represents a facade around the transaction specific parts of DataJoint's connection object."""
+
+    def __init__(self, connection: ConnectionFacade) -> None:
+        """Initialize the transaction."""
+        self._connection = connection
+
+    def start(self) -> None:
+        """Start a transaction."""
+        self._connection.dj_connection.start_transaction()
+
+    def commit(self) -> None:
+        """Commit the transaction."""
+        self._connection.dj_connection.commit_transaction()
+
+    def rollback(self) -> None:
+        """Rollback the transaction."""
+        self._connection.dj_connection.cancel_transaction()
 
 
 class ConnectionOptionsDict(TypedDict):

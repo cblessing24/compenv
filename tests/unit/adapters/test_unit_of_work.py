@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import pytest
 
-from compenv.adapters.abstract import AbstractConnection
+from compenv.adapters.abstract import AbstractConnection, AbstractTransaction
 from compenv.adapters.unit_of_work import DJUnitOfWork
 from compenv.model.record import ComputationRecord, Identifier
 
@@ -11,13 +11,28 @@ from ..conftest import FakeRepository
 
 class FakeConnection(AbstractConnection):
     def __init__(self, repository: FakeRepository) -> None:
-        self.repository = repository
-        self.computation_records: dict[Identifier, ComputationRecord] = {}
-        self.in_transaction = False
         self.is_connected = False
+        self._transaction = FakeTransaction(repository)
+
+    @property
+    def transaction(self) -> FakeTransaction:
+        return self._transaction
 
     def open(self) -> None:
         self.is_connected = True
+
+    def close(self) -> None:
+        self.is_connected = False
+
+    def __repr__(self) -> str:
+        return f"{self.__class__.__name__}(repository={repr(self.transaction.repository)})"
+
+
+class FakeTransaction(AbstractTransaction):
+    def __init__(self, repository: FakeRepository) -> None:
+        self.computation_records: dict[Identifier, ComputationRecord] = {}
+        self.repository = repository
+        self.in_transaction = False
 
     def start(self) -> None:
         self.computation_records = self.repository.comp_recs.copy()
@@ -30,12 +45,6 @@ class FakeConnection(AbstractConnection):
         if self.in_transaction:
             self.repository.comp_recs = self.computation_records
             self.in_transaction = False
-
-    def close(self) -> None:
-        self.is_connected = False
-
-    def __repr__(self) -> str:
-        return f"{self.__class__.__name__}(repository={repr(self.repository)})"
 
 
 @pytest.fixture

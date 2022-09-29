@@ -66,9 +66,21 @@ class AbstractTable(ABC, Generic[_T]):
 class AbstractConnection(ABC):
     """Defines the interface for all connections."""
 
+    @property
+    def transaction(self) -> AbstractTransaction:
+        """Return the transaction."""
+
     @abstractmethod
     def open(self) -> None:
         """Open a new connection."""
+
+    @abstractmethod
+    def close(self) -> None:
+        """Close the connection."""
+
+
+class AbstractTransaction(ABC):
+    """Defines the interface for all transactions."""
 
     @abstractmethod
     def start(self) -> None:
@@ -81,7 +93,3 @@ class AbstractConnection(ABC):
     @abstractmethod
     def rollback(self) -> None:
         """Rollback the transaction."""
-
-    @abstractmethod
-    def close(self) -> None:
-        """Close the connection."""

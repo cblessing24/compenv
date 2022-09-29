@@ -19,16 +19,16 @@ class DJUnitOfWork(UnitOfWork):
     def __enter__(self) -> DJUnitOfWork:
         """Enter the unit of work."""
         self.connection.open()
-        self.connection.start()
+        self.connection.transaction.start()
         return super().__enter__()
 
     def commit(self) -> None:
         """Commit the unit of work."""
-        self.connection.commit()
+        self.connection.transaction.commit()
 
     def rollback(self) -> None:
         """Rollback the unit of work."""
-        self.connection.rollback()
+        self.connection.transaction.rollback()
 
     def __exit__(
         self, exc_type: Optional[Type[BaseException]], exc: Optional[BaseException], traceback: Optional[TracebackType]
