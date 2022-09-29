@@ -56,6 +56,8 @@ class EnvironmentRecorder:  # pylint: disable=too-few-public-methods
             schema.context = determine_context(schema.context, self.get_current_frame())
             table_cls = schema(table_cls)
             backend = create_dj_backend(schema, table_cls.__name__)
+            with backend.infra.connection:
+                backend.infra.factory()
             self._modify_table(table_cls, backend.adapters.controller)
             return table_cls
 
