@@ -3,7 +3,7 @@ import dataclasses
 
 from .connection import Connection, DJConnectionFactory
 from .schema import SchemaFactory
-from .table import TableFacade, TableFactory
+from .table import Table, TableFactory
 from .types import Schema
 
 
@@ -12,7 +12,7 @@ class DJInfrastructure:
     """A set of DataJoint infrastructure objects."""
 
     factory: TableFactory
-    facade: TableFacade
+    table: Table
     connection: Connection
 
 
@@ -25,5 +25,5 @@ def create_dj_infrastructure(schema: Schema, table_name: str) -> DJInfrastructur
     connection = Connection(connection_factory)
     schema_factory = SchemaFactory(schema.database, connection=connection)
     table_factory = TableFactory(schema_factory, parent=table_name)
-    table = TableFacade(factory=table_factory)
-    return DJInfrastructure(factory=table_factory, facade=table, connection=connection)
+    table = Table(factory=table_factory)
+    return DJInfrastructure(factory=table_factory, table=table, connection=connection)

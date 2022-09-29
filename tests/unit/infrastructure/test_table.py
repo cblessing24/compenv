@@ -8,7 +8,7 @@ from datajoint.user_tables import Lookup, Part
 
 from compenv.adapters.abstract import PartEntity
 from compenv.adapters.entity import DJComputationRecord
-from compenv.infrastructure.table import TableFacade, TableFactory
+from compenv.infrastructure.table import Table, TableFactory
 
 from ..conftest import FakeSchema, FakeTable
 
@@ -27,7 +27,7 @@ class FakeFactory:
         return self.__class__.__name__ + "()"
 
 
-class TestFacade:
+class TestTable:
     @staticmethod
     @pytest.fixture
     def fake_tbl() -> FakeTable:
@@ -52,62 +52,60 @@ class TestFacade:
 
     @staticmethod
     @pytest.fixture
-    def facade(fake_factory: FakeFactory) -> TableFacade:
-        return TableFacade(fake_factory)
+    def table(fake_factory: FakeFactory) -> Table:
+        return Table(fake_factory)
 
     @staticmethod
-    def test_insert_raises_error_if_record_already_exists(
-        facade: TableFacade, dj_comp_rec: DJComputationRecord
-    ) -> None:
-        facade.add(dj_comp_rec)
+    def test_insert_raises_error_if_record_already_exists(table: Table, dj_comp_rec: DJComputationRecord) -> None:
+        table.add(dj_comp_rec)
         with pytest.raises(ValueError, match="already exists!"):
-            facade.add(dj_comp_rec)
+            table.add(dj_comp_rec)
 
     @staticmethod
     def test_inserts_master_entity_into_master_table(
-        facade: TableFacade, dj_comp_rec: DJComputationRecord, fake_tbl: FakeTable
+        table: Table, dj_comp_rec: DJComputationRecord, fake_tbl: FakeTable
     ) -> None:
-        facade.add(dj_comp_rec)
+        table.add(dj_comp_rec)
         assert fake_tbl.fetch1() == dj_comp_rec.primary
 
     @staticmethod
     @pytest.mark.parametrize("part,attr", list((p.__name__, p.master_attr) for p in DJComputationRecord.parts))
     def test_inserts_part_entities_into_part_tables(
-        facade: TableFacade,
+        table: Table,
         primary: Entity,
         dj_comp_rec: DJComputationRecord,
         fake_tbl: FakeTable,
         part: str,
         attr: str,
     ) -> None:
-        facade.add(dj_comp_rec)
+        table.add(dj_comp_rec)
         assert getattr(fake_tbl, part).fetch(as_dict=True) == [
             {**primary, **dataclasses.asdict(m)} for m in getattr(dj_comp_rec, attr)
         ]
 
     @staticmethod
-    def test_get_raises_error_if_record_does_not_exist(facade: TableFacade, primary: Entity) -> None:
+    def test_get_raises_error_if_record_does_not_exist(table: Table, primary: Entity) -> None:
         with pytest.raises(KeyError, match="does not exist!"):
-            _ = facade.get(primary)
+            _ = table.get(primary)
 
     @staticmethod
-    def test_get_dj_computation_record(facade: TableFacade, dj_comp_rec: DJComputationRecord) -> None:
-        facade.add(dj_comp_rec)
-        assert facade.get(dj_comp_rec.primary) == dj_comp_rec
+    def test_get_dj_computation_record(table: Table, dj_comp_rec: DJComputationRecord) -> None:
+        table.add(dj_comp_rec)
+        assert table.get(dj_comp_rec.primary) == dj_comp_rec
 
     @staticmethod
-    def test_length(facade: TableFacade, dj_comp_rec: DJComputationRecord) -> None:
-        facade.add(dj_comp_rec)
-        assert len(facade) == 1
+    def test_length(table: Table, dj_comp_rec: DJComputationRecord) -> None:
+        table.add(dj_comp_rec)
+        assert len(table) == 1
 
     @staticmethod
-    def test_iteration(facade: TableFacade, dj_comp_rec: DJComputationRecord, fake_tbl: FakeTable) -> None:
-        facade.add(dj_comp_rec)
-        assert list(iter(facade)) == list(iter(fake_tbl))
+    def test_iteration(table: Table, dj_comp_rec: DJComputationRecord, fake_tbl: FakeTable) -> None:
+        table.add(dj_comp_rec)
+        assert list(iter(table)) == list(iter(fake_tbl))
 
     @staticmethod
-    def test_repr(facade: TableFacade) -> None:
-        assert repr(facade) == "TableFacade(factory=FakeFactory())"
+    def test_repr(table: Table) -> None:
+        assert repr(table) == "Table(factory=FakeFactory())"
 
 
 class FakeSchemaFactory:
