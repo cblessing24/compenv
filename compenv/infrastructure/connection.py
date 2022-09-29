@@ -8,20 +8,19 @@ from typing import Optional, Type, TypedDict
 from datajoint.connection import Connection as DJConnection
 
 from ..adapters.abstract import AbstractConnection
-from .types import Connection as ConnectionProto
-from .types import ConnectionFactory as ConnectionFactoryProto
+from . import types
 
 
 class ConnectionFacade(AbstractConnection):
     """Represents a facade around DataJoint's connection object."""
 
-    def __init__(self, factory: ConnectionFactoryProto) -> None:
+    def __init__(self, factory: types.ConnectionFactory) -> None:
         """Initialize the transaction."""
         self._factory = factory
-        self._dj_connection: Optional[ConnectionProto] = None
+        self._dj_connection: Optional[types.Connection] = None
 
     @property
-    def dj_connection(self) -> ConnectionProto:
+    def dj_connection(self) -> types.Connection:
         """Return the DataJoint connection if it exists."""
         if not self._dj_connection:
             raise RuntimeError("Not connected")
