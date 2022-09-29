@@ -46,44 +46,45 @@ class TestConnectionFacade:
     def test_can_start_transaction(
         connection_facade: ConnectionFacade, fake_connection_factory: FakeConnectionFactory
     ) -> None:
-        connection_facade.open()
-        connection_facade.start()
-        assert fake_connection_factory.fake_connection.in_transaction
+        with connection_facade:
+            connection_facade.start()
+            assert fake_connection_factory.fake_connection.in_transaction
 
     @staticmethod
     def test_can_commit_transaction(
         connection_facade: ConnectionFacade, fake_connection_factory: FakeConnectionFactory
     ) -> None:
-        connection_facade.open()
-        connection_facade.commit()
-        assert fake_connection_factory.fake_connection.committed
+        with connection_facade:
+            connection_facade.start()
+            connection_facade.commit()
+            assert fake_connection_factory.fake_connection.committed
 
     @staticmethod
     def test_can_rollback_transaction(connection_facade: ConnectionFacade, fake_connection: FakeConnection) -> None:
-        connection_facade.open()
-        connection_facade.start()
-        connection_facade.rollback()
-        assert not fake_connection.in_transaction
+        with connection_facade:
+            connection_facade.start()
+            connection_facade.rollback()
+            assert not fake_connection.in_transaction
 
     @staticmethod
     def test_can_close_connection(
         connection_facade: ConnectionFacade, fake_connection_factory: FakeConnectionFactory
     ) -> None:
-        connection_facade.open()
-        connection_facade.close()
+        with connection_facade:
+            pass
         assert not fake_connection_factory.fake_connection.is_connected
 
     @staticmethod
     def test_accessing_dj_connection_after_closing_raises_error(connection_facade: ConnectionFacade) -> None:
-        connection_facade.open()
-        connection_facade.close()
+        with connection_facade:
+            pass
         with pytest.raises(RuntimeError, match="Not connected"):
             connection_facade.dj_connection
 
     @staticmethod
     def test_can_open_connection(connection_facade: ConnectionFacade) -> None:
-        connection_facade.open()
-        assert connection_facade.dj_connection
+        with connection_facade:
+            assert connection_facade.dj_connection
 
     @staticmethod
     def test_repr(connection_facade: ConnectionFacade) -> None:

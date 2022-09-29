@@ -2,7 +2,8 @@
 from __future__ import annotations
 
 from collections.abc import Callable
-from typing import Optional, TypedDict
+from types import TracebackType
+from typing import Optional, Type, TypedDict
 
 from datajoint.connection import Connection as DJConnection
 
@@ -46,6 +47,16 @@ class ConnectionFacade(AbstractConnection):
         """Close the connection."""
         self.dj_connection.close()
         self._dj_connection = None
+
+    def __enter__(self) -> None:
+        """Open a new connection on entering the context."""
+        self.open()
+
+    def __exit__(
+        self, exc_type: Optional[Type[BaseException]], exc: Optional[BaseException], traceback: Optional[TracebackType]
+    ) -> None:
+        """Close the connection on exiting the context."""
+        self.close()
 
     def __repr__(self) -> str:
         """Return a string representation of the connection facade."""
