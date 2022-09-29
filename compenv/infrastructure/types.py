@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 from typing import (
+    Any,
     Container,
     Dict,
     Iterable,
@@ -111,3 +112,15 @@ class SchemaFactory(Protocol):  # pylint: disable=too-few-public-methods
 
     def __call__(self) -> Schema:
         """Produce a new schema."""
+
+
+class FrameType(Protocol):
+    """Protocol for a Python stack frame."""
+
+    @property
+    def f_locals(self) -> dict[str, Any]:
+        """Return the local variables of the stack frame."""
+
+    @property
+    def f_back(self) -> Optional[FrameType]:
+        """Return the previous stack frame if there is one."""
