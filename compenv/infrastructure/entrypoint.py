@@ -54,18 +54,17 @@ class EnvironmentRecorder:  # pylint: disable=too-few-public-methods
 
         def _record_environment(table_cls: Type[_T]) -> Type[_T]:
             schema.context = determine_context(schema.context, self.get_current_frame())
+            table_cls = schema(table_cls)
             backend = create_dj_backend(schema, table_cls.__name__)
-            self._modify_table(schema, table_cls, backend.adapters.controller)
-
+            self._modify_table(table_cls, backend.adapters.controller)
             return table_cls
 
         return _record_environment
 
     @staticmethod
-    def _modify_table(schema: Schema, table_cls: Type[_T], controller: DJController) -> None:
+    def _modify_table(table_cls: Type[_T], controller: DJController) -> None:
         def hook(make: Callable[[_T, Entity], None], table: _T, key: Entity) -> None:
             controller.record(key, functools.partial(make, table))
 
-        table_cls = schema(table_cls)
         table_cls = hook_into_make_method(hook)(table_cls)
         setattr(table_cls, "records", Entrypoint(controller))
