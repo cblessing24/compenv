@@ -3,13 +3,15 @@ from __future__ import annotations
 
 import functools
 import inspect
+from collections.abc import Generator
+from contextlib import contextmanager
 from typing import Callable, Mapping, Optional, Type, TypeVar
 
 from ..adapters.controller import DJController
 from ..backend import create_dj_backend
 from ..types import PrimaryKey
 from .hook import hook_into_make_method
-from .types import AutopopulatedTable, Entity, FrameType, Schema
+from .types import AutopopulatedTable, Connection, Entity, FrameType, Schema
 
 
 class Entrypoint:  # pylint: disable=too-few-public-methods
@@ -40,6 +42,18 @@ def determine_context(context: Mapping[str, object], current_frame: Optional[Fra
     if not prev_frame:
         raise RuntimeError("No previous stack frame found but needed to dynamically determine context!")
     return dict(prev_frame.f_locals)
+
+
+@contextmanager
+def replaced_connection_table(table: _T, replacement_connection: Connection) -> Generator[_T, None, None]:
+    """Replace the connection of the given table with the given connection within the context."""
+    table_cls = table.__class__
+    original_connection = table_cls.connection
+    table_cls.connection = replacement_connection
+    try:
+        yield table_cls()
+    finally:
+        table_cls.connection = original_connection
 
 
 class EnvironmentRecorder:  # pylint: disable=too-few-public-methods
