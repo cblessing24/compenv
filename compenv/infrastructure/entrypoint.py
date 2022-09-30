@@ -1,7 +1,6 @@
 """Contains entrypoints to the application."""
 from __future__ import annotations
 
-import functools
 import inspect
 from collections.abc import Generator
 from contextlib import contextmanager
@@ -11,6 +10,7 @@ from ..adapters.controller import DJController
 from ..backend import create_dj_backend
 from ..types import PrimaryKey
 from . import types
+from .connection import Connection
 from .hook import hook_into_make_method
 
 
@@ -72,15 +72,19 @@ class EnvironmentRecorder:  # pylint: disable=too-few-public-methods
             backend = create_dj_backend(schema, table_cls.__name__)
             with backend.infra.connection:
                 backend.infra.factory()
-            self._modify_table(table_cls, backend.adapters.controller)
+            self._modify_table(table_cls, backend.adapters.controller, backend.infra.connection)
             return table_cls
 
         return _record_environment
 
     @staticmethod
-    def _modify_table(table_cls: Type[_T], controller: DJController) -> None:
+    def _modify_table(table_cls: Type[_T], controller: DJController, connection: Connection) -> None:
         def hook(make: Callable[[_T, types.Entity], None], table: _T, key: types.Entity) -> None:
-            controller.record(key, functools.partial(make, table))
+            def replaced_connection_make(key: types.Entity) -> None:
+                with replaced_connection_table(table, connection.dj_connection):
+                    return make(table, key)
+
+            controller.record(key, replaced_connection_make)
 
         table_cls = hook_into_make_method(hook)(table_cls)
         setattr(table_cls, "records", Entrypoint(controller))
