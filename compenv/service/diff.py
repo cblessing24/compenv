@@ -40,7 +40,8 @@ class DiffService(Service[DiffRequest, DiffResponse]):  # pylint: disable=too-fe
 
     def _execute(self, request: DiffRequest) -> DiffResponse:
         """Determine the diff of two computation records."""
-        rec1 = self.uow.records.get(request.identifier1)
-        rec2 = self.uow.records.get(request.identifier2)
-        self.uow.commit()
+        with self.uow:
+            rec1 = self.uow.records.get(request.identifier1)
+            rec2 = self.uow.records.get(request.identifier2)
+            self.uow.commit()
         return DiffResponse(differ=rec1.distributions != rec2.distributions)

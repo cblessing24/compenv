@@ -13,8 +13,9 @@ class DJUnitOfWork(UnitOfWork):
 
     def __init__(self, connection: AbstractConnection, records: Repository) -> None:
         """Initialize the unit of work."""
+        super().__init__()
         self.connection = connection
-        self.records = records
+        self._records = records
 
     def __enter__(self) -> DJUnitOfWork:
         """Enter the unit of work."""
@@ -39,4 +40,4 @@ class DJUnitOfWork(UnitOfWork):
 
     def __repr__(self) -> str:
         """Return a string representation of the unit of work."""
-        return f"{self.__class__.__name__}(connection={repr(self.connection)}, records={repr(self.records)})"
+        return f"{self.__class__.__name__}(connection={repr(self.connection)}, records={repr(self._records)})"

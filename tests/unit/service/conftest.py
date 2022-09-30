@@ -40,7 +40,8 @@ class FakeService(RequestTrackingService[FakeRequest, FakeResponse]):
 
 class FakeUnitOfWork(UnitOfWork):
     def __init__(self, records: FakeRepository) -> None:
-        self.records = records
+        super().__init__()
+        self._records = records
         self.committed = False
 
     def commit(self) -> None:

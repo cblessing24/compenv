@@ -23,8 +23,9 @@ def diff_runner(fake_uow: FakeUnitOfWork, fake_output_port: FakeOutputPort) -> D
         rec2 = ComputationRecord(
             Identifier("identifier2"), distributions=frozenset((Distribution(name="numpy", version=version2),))
         )
-        fake_uow.records.add(rec1)
-        fake_uow.records.add(rec2)
+        with fake_uow:
+            fake_uow.records.add(rec1)
+            fake_uow.records.add(rec2)
 
         diff = DiffService(output_port=fake_output_port, uow=fake_uow)
         request = DiffRequest(Identifier("identifier1"), Identifier("identifier2"))

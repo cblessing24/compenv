@@ -91,11 +91,24 @@ R = TypeVar("R", bound=Repository)
 class UnitOfWork(ABC):
     """Defines the interface for the unit of work."""
 
-    records: Repository
+    _records: Repository
+
+    def __init__(self) -> None:
+        """Initialize the unit of work."""
+        self._in_context = False
+
+    @property
+    def records(self) -> Repository:
+        """Return the records repository if we are currently within the context of the unit of work."""
+        if self._in_context:
+            return self._records
+        raise RuntimeError("Records not available outside of context")
+
     U = TypeVar("U", bound="UnitOfWork")
 
     def __enter__(self: U) -> U:
         """Enter the unit of work."""
+        self._in_context = True
         return self
 
     def __exit__(
@@ -103,6 +116,7 @@ class UnitOfWork(ABC):
     ) -> None:
         """Exit the unit of work."""
         self.rollback()
+        self._in_context = False
 
     @abstractmethod
     def commit(self) -> None:

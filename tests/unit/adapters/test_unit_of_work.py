@@ -68,20 +68,39 @@ def test_closes_connection_on_leaving_context(uow: DJUnitOfWork, fake_connection
     assert not fake_connection.is_connected
 
 
+def test_accessing_records_raises_runtime_error_outside_of_context(uow: DJUnitOfWork) -> None:
+    with pytest.raises(RuntimeError, match="outside of context"):
+        uow.records
+
+
+def test_can_access_records_within_context(uow: DJUnitOfWork) -> None:
+    with uow:
+        uow.records
+
+
+def test_accessing_records_after_exiting_context_raises_runtime_error(uow: DJUnitOfWork) -> None:
+    with uow:
+        pass
+    with pytest.raises(RuntimeError, match="outside of context"):
+        uow.records
+
+
 def test_rolls_back_by_default(uow: DJUnitOfWork, computation_record: ComputationRecord) -> None:
-    with uow as uow:
+    with uow:
         uow.records.add(computation_record)
-    assert len(uow.records) == 0
+    with uow:
+        assert len(uow.records) == 0
 
 
 def test_commit(
     uow: DJUnitOfWork,
     computation_record: ComputationRecord,
 ) -> None:
-    with uow as uow:
+    with uow:
         uow.records.add(computation_record)
         uow.commit()
-    assert len(uow.records) == 1
+    with uow:
+        assert len(uow.records) == 1
 
 
 def test_repr(uow: DJUnitOfWork) -> None:
