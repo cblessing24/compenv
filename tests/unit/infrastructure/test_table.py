@@ -148,10 +148,6 @@ class TestFactory:
         assert isinstance(produce_instance, fake_schema.decorated_tables["FakeTableRecord"])
 
     @staticmethod
-    def test_instance_is_cached(factory: TableFactory) -> None:
-        assert factory() is factory()
-
-    @staticmethod
     def test_repr(factory: TableFactory) -> None:
         assert (
             repr(factory)

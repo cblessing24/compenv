@@ -4,7 +4,6 @@ from __future__ import annotations
 import dataclasses
 import functools
 from collections.abc import Callable, Iterator
-from functools import lru_cache
 from typing import Dict, Type, TypeVar
 
 from datajoint import Lookup, Part
@@ -88,7 +87,6 @@ class TableFactory:
         self.schema_factory = schema_factory
         self.parent = parent
 
-    @lru_cache
     def __call__(self) -> Lookup:
         """Produce a record table instance."""
         master_cls: Type[Lookup] = type(self.parent + "Record", (Lookup,), {"definition": "-> " + self.parent})
