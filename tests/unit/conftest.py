@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import (
     TYPE_CHECKING,
     Any,
+    Callable,
     ClassVar,
     Dict,
     FrozenSet,
@@ -166,9 +167,17 @@ class FakeConnection:
 
 
 @pytest.fixture
-def fake_connection() -> FakeConnection:
+def create_fake_connection() -> Callable[[], FakeConnection]:
+    def create() -> FakeConnection:
+        return FakeConnection()
 
-    return FakeConnection()
+    return create
+
+
+@pytest.fixture
+def fake_connection(create_fake_connection: Callable[[], FakeConnection]) -> FakeConnection:
+
+    return create_fake_connection()
 
 
 class FakeTable:
