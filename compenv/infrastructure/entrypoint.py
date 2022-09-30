@@ -10,8 +10,8 @@ from typing import Callable, Mapping, Optional, Type, TypeVar
 from ..adapters.controller import DJController
 from ..backend import create_dj_backend
 from ..types import PrimaryKey
+from . import types
 from .hook import hook_into_make_method
-from .types import AutopopulatedTable, Connection, Entity, FrameType, Schema
 
 
 class Entrypoint:  # pylint: disable=too-few-public-methods
@@ -26,13 +26,13 @@ class Entrypoint:  # pylint: disable=too-few-public-methods
         self.controller.diff(key1, key2)
 
 
-_T = TypeVar("_T", bound=AutopopulatedTable)
+_T = TypeVar("_T", bound=types.AutopopulatedTable)
 
 
 DEFAULT_GET_CURRENT_FRAME = inspect.currentframe
 
 
-def determine_context(context: Mapping[str, object], current_frame: Optional[FrameType]) -> dict[str, object]:
+def determine_context(context: Mapping[str, object], current_frame: Optional[types.FrameType]) -> dict[str, object]:
     """Determine the context."""
     if context:
         return dict(context)
@@ -45,7 +45,7 @@ def determine_context(context: Mapping[str, object], current_frame: Optional[Fra
 
 
 @contextmanager
-def replaced_connection_table(table: _T, replacement_connection: Connection) -> Generator[_T, None, None]:
+def replaced_connection_table(table: _T, replacement_connection: types.Connection) -> Generator[_T, None, None]:
     """Replace the connection of the given table with the given connection within the context."""
     table_cls = table.__class__
     original_connection = table_cls.connection
@@ -59,11 +59,11 @@ def replaced_connection_table(table: _T, replacement_connection: Connection) -> 
 class EnvironmentRecorder:  # pylint: disable=too-few-public-methods
     """Records the environment."""
 
-    def __init__(self, get_current_frame: Callable[[], Optional[FrameType]] = DEFAULT_GET_CURRENT_FRAME) -> None:
+    def __init__(self, get_current_frame: Callable[[], Optional[types.FrameType]] = DEFAULT_GET_CURRENT_FRAME) -> None:
         """Initialize the environment recorder."""
         self.get_current_frame = get_current_frame
 
-    def __call__(self, schema: Schema) -> Callable[[Type[_T]], Type[_T]]:
+    def __call__(self, schema: types.Schema) -> Callable[[Type[_T]], Type[_T]]:
         """Record the environment during executions of the table's make method."""
 
         def _record_environment(table_cls: Type[_T]) -> Type[_T]:
@@ -79,7 +79,7 @@ class EnvironmentRecorder:  # pylint: disable=too-few-public-methods
 
     @staticmethod
     def _modify_table(table_cls: Type[_T], controller: DJController) -> None:
-        def hook(make: Callable[[_T, Entity], None], table: _T, key: Entity) -> None:
+        def hook(make: Callable[[_T, types.Entity], None], table: _T, key: types.Entity) -> None:
             controller.record(key, functools.partial(make, table))
 
         table_cls = hook_into_make_method(hook)(table_cls)
