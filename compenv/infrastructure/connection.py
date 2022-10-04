@@ -1,7 +1,9 @@
 """Contains code related to DataJoint's connection object."""
 from __future__ import annotations
 
+import io
 from collections.abc import Callable
+from contextlib import redirect_stdout
 from types import TracebackType
 from typing import Optional, Type, TypedDict
 
@@ -99,7 +101,8 @@ class DJConnectionFactory:
 
     def __call__(self) -> DJConnection:
         """Create a new DataJoint connection."""
-        return DJConnection(host=self.host, user=self.user, password=self.password, **self.options)
+        with redirect_stdout(io.StringIO()):
+            return DJConnection(host=self.host, user=self.user, password=self.password, **self.options)
 
     def __repr__(self) -> str:
         """Return a string representation of the factory."""
