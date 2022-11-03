@@ -58,7 +58,11 @@ ignore-patterns = ["test_.*\\.py", "conftest\\.py", ".*.pyi"]
 
 [tool.pylint.messages_control]
 enable = ["useless-suppression"]
-disable = ["no-value-for-parameter"]
+disable = [
+    "no-value-for-parameter",
+    "trailing-whitespace",
+    "trailing-newlines",
+]
 
 [tool.mypy]
 python_version = "3.8"
