@@ -1,12 +1,14 @@
 """Contains model objects related to computation."""
 from __future__ import annotations
 
+from collections import defaultdict
 from dataclasses import dataclass
 from typing import NewType
 
+from .environment import Environment
+
 AlgorithmName = NewType("AlgorithmName", str)
 ArgumentsHash = NewType("ArgumentsHash", str)
-EnvironmentHash = NewType("EnvironmentHash", str)
 
 
 @dataclass(frozen=True)
@@ -15,7 +17,7 @@ class Computation:
 
     algorithm: AlgorithmName
     arguments: ArgumentsHash
-    environment: EnvironmentHash
+    environment: Environment
 
 
 class Algorithm:  # pylint: disable=too-few-public-methods
@@ -24,3 +26,8 @@ class Algorithm:  # pylint: disable=too-few-public-methods
     def __init__(self, name: AlgorithmName) -> None:
         """Initialize the algorithm."""
         self.name = name
+        self.computations: dict[Environment, set[Computation]] = defaultdict(set)
+
+    def execute(self, environment: Environment, arguments: ArgumentsHash) -> None:
+        """Execute the algorithm in the given environment using the provided arguments."""
+        self.computations[environment].add(Computation(self.name, arguments, environment))
