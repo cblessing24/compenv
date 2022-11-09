@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from collections import defaultdict
 from dataclasses import dataclass
-from typing import NewType
+from typing import Iterable, Mapping, NewType, Optional
 
 from .environment import Environment
 
@@ -23,10 +23,14 @@ class Computation:
 class Algorithm:
     """Something that produces an output given some inputs."""
 
-    def __init__(self, name: AlgorithmName) -> None:
+    def __init__(
+        self, name: AlgorithmName, computations: Optional[Mapping[Environment, Iterable[Computation]]] = None
+    ) -> None:
         """Initialize the algorithm."""
         self.name = name
-        self._computations: dict[Environment, set[Computation]] = defaultdict(set)
+        if computations is None:
+            computations = {}
+        self._computations = defaultdict(set, ((k, set(v)) for k, v in computations.items()))
 
     def execute(self, environment: Environment, arguments: ArgumentsHash) -> None:
         """Execute the algorithm in the given environment using the provided arguments."""
