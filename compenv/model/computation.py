@@ -8,7 +8,7 @@ from typing import Iterable, Mapping, NewType, Optional
 from .environment import Environment
 
 AlgorithmName = NewType("AlgorithmName", str)
-ArgumentsHash = NewType("ArgumentsHash", str)
+Arguments = NewType("Arguments", str)
 
 
 @dataclass(frozen=True)
@@ -16,7 +16,7 @@ class Computation:
     """The execution of a particular algorithm on a particular set of arguments in a particular environment."""
 
     algorithm: AlgorithmName
-    arguments: ArgumentsHash
+    arguments: Arguments
     environment: Environment
 
 
@@ -32,7 +32,7 @@ class Algorithm:
             computations = {}
         self._computations = defaultdict(set, ((k, set(v)) for k, v in computations.items()))
 
-    def execute(self, environment: Environment, arguments: ArgumentsHash) -> None:
+    def execute(self, environment: Environment, arguments: Arguments) -> None:
         """Execute the algorithm in the given environment using the provided arguments."""
         self._computations[environment].add(Computation(self.name, arguments, environment))
 
