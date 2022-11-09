@@ -20,14 +20,18 @@ class Computation:
     environment: Environment
 
 
-class Algorithm:  # pylint: disable=too-few-public-methods
+class Algorithm:
     """Something that produces an output given some inputs."""
 
     def __init__(self, name: AlgorithmName) -> None:
         """Initialize the algorithm."""
         self.name = name
-        self.computations: dict[Environment, set[Computation]] = defaultdict(set)
+        self._computations: dict[Environment, set[Computation]] = defaultdict(set)
 
     def execute(self, environment: Environment, arguments: ArgumentsHash) -> None:
         """Execute the algorithm in the given environment using the provided arguments."""
-        self.computations[environment].add(Computation(self.name, arguments, environment))
+        self._computations[environment].add(Computation(self.name, arguments, environment))
+
+    def __getitem__(self, environment: Environment) -> frozenset[Computation]:
+        """Get all computations of the algorithm in the given environment."""
+        return frozenset(self._computations[environment])
