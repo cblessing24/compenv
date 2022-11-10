@@ -7,10 +7,10 @@ import pytest
 from compenv.model.computation import (
     Algorithm,
     AlgorithmName,
-    AlgorithmRepository,
     Arguments,
     Computation,
     ComputationRegistry,
+    ComputationRegistryRepository,
     RecordingService,
 )
 from compenv.model.environment import Environment, EnvironmentDeterminingService
@@ -32,36 +32,24 @@ def fake_computation_trigger() -> FakeComputationTrigger:
 def test_executing_algorithm_records_computation(fake_computation_trigger: FakeComputationTrigger) -> None:
     algorithm = Algorithm(AlgorithmName("myalgorithm"))
     environment = Environment(frozenset())
-    algorithm.execute(environment, Arguments("myarguments"), fake_computation_trigger)
-    assert algorithm[environment] == frozenset(
-        [Computation(AlgorithmName("myalgorithm"), Arguments("myarguments"), environment)]
-    )
+    computation = algorithm.execute(environment, Arguments("myarguments"), fake_computation_trigger)
+    assert computation == Computation(algorithm.name, Arguments("myarguments"), environment)
 
 
 def test_algorithm_has_name_attribute() -> None:
     assert Algorithm(AlgorithmName("myalgorithm")).name == AlgorithmName("myalgorithm")
 
 
-def test_can_instantiate_with_computations() -> None:
-    environment = Environment(frozenset())
-    computation = Computation(AlgorithmName("myalgorithm"), Arguments("myarguments"), environment)
-    algorithm = Algorithm(
-        AlgorithmName("myalgorithm"),
-        computations={environment: [computation]},
-    )
-    assert algorithm[environment] == frozenset([computation])
-
-
 def test_can_record_computation(fake_computation_trigger: FakeComputationTrigger) -> None:
-    class FakeAlgorithmRepository(AlgorithmRepository):
+    class FakeComputationRegistryRepository(ComputationRegistryRepository):
         def __init__(self) -> None:
-            self.algorithms: dict[AlgorithmName, Algorithm] = {}
+            self.registries: dict[AlgorithmName, ComputationRegistry] = {}
 
-        def add(self, algorithm: Algorithm) -> None:
-            self.algorithms[algorithm.name] = algorithm
+        def add(self, registry: ComputationRegistry) -> None:
+            self.registries[registry.algorithm_name] = registry
 
-        def get(self, name: AlgorithmName) -> Algorithm:
-            return self.algorithms[name]
+        def get(self, name: AlgorithmName) -> ComputationRegistry:
+            return self.registries[name]
 
     class FakeEnvironmentDeterminingService(EnvironmentDeterminingService):
         def __init__(self, environment: Environment) -> None:
@@ -71,21 +59,19 @@ def test_can_record_computation(fake_computation_trigger: FakeComputationTrigger
             return self.environment
 
     algorithm_name = AlgorithmName("myalgorithm")
-    repository = FakeAlgorithmRepository()
-    repository.add(Algorithm(algorithm_name))
+    repository = FakeComputationRegistryRepository()
+    repository.add(ComputationRegistry(algorithm_name))
     arguments = Arguments("myarguments")
     environment = Environment(frozenset())
     environment_determining_service = FakeEnvironmentDeterminingService(environment)
     recording_service = RecordingService(
-        algorithm_repository=repository, environment_determining_service=environment_determining_service
+        computation_registry_repository=repository, environment_determining_service=environment_determining_service
     )
 
     recording_service.record(algorithm_name=algorithm_name, arguments=arguments, trigger=fake_computation_trigger)
 
     assert fake_computation_trigger.arguments == arguments
-    assert repository.get(algorithm_name)[environment] == frozenset(
-        [Computation(algorithm_name, arguments, environment)]
-    )
+    assert Computation(algorithm_name, arguments, environment) in repository.get(algorithm_name).list(environment)
 
 
 def test_can_add_computation_to_registry() -> None:
