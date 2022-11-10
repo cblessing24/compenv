@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from typing import Optional
 
+import pytest
+
 from compenv.model.computation import (
     Algorithm,
     AlgorithmName,
@@ -11,6 +13,19 @@ from compenv.model.computation import (
     RecordingService,
 )
 from compenv.model.environment import Environment, EnvironmentDeterminingService
+
+
+class FakeComputationTrigger:
+    def __init__(self) -> None:
+        self.arguments: Optional[Arguments] = None
+
+    def __call__(self, arguments: Arguments) -> None:
+        self.arguments = arguments
+
+
+@pytest.fixture
+def fake_computation_trigger() -> FakeComputationTrigger:
+    return FakeComputationTrigger()
 
 
 def test_executing_algorithm_records_computation() -> None:
@@ -36,7 +51,7 @@ def test_can_instantiate_with_computations() -> None:
     assert algorithm[environment] == frozenset([computation])
 
 
-def test_can_record_computation() -> None:
+def test_can_record_computation(fake_computation_trigger: FakeComputationTrigger) -> None:
     class FakeAlgorithmRepository(AlgorithmRepository):
         def __init__(self) -> None:
             self.algorithms: dict[AlgorithmName, Algorithm] = {}
@@ -46,13 +61,6 @@ def test_can_record_computation() -> None:
 
         def get(self, name: AlgorithmName) -> Algorithm:
             return self.algorithms[name]
-
-    class FakeComputationTrigger:
-        def __init__(self) -> None:
-            self.arguments: Optional[Arguments] = None
-
-        def __call__(self, arguments: Arguments) -> None:
-            self.arguments = arguments
 
     class FakeEnvironmentDeterminingService(EnvironmentDeterminingService):
         def __init__(self, environment: Environment) -> None:
@@ -64,7 +72,6 @@ def test_can_record_computation() -> None:
     algorithm_name = AlgorithmName("myalgorithm")
     repository = FakeAlgorithmRepository()
     repository.add(Algorithm(algorithm_name))
-    trigger = FakeComputationTrigger()
     arguments = Arguments("myarguments")
     environment = Environment(frozenset())
     environment_determining_service = FakeEnvironmentDeterminingService(environment)
@@ -72,9 +79,9 @@ def test_can_record_computation() -> None:
         algorithm_repository=repository, environment_determining_service=environment_determining_service
     )
 
-    recording_service.record(algorithm_name=algorithm_name, arguments=arguments, trigger=trigger)
+    recording_service.record(algorithm_name=algorithm_name, arguments=arguments, trigger=fake_computation_trigger)
 
-    assert trigger.arguments == arguments
+    assert fake_computation_trigger.arguments == arguments
     assert repository.get(algorithm_name)[environment] == frozenset(
         [Computation(algorithm_name, arguments, environment)]
     )
