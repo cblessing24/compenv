@@ -10,6 +10,7 @@ from compenv.model.computation import (
     AlgorithmRepository,
     Arguments,
     Computation,
+    ComputationRegistry,
     RecordingService,
 )
 from compenv.model.environment import Environment, EnvironmentDeterminingService
@@ -85,3 +86,19 @@ def test_can_record_computation(fake_computation_trigger: FakeComputationTrigger
     assert repository.get(algorithm_name)[environment] == frozenset(
         [Computation(algorithm_name, arguments, environment)]
     )
+
+
+def test_can_add_computation_to_registry() -> None:
+    registry = ComputationRegistry(AlgorithmName("myalgorithm"))
+    environment = Environment(frozenset())
+    computation = Computation(AlgorithmName("myalgorithm"), Arguments("myarguments"), environment)
+    registry.add(computation)
+    assert computation in registry.list(environment)
+
+
+def test_can_not_add_computation_produced_by_different_algorithm_to_registry() -> None:
+    registry = ComputationRegistry(AlgorithmName("myalgorithm"))
+    environment = Environment(frozenset())
+    computation = Computation(AlgorithmName("myotheralgorithm"), Arguments("myarguments"), environment)
+    with pytest.raises(ValueError, match="Expected '.*' for algorithm name of computation, got '.*'"):
+        registry.add(computation)

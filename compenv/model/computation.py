@@ -70,3 +70,25 @@ class RecordingService:  # pylint: disable=too-few-public-methods
         algorithm = self.algorithm_repository.get(algorithm_name)
         environment = self.environment_determining_service.determine()
         algorithm.execute(environment, arguments, trigger)
+
+
+class ComputationRegistry:
+    """A registry associating computations with the environments in which the were executed."""
+
+    def __init__(self, algorithm_name: AlgorithmName) -> None:
+        """Initialize the registry."""
+        self.algorithm_name = algorithm_name
+        self._computations: dict[Environment, set[Computation]] = defaultdict(set)
+
+    def add(self, computation: Computation) -> None:
+        """Add a computation to the registry."""
+        if computation.algorithm != self.algorithm_name:
+            raise ValueError(
+                f"Expected {repr(self.algorithm_name)} for algorithm name of computation, "
+                f"got {repr(computation.algorithm)}"
+            )
+        self._computations[computation.environment].add(computation)
+
+    def list(self, environment: Environment) -> frozenset[Computation]:
+        """List all computations that were executed in the given environment."""
+        return frozenset(self._computations[environment])
