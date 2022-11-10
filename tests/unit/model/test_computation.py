@@ -12,6 +12,7 @@ from compenv.model.computation import (
     ComputationRegistry,
     ComputationRegistryRepository,
     RecordingService,
+    Specification,
 )
 from compenv.model.environment import Environment, EnvironmentDeterminingService
 
@@ -33,7 +34,7 @@ def test_executing_algorithm_records_computation(fake_computation_trigger: FakeC
     algorithm = Algorithm(AlgorithmName("myalgorithm"))
     environment = Environment(frozenset())
     computation = algorithm.execute(environment, Arguments("myarguments"), fake_computation_trigger)
-    assert computation == Computation(algorithm.name, Arguments("myarguments"), environment)
+    assert computation == Computation(Specification(algorithm.name, Arguments("myarguments")), environment)
 
 
 def test_algorithm_has_name_attribute() -> None:
@@ -71,13 +72,15 @@ def test_can_record_computation(fake_computation_trigger: FakeComputationTrigger
     recording_service.record(algorithm_name=algorithm_name, arguments=arguments, trigger=fake_computation_trigger)
 
     assert fake_computation_trigger.arguments == arguments
-    assert Computation(algorithm_name, arguments, environment) in repository.get(algorithm_name).list(environment)
+    assert Computation(Specification(algorithm_name, arguments), environment) in repository.get(algorithm_name).list(
+        environment
+    )
 
 
 def test_can_add_computation_to_registry() -> None:
     registry = ComputationRegistry(AlgorithmName("myalgorithm"))
     environment = Environment(frozenset())
-    computation = Computation(AlgorithmName("myalgorithm"), Arguments("myarguments"), environment)
+    computation = Computation(Specification(AlgorithmName("myalgorithm"), Arguments("myarguments")), environment)
     registry.add(computation)
     assert computation in registry.list(environment)
 
@@ -85,14 +88,14 @@ def test_can_add_computation_to_registry() -> None:
 def test_can_not_add_computation_produced_by_different_algorithm_to_registry() -> None:
     registry = ComputationRegistry(AlgorithmName("myalgorithm"))
     environment = Environment(frozenset())
-    computation = Computation(AlgorithmName("myotheralgorithm"), Arguments("myarguments"), environment)
+    computation = Computation(Specification(AlgorithmName("myotheralgorithm"), Arguments("myarguments")), environment)
     with pytest.raises(ValueError, match="Expected '.*' for algorithm name of computation, got '.*'"):
         registry.add(computation)
 
 
 def test_can_instantiate_registry_with_computations() -> None:
     environment = Environment(frozenset())
-    computation = Computation(AlgorithmName("myalgorithm"), Arguments("myarguments"), environment)
+    computation = Computation(Specification(AlgorithmName("myalgorithm"), Arguments("myarguments")), environment)
     algorithm = ComputationRegistry(
         AlgorithmName("myalgorithm"),
         computations={computation},

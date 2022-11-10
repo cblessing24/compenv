@@ -14,11 +14,18 @@ Arguments = NewType("Arguments", str)
 
 @dataclass(frozen=True)
 class Computation:
-    """The execution of a particular algorithm on a particular set of arguments in a particular environment."""
+    """The execution of a particular computation specification in a particular environment."""
 
-    algorithm: AlgorithmName
-    arguments: Arguments
+    specification: Specification
     environment: Environment
+
+
+@dataclass(frozen=True)
+class Specification:
+    """The Specification for a particular computation."""
+
+    algorithm_name: AlgorithmName
+    arguments: Arguments
 
 
 class Algorithm:  # pylint: disable=too-few-public-methods
@@ -33,7 +40,7 @@ class Algorithm:  # pylint: disable=too-few-public-methods
     ) -> Computation:
         """Execute the algorithm in the given environment using the provided arguments."""
         trigger(arguments)
-        return Computation(self.name, arguments, environment)
+        return Computation(Specification(self.name, arguments), environment)
 
 
 class ComputationRegistryRepository(ABC):
@@ -82,10 +89,10 @@ class ComputationRegistry:
 
     def add(self, computation: Computation) -> None:
         """Add a computation to the registry."""
-        if computation.algorithm != self.algorithm_name:
+        if computation.specification.algorithm_name != self.algorithm_name:
             raise ValueError(
                 f"Expected {repr(self.algorithm_name)} for algorithm name of computation, "
-                f"got {repr(computation.algorithm)}"
+                f"got {repr(computation.specification.algorithm_name)}"
             )
         self._computations[computation.environment].add(computation)
 
