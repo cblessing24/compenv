@@ -102,3 +102,13 @@ def test_can_not_add_computation_produced_by_different_algorithm_to_registry() -
     computation = Computation(AlgorithmName("myotheralgorithm"), Arguments("myarguments"), environment)
     with pytest.raises(ValueError, match="Expected '.*' for algorithm name of computation, got '.*'"):
         registry.add(computation)
+
+
+def test_can_instantiate_registry_with_computations() -> None:
+    environment = Environment(frozenset())
+    computation = Computation(AlgorithmName("myalgorithm"), Arguments("myarguments"), environment)
+    algorithm = ComputationRegistry(
+        AlgorithmName("myalgorithm"),
+        computations={computation},
+    )
+    assert algorithm.list(environment)

@@ -75,10 +75,14 @@ class RecordingService:  # pylint: disable=too-few-public-methods
 class ComputationRegistry:
     """A registry associating computations with the environments in which the were executed."""
 
-    def __init__(self, algorithm_name: AlgorithmName) -> None:
+    def __init__(self, algorithm_name: AlgorithmName, computations: Optional[Iterable[Computation]] = None) -> None:
         """Initialize the registry."""
         self.algorithm_name = algorithm_name
+        if computations is None:
+            computations = []
         self._computations: dict[Environment, set[Computation]] = defaultdict(set)
+        for computation in computations:
+            self.add(computation)
 
     def add(self, computation: Computation) -> None:
         """Add a computation to the registry."""
