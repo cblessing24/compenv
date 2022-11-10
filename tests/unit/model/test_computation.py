@@ -8,10 +8,9 @@ from compenv.model.computation import (
     AlgorithmRepository,
     Arguments,
     Computation,
-    EnvironmentDeterminingService,
     RecordingService,
 )
-from compenv.model.environment import Environment
+from compenv.model.environment import Environment, EnvironmentDeterminingService
 
 
 def test_executing_algorithm_records_computation() -> None:

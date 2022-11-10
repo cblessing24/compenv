@@ -6,7 +6,7 @@ from collections import defaultdict
 from dataclasses import dataclass
 from typing import Callable, Iterable, Mapping, NewType, Optional
 
-from .environment import Environment
+from .environment import Environment, EnvironmentDeterminingService
 
 AlgorithmName = NewType("AlgorithmName", str)
 Arguments = NewType("Arguments", str)
@@ -52,14 +52,6 @@ class AlgorithmRepository(ABC):
     @abstractmethod
     def get(self, name: AlgorithmName) -> Algorithm:
         """Get the algorithm with the given name."""
-
-
-class EnvironmentDeterminingService(ABC):  # pylint: disable=too-few-public-methods
-    """A service that is able to determine the environment."""
-
-    @abstractmethod
-    def determine(self) -> Environment:
-        """Determine the environment."""
 
 
 class RecordingService:  # pylint: disable=too-few-public-methods

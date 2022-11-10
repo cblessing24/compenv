@@ -1,6 +1,7 @@
 """Contains model objects related to the computational environment."""
 from __future__ import annotations
 
+from abc import ABC, abstractmethod
 from dataclasses import dataclass
 
 from .record import Distribution
@@ -11,3 +12,11 @@ class Environment:
     """A set of external factors that could (potentially) influence the outcome of a computation."""
 
     distributions: frozenset[Distribution]
+
+
+class EnvironmentDeterminingService(ABC):  # pylint: disable=too-few-public-methods
+    """A service that is able to determine the environment."""
+
+    @abstractmethod
+    def determine(self) -> Environment:
+        """Determine the environment."""
