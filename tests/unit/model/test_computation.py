@@ -28,10 +28,10 @@ def fake_computation_trigger() -> FakeComputationTrigger:
     return FakeComputationTrigger()
 
 
-def test_executing_algorithm_records_computation() -> None:
+def test_executing_algorithm_records_computation(fake_computation_trigger: FakeComputationTrigger) -> None:
     algorithm = Algorithm(AlgorithmName("myalgorithm"))
     environment = Environment(frozenset())
-    algorithm.execute(environment, Arguments("myarguments"))
+    algorithm.execute(environment, Arguments("myarguments"), fake_computation_trigger)
     assert algorithm[environment] == frozenset(
         [Computation(AlgorithmName("myalgorithm"), Arguments("myarguments"), environment)]
     )

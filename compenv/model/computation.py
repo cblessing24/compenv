@@ -33,8 +33,9 @@ class Algorithm:
             computations = {}
         self._computations = defaultdict(set, ((k, set(v)) for k, v in computations.items()))
 
-    def execute(self, environment: Environment, arguments: Arguments) -> None:
+    def execute(self, environment: Environment, arguments: Arguments, trigger: Callable[[Arguments], None]) -> None:
         """Execute the algorithm in the given environment using the provided arguments."""
+        trigger(arguments)
         self._computations[environment].add(Computation(self.name, arguments, environment))
 
     def __getitem__(self, environment: Environment) -> frozenset[Computation]:
@@ -66,7 +67,6 @@ class RecordingService:  # pylint: disable=too-few-public-methods
 
     def record(self, algorithm_name: AlgorithmName, arguments: Arguments, trigger: Callable[[Arguments], None]) -> None:
         """Record the environment during the execution of the algorithm on the given arguments."""
-        trigger(arguments)
         algorithm = self.algorithm_repository.get(algorithm_name)
         environment = self.environment_determining_service.determine()
-        algorithm.execute(environment, arguments)
+        algorithm.execute(environment, arguments, trigger)
