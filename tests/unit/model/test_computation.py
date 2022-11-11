@@ -1,17 +1,11 @@
 from __future__ import annotations
 
+from dataclasses import replace
 from typing import Iterable, Optional, Protocol
 
 import pytest
 
-from compenv.model.computation import (
-    Algorithm,
-    AlgorithmName,
-    Arguments,
-    Computation,
-    ComputationRegistry,
-    Specification,
-)
+from compenv.model.computation import Algorithm, AlgorithmName, Computation, ComputationRegistry
 
 from ...conftest import ComputationCreator, EnvironmentCreator
 
@@ -50,9 +44,9 @@ def test_can_not_add_computation_produced_by_different_algorithms_to_registry(
 
 
 def test_can_not_add_computations_with_identical_specifications(
-    create_registry: RegistryCreator, create_environment: EnvironmentCreator
+    create_computation: ComputationCreator, create_registry: RegistryCreator, create_environment: EnvironmentCreator
 ) -> None:
-    specification = Specification(AlgorithmName("myalgorithm"), Arguments("myarguments"))
-    registry = create_registry("myalgorithm", [Computation(specification, create_environment())])
+    computation = create_computation("myalgorithm", "myarguments", create_environment())
+    registry = create_registry("myalgorithm", [computation])
     with pytest.raises(ValueError, match="Duplicate specification:"):
-        registry.add(Computation(specification, create_environment([("mydistribution", "0.1.1")])))
+        registry.add(replace(computation, environment=create_environment([("mydistribution", "0.1.1")])))
