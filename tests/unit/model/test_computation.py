@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Optional
+from typing import Callable, Optional
 
 import pytest
 
@@ -78,21 +78,30 @@ def test_can_record_computation(fake_computation_trigger: FakeComputationTrigger
     )
 
 
-def test_can_add_computation_to_registry() -> None:
+ComputationCreator = Callable[[str, str, Environment], Computation]
+
+
+@pytest.fixture
+def create_computation() -> ComputationCreator:
+    def create(algorithm_name: str, arguments: str, environment: Environment) -> Computation:
+        return Computation(Specification(AlgorithmName(algorithm_name), Arguments(arguments)), environment)
+
+    return create
+
+
+def test_can_add_computation_to_registry(create_computation: ComputationCreator) -> None:
     registry = ComputationRegistry(AlgorithmName("myalgorithm"))
-    environment = Environment()
-    specification = Specification(AlgorithmName("myalgorithm"), Arguments("myarguments"))
-    computation = Computation(specification, environment)
+    computation = create_computation("myalgorithm", "myarguments", Environment())
     registry.add(computation)
-    assert registry.get(specification) == computation
+    assert registry.get(computation.specification) == computation
 
 
-def test_can_not_add_computation_produced_by_different_algorithm_to_registry() -> None:
+def test_can_not_add_computation_produced_by_different_algorithm_to_registry(
+    create_computation: ComputationCreator,
+) -> None:
     registry = ComputationRegistry(AlgorithmName("myalgorithm"))
-    environment = Environment()
-    computation = Computation(Specification(AlgorithmName("myotheralgorithm"), Arguments("myarguments")), environment)
     with pytest.raises(ValueError, match="Expected '.*' for algorithm name of computation, got '.*'"):
-        registry.add(computation)
+        registry.add(create_computation("myotheralgorithm", "myarguments", Environment()))
 
 
 def test_can_not_add_computations_with_identical_specifications() -> None:
@@ -107,11 +116,11 @@ def test_can_not_add_computations_with_identical_specifications() -> None:
         registry.add(computation2)
 
 
-def test_can_instantiate_registry_with_computations() -> None:
+def test_can_instantiate_registry_with_computations(create_computation: ComputationCreator) -> None:
     environment = Environment()
-    computation = Computation(Specification(AlgorithmName("myalgorithm"), Arguments("myarguments")), environment)
-    algorithm = ComputationRegistry(
+    computation = create_computation("myalgorithm", "myarguments", environment)
+    registry = ComputationRegistry(
         AlgorithmName("myalgorithm"),
         computations={computation},
     )
-    assert set(algorithm.list(environment)) == {computation}
+    assert set(registry.list(environment)) == {computation}
