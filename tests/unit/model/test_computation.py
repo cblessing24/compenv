@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Callable, Optional
+from typing import Callable, Iterable, Optional, Protocol
 
 import pytest
 
@@ -89,35 +89,52 @@ def create_computation() -> ComputationCreator:
     return create
 
 
-def test_can_add_computation_to_registry(create_computation: ComputationCreator) -> None:
+class EnvironmentCreator(Protocol):
+    def __call__(self, distributions: Optional[Iterable[tuple[str, str]]] = ...) -> Environment:
+        ...
+
+
+@pytest.fixture
+def create_environment() -> EnvironmentCreator:
+    def create(distributions: Optional[Iterable[tuple[str, str]]] = None) -> Environment:
+        if distributions is None:
+            distributions = []
+        return Environment(frozenset(Distribution(name, version) for (name, version) in distributions))
+
+    return create
+
+
+def test_can_add_computation_to_registry(
+    create_computation: ComputationCreator, create_environment: EnvironmentCreator
+) -> None:
     registry = ComputationRegistry(AlgorithmName("myalgorithm"))
-    computation = create_computation("myalgorithm", "myarguments", Environment())
+    computation = create_computation("myalgorithm", "myarguments", create_environment())
     registry.add(computation)
     assert registry.get(computation.specification) == computation
 
 
 def test_can_not_add_computation_produced_by_different_algorithm_to_registry(
-    create_computation: ComputationCreator,
+    create_computation: ComputationCreator, create_environment: EnvironmentCreator
 ) -> None:
     registry = ComputationRegistry(AlgorithmName("myalgorithm"))
     with pytest.raises(ValueError, match="Expected '.*' for algorithm name of computation, got '.*'"):
-        registry.add(create_computation("myotheralgorithm", "myarguments", Environment()))
+        registry.add(create_computation("myotheralgorithm", "myarguments", create_environment()))
 
 
-def test_can_not_add_computations_with_identical_specifications() -> None:
+def test_can_not_add_computations_with_identical_specifications(create_environment: EnvironmentCreator) -> None:
     specification = Specification(AlgorithmName("myalgorithm"), Arguments("myarguments"))
     registry = ComputationRegistry(AlgorithmName("myalgorithm"))
-    environment1 = Environment()
-    computation1 = Computation(specification, environment1)
+    computation1 = Computation(specification, create_environment())
     registry.add(computation1)
-    environment2 = Environment(frozenset({Distribution("mydistribution", "0.1.1")}))
-    computation2 = Computation(specification, environment2)
+    computation2 = Computation(specification, create_environment([("mydistribution", "0.1.1")]))
     with pytest.raises(ValueError, match="Duplicate specification:"):
         registry.add(computation2)
 
 
-def test_can_instantiate_registry_with_computations(create_computation: ComputationCreator) -> None:
-    environment = Environment()
+def test_can_instantiate_registry_with_computations(
+    create_computation: ComputationCreator, create_environment: EnvironmentCreator
+) -> None:
+    environment = create_environment()
     computation = create_computation("myalgorithm", "myarguments", environment)
     registry = ComputationRegistry(
         AlgorithmName("myalgorithm"),
