@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 from .record import Distribution
 
@@ -11,7 +11,7 @@ from .record import Distribution
 class Environment:
     """A set of external factors that could (potentially) influence the outcome of a computation."""
 
-    distributions: frozenset[Distribution]
+    distributions: frozenset[Distribution] = field(default_factory=frozenset)
 
 
 class EnvironmentDeterminingService(ABC):  # pylint: disable=too-few-public-methods

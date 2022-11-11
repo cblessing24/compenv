@@ -33,7 +33,7 @@ def fake_computation_trigger() -> FakeComputationTrigger:
 
 def test_executing_algorithm_records_computation(fake_computation_trigger: FakeComputationTrigger) -> None:
     algorithm = Algorithm(AlgorithmName("myalgorithm"))
-    environment = Environment(frozenset())
+    environment = Environment()
     computation = algorithm.execute(environment, Arguments("myarguments"), fake_computation_trigger)
     assert computation == Computation(Specification(algorithm.name, Arguments("myarguments")), environment)
 
@@ -64,7 +64,7 @@ def test_can_record_computation(fake_computation_trigger: FakeComputationTrigger
     repository = FakeComputationRegistryRepository()
     repository.add(ComputationRegistry(algorithm_name))
     arguments = Arguments("myarguments")
-    environment = Environment(frozenset())
+    environment = Environment()
     environment_determining_service = FakeEnvironmentDeterminingService(environment)
     recording_service = RecordingService(
         computation_registry_repository=repository, environment_determining_service=environment_determining_service
@@ -80,7 +80,7 @@ def test_can_record_computation(fake_computation_trigger: FakeComputationTrigger
 
 def test_can_add_computation_to_registry() -> None:
     registry = ComputationRegistry(AlgorithmName("myalgorithm"))
-    environment = Environment(frozenset())
+    environment = Environment()
     specification = Specification(AlgorithmName("myalgorithm"), Arguments("myarguments"))
     computation = Computation(specification, environment)
     registry.add(computation)
@@ -89,7 +89,7 @@ def test_can_add_computation_to_registry() -> None:
 
 def test_can_not_add_computation_produced_by_different_algorithm_to_registry() -> None:
     registry = ComputationRegistry(AlgorithmName("myalgorithm"))
-    environment = Environment(frozenset())
+    environment = Environment()
     computation = Computation(Specification(AlgorithmName("myotheralgorithm"), Arguments("myarguments")), environment)
     with pytest.raises(ValueError, match="Expected '.*' for algorithm name of computation, got '.*'"):
         registry.add(computation)
@@ -98,7 +98,7 @@ def test_can_not_add_computation_produced_by_different_algorithm_to_registry() -
 def test_can_not_add_computations_with_identical_specifications() -> None:
     specification = Specification(AlgorithmName("myalgorithm"), Arguments("myarguments"))
     registry = ComputationRegistry(AlgorithmName("myalgorithm"))
-    environment1 = Environment(frozenset())
+    environment1 = Environment()
     computation1 = Computation(specification, environment1)
     registry.add(computation1)
     environment2 = Environment(frozenset({Distribution("mydistribution", "0.1.1")}))
@@ -108,7 +108,7 @@ def test_can_not_add_computations_with_identical_specifications() -> None:
 
 
 def test_can_instantiate_registry_with_computations() -> None:
-    environment = Environment(frozenset())
+    environment = Environment()
     computation = Computation(Specification(AlgorithmName("myalgorithm"), Arguments("myarguments")), environment)
     algorithm = ComputationRegistry(
         AlgorithmName("myalgorithm"),
