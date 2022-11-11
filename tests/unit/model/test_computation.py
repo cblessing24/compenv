@@ -15,6 +15,7 @@ from compenv.model.computation import (
     Specification,
 )
 from compenv.model.environment import Environment, EnvironmentDeterminingService
+from compenv.model.record import Distribution
 
 
 class FakeComputationTrigger:
@@ -80,9 +81,10 @@ def test_can_record_computation(fake_computation_trigger: FakeComputationTrigger
 def test_can_add_computation_to_registry() -> None:
     registry = ComputationRegistry(AlgorithmName("myalgorithm"))
     environment = Environment(frozenset())
-    computation = Computation(Specification(AlgorithmName("myalgorithm"), Arguments("myarguments")), environment)
+    specification = Specification(AlgorithmName("myalgorithm"), Arguments("myarguments"))
+    computation = Computation(specification, environment)
     registry.add(computation)
-    assert computation in registry.list(environment)
+    assert registry.get(specification) == computation
 
 
 def test_can_not_add_computation_produced_by_different_algorithm_to_registry() -> None:
@@ -93,6 +95,18 @@ def test_can_not_add_computation_produced_by_different_algorithm_to_registry() -
         registry.add(computation)
 
 
+def test_can_not_add_computations_with_identical_specifications() -> None:
+    specification = Specification(AlgorithmName("myalgorithm"), Arguments("myarguments"))
+    registry = ComputationRegistry(AlgorithmName("myalgorithm"))
+    environment1 = Environment(frozenset())
+    computation1 = Computation(specification, environment1)
+    registry.add(computation1)
+    environment2 = Environment(frozenset({Distribution("mydistribution", "0.1.1")}))
+    computation2 = Computation(specification, environment2)
+    with pytest.raises(ValueError, match="Duplicate specification:"):
+        registry.add(computation2)
+
+
 def test_can_instantiate_registry_with_computations() -> None:
     environment = Environment(frozenset())
     computation = Computation(Specification(AlgorithmName("myalgorithm"), Arguments("myarguments")), environment)
@@ -100,4 +114,4 @@ def test_can_instantiate_registry_with_computations() -> None:
         AlgorithmName("myalgorithm"),
         computations={computation},
     )
-    assert algorithm.list(environment)
+    assert set(algorithm.list(environment)) == {computation}

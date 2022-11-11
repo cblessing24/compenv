@@ -2,9 +2,8 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from collections import defaultdict
 from dataclasses import dataclass
-from typing import Callable, Iterable, NewType, Optional
+from typing import Callable, Iterable, Iterator, NewType, Optional
 
 from .environment import Environment, EnvironmentDeterminingService
 
@@ -83,7 +82,7 @@ class ComputationRegistry:
         self.algorithm_name = algorithm_name
         if computations is None:
             computations = []
-        self._computations: dict[Environment, set[Computation]] = defaultdict(set)
+        self._computations: set[Computation] = set()
         for computation in computations:
             self.add(computation)
 
@@ -94,8 +93,17 @@ class ComputationRegistry:
                 f"Expected {repr(self.algorithm_name)} for algorithm name of computation, "
                 f"got {repr(computation.specification.algorithm_name)}"
             )
-        self._computations[computation.environment].add(computation)
+        if self.get(computation.specification):
+            raise ValueError(f"Duplicate specification: {repr(computation.specification)}")
+        self._computations.add(computation)
 
-    def list(self, environment: Environment) -> frozenset[Computation]:
+    def get(self, specification: Specification) -> Optional[Computation]:
+        """Get the computation with the given specification."""
+        try:
+            return next(computation for computation in self._computations if computation.specification == specification)
+        except StopIteration:
+            return None
+
+    def list(self, environment: Environment) -> Iterator[Computation]:
         """List all computations that were executed in the given environment."""
-        return frozenset(self._computations[environment])
+        return (computation for computation in self._computations if computation.environment == environment)
