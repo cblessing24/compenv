@@ -3,6 +3,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Generator, Iterable, Iterator
 
+from ..model.computation import AlgorithmName, Computation, ComputationRegistry, ComputationRegistryRepository
 from ..model.record import ComputationRecord, Distribution, Identifier
 from ..service.abstract import Repository
 from .abstract import AbstractTable
@@ -74,3 +75,44 @@ class DJRepository(Repository):
     def __repr__(self) -> str:
         """Return a string representation of the computation record repository."""
         return f"{self.__class__.__name__}(translator={self.translator}, table={self.table})"
+
+
+class DJComputationRegistryRepository(ComputationRegistryRepository):
+    """Repository that uses DataJoint tables to persist computation registries."""
+
+    def add(self, registry: ComputationRegistry) -> None:
+        """Add a registry to the repository."""
+        # 1. Persist registry
+        # 2. Track registry using tracker
+
+    def get(self, algorithm_name: AlgorithmName) -> ComputationRegistry:
+        """Get the registry for the given algorithm name."""
+        # 1. Reconstitute registry from tables
+        # 2. Track registry using tracker
+        # 3. Return registry
+
+    def flush(self) -> None:
+        """Persist changes made to registries managed by this repository."""
+        # 1. Get changes from tracker
+        # 2. Persist changes
+        # 3. Clear tracker
+
+
+class ComputationRegistryTracker:
+    """Tracker that tracks changes made to computation registries."""
+
+    def track(self, registry: ComputationRegistry) -> None:
+        """Track changes made to the given registry."""
+        # 1. Create copy of registry
+        # 2. Add copy to mapping of original to copy
+
+    @property
+    def changes(self) -> Iterator[Computation]:
+        """Return the changes made to tracked repositories."""
+        # Changes:
+        #  * Added computations: original.computations - copy.computations
+        #  * Removed computations: copy.computations - original.computations
+
+    def clear(self) -> None:
+        """Clear any tracked changes."""
+        # 1. Replace copies with originals in mapping
