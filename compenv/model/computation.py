@@ -79,12 +79,17 @@ class ComputationRegistry:
 
     def __init__(self, algorithm_name: AlgorithmName, computations: Optional[Iterable[Computation]] = None) -> None:
         """Initialize the registry."""
-        self.algorithm_name = algorithm_name
+        self._algorithm_name = algorithm_name
         if computations is None:
             computations = []
         self._computations: set[Computation] = set()
         for computation in computations:
             self.add(computation)
+
+    @property
+    def algorithm_name(self) -> AlgorithmName:
+        """Return the name of the algorithm."""
+        return self._algorithm_name
 
     def add(self, computation: Computation) -> None:
         """Add a computation to the registry."""
