@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Callable, Iterable, Optional, Protocol
+from typing import Iterable, Optional, Protocol, Union
 
 import pytest
 
@@ -8,12 +8,28 @@ from compenv.model.computation import AlgorithmName, Arguments, Computation, Spe
 from compenv.model.environment import Environment
 from compenv.model.record import Distribution
 
-ComputationCreator = Callable[[str, str, Environment], Computation]
+
+class ComputationCreator(Protocol):
+    def __call__(
+        self,
+        algorithm_name: str,
+        arguments: str,
+        *,
+        environment: Optional[Union[Iterable[tuple[str, str]], Environment]] = None,
+    ) -> Computation:
+        ...
 
 
 @pytest.fixture
-def create_computation() -> ComputationCreator:
-    def create(algorithm_name: str, arguments: str, environment: Environment) -> Computation:
+def create_computation(create_environment: EnvironmentCreator) -> ComputationCreator:
+    def create(
+        algorithm_name: str,
+        arguments: str,
+        *,
+        environment: Optional[Union[Iterable[tuple[str, str]], Environment]] = None,
+    ) -> Computation:
+        if not isinstance(environment, Environment):
+            environment = create_environment(environment)
         return Computation(Specification(AlgorithmName(algorithm_name), Arguments(arguments)), environment)
 
     return create

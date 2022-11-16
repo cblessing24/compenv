@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from typing import Optional
 
 from compenv.model.computation import (
@@ -41,7 +43,7 @@ def test_can_record_computation(
             return self.environment
 
     environment = create_environment()
-    computation = create_computation("myalgorithm", "myarguments", environment)
+    computation = create_computation("myalgorithm", "myarguments", environment=environment)
     repository = FakeComputationRegistryRepository()
     repository.add(ComputationRegistry(computation.specification.algorithm_name))
     arguments = Arguments("myarguments")

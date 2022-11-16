@@ -69,6 +69,7 @@ python_version = "3.8"
 files = [
     "compenv",
     "tests/unit",
+    "tests/integration",
 ]
 strict = true
 mypy_path = "stubs"
