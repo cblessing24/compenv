@@ -4,9 +4,22 @@ from typing import Iterable, Optional, Protocol, Union
 
 import pytest
 
-from compenv.model.computation import AlgorithmName, Arguments, Computation, Specification
+from compenv.model.computation import AlgorithmName, Arguments, Computation, ComputationRegistry, Specification
 from compenv.model.environment import Environment
 from compenv.model.record import Distribution
+
+
+class RegistryCreator(Protocol):
+    def __call__(self, algorithm_name: str, computations: Optional[Iterable[Computation]] = ...) -> ComputationRegistry:
+        ...
+
+
+@pytest.fixture
+def create_registry() -> RegistryCreator:
+    def create(algorithm_name: str, computations: Optional[Iterable[Computation]] = None) -> ComputationRegistry:
+        return ComputationRegistry(AlgorithmName(algorithm_name), computations)
+
+    return create
 
 
 class ComputationCreator(Protocol):

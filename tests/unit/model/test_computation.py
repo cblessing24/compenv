@@ -1,30 +1,16 @@
 from __future__ import annotations
 
 from dataclasses import replace
-from typing import Iterable, Optional, Protocol
 
 import pytest
 
-from compenv.model.computation import Algorithm, AlgorithmName, Computation, ComputationRegistry
+from compenv.model.computation import Algorithm, AlgorithmName
 
-from ...conftest import ComputationCreator, EnvironmentCreator
+from ...conftest import ComputationCreator, EnvironmentCreator, RegistryCreator
 
 
 def test_algorithm_has_name_attribute() -> None:
     assert Algorithm(AlgorithmName("myalgorithm")).name == AlgorithmName("myalgorithm")
-
-
-class RegistryCreator(Protocol):
-    def __call__(self, algorithm_name: str, computations: Optional[Iterable[Computation]] = ...) -> ComputationRegistry:
-        ...
-
-
-@pytest.fixture
-def create_registry() -> RegistryCreator:
-    def create(algorithm_name: str, computations: Optional[Iterable[Computation]] = None) -> ComputationRegistry:
-        return ComputationRegistry(AlgorithmName(algorithm_name), computations)
-
-    return create
 
 
 def test_can_add_computation_to_registry(
