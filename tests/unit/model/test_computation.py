@@ -52,6 +52,17 @@ def test_can_not_add_computations_with_identical_specifications(
         registry.add(replace(computation, environment=create_environment([("mydistribution", "0.1.1")])))
 
 
+def test_can_list_computations(
+    create_computation: ComputationCreator, create_registry: RegistryCreator, create_environment: EnvironmentCreator
+) -> None:
+    environment1 = create_environment()
+    environment2 = create_environment([("mydistribution", "0.1.1")])
+    computation1 = create_computation("myalgorithm", "myarguments1", environment1)
+    computation2 = create_computation("myalgorithm", "myarguments2", environment2)
+    registry = create_registry("myalgorithm", [computation1, computation2])
+    assert set(registry.list()) == {computation1, computation2}
+
+
 def test_can_list_computations_by_environment(
     create_computation: ComputationCreator, create_registry: RegistryCreator, create_environment: EnvironmentCreator
 ) -> None:

@@ -109,6 +109,8 @@ class ComputationRegistry:
         except StopIteration:
             return None
 
-    def list(self, environment: Environment) -> Iterator[Computation]:
+    def list(self, environment: Optional[Environment] = None) -> Iterator[Computation]:
         """List all computations that were executed in the given environment."""
+        if environment is None:
+            return iter(self._computations)
         return (computation for computation in self._computations if computation.environment == environment)
