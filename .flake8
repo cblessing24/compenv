@@ -4,6 +4,7 @@ ignore =
     # Ignore pycodestyle errors because code style is handled by black
     E, 
     W,
+    F401,
     F841,
     D100,
     D101,
