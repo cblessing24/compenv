@@ -3,6 +3,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Generator, Iterable, Iterator
 
+from ..model.computation import Computation, ComputationRegistry
 from ..model.record import ComputationRecord, Distribution, Identifier
 from ..service.abstract import Repository
 from .abstract import AbstractTable
@@ -74,3 +75,26 @@ class DJRepository(Repository):
     def __repr__(self) -> str:
         """Return a string representation of the computation record repository."""
         return f"{self.__class__.__name__}(translator={self.translator}, table={self.table})"
+
+
+class ComputationRegistryTracker:
+    """Tracker that tracks changes made to computation registries."""
+
+    def __init__(self) -> None:
+        """Initialize the tracker."""
+        self._checkpoints: dict[ComputationRegistry, frozenset[Computation]] = {}
+
+    def track(self, registry: ComputationRegistry) -> None:
+        """Track changes made to the given registry."""
+        if registry not in self._checkpoints:
+            self._checkpoints[registry] = frozenset(registry.list())
+
+    @property
+    def changes(self) -> Iterator[Computation]:
+        """Return the changes made to tracked registries."""
+        for registry, checkpoint in self._checkpoints.items():
+            yield from (computation for computation in registry.list() if computation not in checkpoint)
+
+    def clear(self) -> None:
+        """Clear any tracked changes."""
+        self._checkpoints = {registry: frozenset(registry.list()) for registry in self._checkpoints}

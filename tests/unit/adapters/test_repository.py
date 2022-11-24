@@ -1,12 +1,16 @@
 from __future__ import annotations
 
+from typing import Iterable, Optional, Protocol
+
 import pytest
 
 from compenv.adapters.entity import DJComputationRecord
-from compenv.adapters.repository import DJRepository
+from compenv.adapters.repository import ComputationRegistryTracker, DJRepository
+from compenv.model.computation import Computation, ComputationRegistry
 from compenv.model.record import ComputationRecord, Identifier
 from compenv.types import PrimaryKey
 
+from ...conftest import ComputationCreator, RegistryCreator
 from ..conftest import FakeTranslatorFactory
 from .conftest import FakeRecordTableFacade
 
@@ -61,3 +65,54 @@ def test_length(repo: DJRepository, computation_record: ComputationRecord) -> No
 
 def test_repr(repo: DJRepository) -> None:
     assert repr(repo) == "DJRepository(translator=FakeTranslator(), table=FakeRecordTableFacade())"
+
+
+class TestComputationRegistryTracker:
+    class TrackedRegistryCreator(Protocol):
+        def __call__(
+            self, algorithm_name: str, computations: Optional[Iterable[Computation]] = ...
+        ) -> tuple[ComputationRegistryTracker, ComputationRegistry]:
+            ...
+
+    @staticmethod
+    @pytest.fixture
+    def create_tracked_registry(create_registry: RegistryCreator) -> TrackedRegistryCreator:
+        def create(
+            algorithm_name: str, computations: Optional[Iterable[Computation]] = None
+        ) -> tuple[ComputationRegistryTracker, ComputationRegistry]:
+            tracker = ComputationRegistryTracker()
+            registry = create_registry(algorithm_name, computations)
+            tracker.track(registry)
+            return tracker, registry
+
+        return create
+
+    @staticmethod
+    def test_can_track_registry(
+        create_tracked_registry: TrackedRegistryCreator,
+        create_computation: ComputationCreator,
+    ) -> None:
+        tracker, registry = create_tracked_registry("myalgorithm")
+        computation = create_computation("myalgorithm", "myarguments")
+        registry.add(computation)
+        assert set(tracker.changes) == {computation}
+
+    @staticmethod
+    def test_tracking_same_registry_twice_does_nothing(
+        create_tracked_registry: TrackedRegistryCreator, create_computation: ComputationCreator
+    ) -> None:
+        tracker, registry = create_tracked_registry("myalgorithm")
+        computation = create_computation("myalgorithm", "myarguments")
+        registry.add(computation)
+        tracker.track(registry)
+        assert set(tracker.changes) == {computation}
+
+    @staticmethod
+    def test_can_clear_tracker(
+        create_tracked_registry: TrackedRegistryCreator, create_computation: ComputationCreator
+    ) -> None:
+        tracker, registry = create_tracked_registry("myalgorithm")
+        computation = create_computation("myalgorithm", "myarguments")
+        registry.add(computation)
+        tracker.clear()
+        assert set(tracker.changes) == set()
